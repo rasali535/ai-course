@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | LearnFlow - All-in-One Education Business Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #2563eb, #9333ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gradient-border {
+            background: linear-gradient(135deg, #2563eb, #9333ea);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 leading-tight">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass h-16 flex items-center">
+        <div class="max-w-7xl mx-auto px-6 w-full flex justify-between items-center">
+            <a href="preview.html" class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-lg gradient-border flex items-center justify-center text-white font-bold">L
+                </div>
+                <span class="text-xl font-bold gradient-text">LearnFlow</span>
+            </a>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-600">
+                <a href="features.html" class="hover:text-blue-600 transition-colors">Features</a>
+                <a href="pricing.html" class="hover:text-blue-600 transition-colors">Pricing</a>
+                <a href="ai-resources.html" class="hover:text-blue-600 transition-colors">AI Powerhouse</a>
+                <a href="about.html" class="hover:text-blue-600 transition-colors">About</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <button
+                    class="px-5 py-2.5 rounded-full text-sm font-semibold text-white gradient-border hover:opacity-90 transition-all">Start
+                    free trial</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <main class="pt-32 pb-20 px-6">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-16">
+                <h1 class="text-4xl md:text-5xl font-extrabold mb-6">Talk to the <span
+                        class="gradient-text">Experts</span></h1>
+                <p class="text-xl text-gray-600">Ready to scale your academy? We're here to help.</p>
+            </div>
+
+            <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl border border-gray-100 grid md:grid-cols-2 gap-12">
+                <div>
+                    <h3 class="text-2xl font-bold mb-6">Send us a message</h3>
+                    <form class="space-y-6">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Full
+                                Name</label>
+                            <input type="text"
+                                class="w-full h-12 bg-gray-50 border border-gray-100 rounded-xl px-4 focus:ring-2 focus:ring-blue-500 outline-none"
+                                placeholder="John Doe">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Work
+                                Email</label>
+                            <input type="email"
+                                class="w-full h-12 bg-gray-50 border border-gray-100 rounded-xl px-4 focus:ring-2 focus:ring-blue-500 outline-none"
+                                placeholder="john@company.com">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Message</label>
+                            <textarea
+                                class="w-full h-32 bg-gray-50 border border-gray-100 rounded-xl p-4 focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                                placeholder="Tell us about your business..."></textarea>
+                        </div>
+                        <button
+                            class="w-full h-14 bg-blue-600 text-white rounded-xl font-bold shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition-all">Send
+                            Message</button>
+                    </form>
+                </div>
+                <div class="lg:pl-10 border-l border-gray-100 hidden md:block">
+                    <h3 class="text-xl font-bold mb-6">Contact Info</h3>
+                    <div class="space-y-8">
+                        <div>
+                            <div class="text-xs font-bold text-blue-600 mb-1">EMAIL</div>
+                            <div class="text-gray-900 font-medium">sales@learnflow.ai</div>
+                        </div>
+                        <div>
+                            <div class="text-xs font-bold text-blue-600 mb-1">HEADQUARTERS</div>
+                            <div class="text-gray-900 font-medium leading-relaxed">123 Creator Way,<br>San Francisco, CA
+                                94103</div>
+                        </div>
+                        <div class="pt-8">
+                            <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100">
+                                <p class="text-xs text-blue-600 font-bold mb-2 uppercase">Global Support</p>
+                                <p class="text-sm text-gray-600">Our team is available 24/7 via the in-app chat for all
+                                    Pro and Growth customers.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black text-white py-20 px-6 mt-20">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-500 text-sm mb-8">© 2026 LearnFlow. A product of emergent.sh</p>
+            <div class="flex justify-center space-x-6 text-gray-400">
+                <a href="preview.html" class="hover:text-white transition">Home</a>
+                <a href="features.html" class="hover:text-white transition">Features</a>
+                <a href="pricing.html" class="hover:text-white transition">Pricing</a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

@@ -1,4 +1,4 @@
-import React from 'react';
+import { Link } from 'react-router-dom';
 import {
   Accordion,
   AccordionContent,
@@ -47,7 +47,7 @@ const FAQ = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 uppercase tracking-tight">
             Frequently asked questions
           </h2>
           <p className="text-lg text-gray-600">
@@ -77,12 +77,12 @@ const FAQ = () => {
           <p className="text-gray-600 mb-4">
             Our support team is here to help you get started.
           </p>
-          <a
-            href="#"
+          <Link
+            to="/contact"
             className="text-blue-600 hover:text-purple-600 font-semibold"
           >
             Contact support →
-          </a>
+          </Link>
         </div>
       </div>
     </section>

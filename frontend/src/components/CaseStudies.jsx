@@ -1,4 +1,4 @@
-import React from 'react';
+import { Link } from 'react-router-dom';
 import { caseStudiesData } from '../mockData';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
@@ -33,19 +33,19 @@ const CaseStudies = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
               </div>
-              
+
               <CardHeader>
                 <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
                   {study.title}
                 </CardTitle>
               </CardHeader>
-              
+
               <CardContent>
                 <CardDescription className="text-gray-600 text-base">
                   {study.description}
                 </CardDescription>
               </CardContent>
-              
+
               <CardFooter>
                 <Button
                   variant="link"
@@ -69,14 +69,16 @@ const CaseStudies = () => {
               Talk to one of our team members to discover how our award-winning platform can help you drive revenue and retention.
             </p>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg"
-            >
-              Talk to sales
-            </Button>
+            <Link to="/contact">
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg w-full sm:w-auto"
+              >
+                Talk to sales
+              </Button>
+            </Link>
             <Button
               size="lg"
               variant="outline"

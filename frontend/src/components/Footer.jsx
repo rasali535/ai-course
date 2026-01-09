@@ -1,14 +1,31 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Facebook, Twitter, Linkedin, Youtube, Instagram } from 'lucide-react';
 
 const Footer = () => {
   const footerLinks = {
-    Product: ['Features', 'Pricing', 'Case Studies', 'Reviews', 'Updates'],
-    Company: ['About', 'Careers', 'Press', 'News', 'Contact'],
-    Resources: ['Blog', 'Help Center', 'Community', 'Webinars', 'Templates'],
-    Legal: ['Privacy', 'Terms', 'Security', 'Sitemap', 'Cookie Policy']
+    Product: [
+      { name: 'Features', href: '/features' },
+      { name: 'Pricing', href: '/pricing' },
+      { name: 'Case Studies', href: '#' },
+      { name: 'Updates', href: '#' }
+    ],
+    Company: [
+      { name: 'About', href: '/about' },
+      { name: 'Careers', href: '#' },
+      { name: 'Contact', href: '/contact' }
+    ],
+    Resources: [
+      { name: 'AI Resources', href: '/ai-resources' },
+      { name: 'Help Center', href: '#' },
+      { name: 'Community', href: '#' }
+    ],
+    Legal: [
+      { name: 'Privacy', href: '#' },
+      { name: 'Terms', href: '#' }
+    ]
   };
 
   return (
@@ -75,13 +92,13 @@ const Footer = () => {
               <h4 className="text-white font-semibold mb-4">{category}</h4>
               <ul className="space-y-2">
                 {links.map((link) => (
-                  <li key={link}>
-                    <a
-                      href="#"
+                  <li key={link.name}>
+                    <Link
+                      to={link.href}
                       className="text-gray-400 hover:text-white transition-colors duration-200 text-sm"
                     >
-                      {link}
-                    </a>
+                      {link.name}
+                    </Link>
                   </li>
                 ))}
               </ul>

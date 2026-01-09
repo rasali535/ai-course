@@ -1,9 +1,9 @@
 export const navigationLinks = [
-  { name: 'Features', href: '#features' },
-  { name: 'Pricing', href: '#pricing' },
-  { name: 'Case Studies', href: '#case-studies' },
-  { name: 'Resources', href: '#resources' },
-  { name: 'Support', href: '#support' }
+  { name: 'Features', href: '/features' },
+  { name: 'Pricing', href: '/pricing' },
+  { name: 'About', href: '/about' },
+  { name: 'AI Resources', href: '/ai-resources' },
+  { name: 'Contact', href: '/contact' }
 ];
 
 export const heroData = {
@@ -50,7 +50,7 @@ export const caseStudiesData = [
   {
     id: 1,
     title: "How 'Miss Excel' Launched A Six-Figure Business On TikTok",
-    description: "Kat Norton went viral as Miss Excel, showcasing Microsoft tips in creative ways. But building courses on Thinkific scaled her revenue to a new level.",
+    description: "Kat Norton went viral as Miss Excel, showcasing Microsoft tips in creative ways. But building courses on LearnFlow scaled her revenue to a new level.",
     image: "https://images.pexels.com/photos/5303547/pexels-photo-5303547.jpeg",
     cta: "Read Miss Excel's case study"
   },
@@ -73,7 +73,7 @@ export const caseStudiesData = [
 export const testimonialsData = [
   {
     id: 1,
-    quote: "Thinkific offers exceptional scalability, enabling businesses to grow their course offerings and student base without any limitations. It can handle unlimited courses, students, and bandwidth.",
+    quote: "LearnFlow offers exceptional scalability, enabling businesses to grow their course offerings and student base without any limitations. It can handle unlimited courses, students, and bandwidth.",
     author: "Guy Marion",
     role: "Chief Marketing Officer",
     company: "Chargebee",
@@ -114,7 +114,7 @@ export const platformFeaturesData = [
   {
     id: 'selling',
     title: 'Selling tools: Sell more with ease',
-    description: "Earn more revenue with smart selling features on TCommerce, our built-in selling and payment solution designed for maximum conversion. TCommerce users sell up to 31% more!",
+    description: "Earn more revenue with smart selling features on FlowCommerce, our built-in selling and payment solution designed for maximum conversion. FlowCommerce users sell up to 31% more!",
     features: [
       "B2B selling features like Group Orders and Invoicing",
       "Multiple payment options",

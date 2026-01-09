@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnFlow | All-in-One Education Business Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #2563eb, #9333ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gradient-border {
+            background: linear-gradient(135deg, #2563eb, #9333ea);
+        }
+
+        .hover-lift {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .workflow-step {
+            position: relative;
+        }
+
+        .workflow-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 2rem;
+            right: -2rem;
+            width: 4rem;
+            height: 2px;
+            background: #e5e7eb;
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .workflow-step:not(:last-child)::after {
+                display: block;
+            }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 leading-tight">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass h-16 flex items-center">
+        <div class="max-w-7xl mx-auto px-6 w-full flex justify-between items-center">
+            <a href="preview.html" class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-lg gradient-border flex items-center justify-center text-white font-bold">L
+                </div>
+                <span class="text-xl font-bold gradient-text">LearnFlow</span>
+            </a>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-600">
+                <a href="features.html" class="hover:text-blue-600 transition-colors">Features</a>
+                <a href="pricing.html" class="hover:text-blue-600 transition-colors">Pricing</a>
+                <a href="ai-resources.html" class="hover:text-blue-600 transition-colors">AI Powerhouse</a>
+                <a href="about.html" class="hover:text-blue-600 transition-colors">About</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <button class="text-sm font-semibold text-gray-700 hover:text-blue-600">Sign in</button>
+                <button
+                    class="px-5 py-2.5 rounded-full text-sm font-semibold text-white gradient-border hover:opacity-90 transition-all shadow-lg shadow-blue-500/20">Start
+                    free trial</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 px-6">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+            <div>
+                <div
+                    class="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-bold mb-6 tracking-wide uppercase">
+                    🚀 The All-In-One Business Tool
+                </div>
+                <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight mb-6 leading-[1.1]">
+                    Run your entire <span class="gradient-text">education business</span> with AI.
+                </h1>
+                <p class="text-lg text-gray-600 mb-10 leading-relaxed max-w-lg">
+                    Build courses in seconds, automate student support, and scale your revenue with the world's most
+                    advanced AI learning ecosystem.
+                </p>
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <button
+                        class="px-8 py-4 rounded-xl font-bold bg-blue-600 text-white hover:bg-blue-700 transition shadow-xl shadow-blue-500/25">Start
+                        free trial</button>
+                    <button
+                        class="px-8 py-4 rounded-xl font-bold border border-gray-200 bg-white hover:border-gray-300 transition">Talk
+                        to sales</button>
+                </div>
+            </div>
+            <div class="relative">
+                <div
+                    class="absolute -top-10 -right-10 w-64 h-64 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse">
+                </div>
+                <div
+                    class="absolute -bottom-10 -left-10 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse delay-700">
+                </div>
+                <div class="relative rounded-2xl overflow-hidden shadow-2xl border border-white/50">
+                    <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200"
+                        alt="Education Business" class="w-full h-auto">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-blue-600/10 to-transparent"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Phase/Workflow Section -->
+    <section id="workflow" class="py-20 bg-white border-y border-gray-100 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold mb-4">How It Functions</h2>
+                <p class="text-gray-600">A simple three-step cycle to turn expertise into revenue.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-12">
+                <!-- Build -->
+                <div class="workflow-step text-center">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-blue-600 text-white flex items-center justify-center mx-auto mb-6 shadow-lg">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 uppercase tracking-wider">Phase 1: Build</h3>
+                    <p class="text-gray-600 text-sm">Upload your expertise into the Course Builder. Set up chapters,
+                        lessons, and quizzes to gate progress.</p>
+                </div>
+                <!-- Launch -->
+                <div class="workflow-step text-center">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-purple-600 text-white flex items-center justify-center mx-auto mb-6 shadow-lg">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 uppercase tracking-wider">Phase 2: Launch</h3>
+                    <p class="text-gray-600 text-sm">Use the Site Builder to create branded sales pages. Set your price
+                        and generate a secure checkout instantly.</p>
+                </div>
+                <!-- Deliver -->
+                <div class="workflow-step text-center">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-indigo-600 text-white flex items-center justify-center mx-auto mb-6 shadow-lg">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 uppercase tracking-wider">Phase 3: Deliver</h3>
+                    <p class="text-gray-600 text-sm">Automated onboarding emails sent upon purchase. Students log in via
+                        browser or app to start learning.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Powerhouse Section -->
+    <section id="aitools" class="py-24 px-6 bg-gray-50">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-16 items-center mb-24">
+                <div>
+                    <div
+                        class="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-bold mb-6 tracking-wide uppercase">
+                        ⚡ LearnFlow AI
+                    </div>
+                    <h2 class="text-4xl font-bold mb-6">Build a whole course in <span class="gradient-text">60
+                            seconds</span>.</h2>
+                    <p class="text-lg text-gray-600 mb-8 leading-relaxed">
+                        Why spend weeks planning when you can launch today? Our AI Assistant handles the heavy lifting
+                        so you can focus on what you teach best.
+                    </p>
+                    <ul class="space-y-4 mb-10">
+                        <li class="flex items-center text-gray-700 font-medium"><svg
+                                class="w-5 h-5 text-indigo-500 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg> Topic to Outline Generation</li>
+                        <li class="flex items-center text-gray-700 font-medium"><svg
+                                class="w-5 h-5 text-indigo-500 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg> Automatic Script & Quiz Writing</li>
+                        <li class="flex items-center text-gray-700 font-medium"><svg
+                                class="w-5 h-5 text-indigo-500 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg> AI Student Support Agent</li>
+                    </ul>
+                    <button
+                        class="h-14 px-10 bg-gray-900 text-white rounded-2xl font-bold text-lg hover:bg-gray-800 shadow-xl transition-all">Launch
+                        Your AI Course</button>
+                </div>
+                <div class="relative">
+                    <div
+                        class="bg-gray-900 rounded-[2.5rem] p-8 shadow-2xl border-8 border-gray-800 h-[500px] flex flex-col relative z-10 transition-transform hover:scale-[1.02] duration-500">
+                        <div class="flex items-center justify-between mb-8 border-b border-gray-800 pb-4">
+                            <div class="flex space-x-2">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            </div>
+                            <div class="text-gray-500 text-[10px] font-mono tracking-tighter uppercase">
+                                LEARNFLOW_OS_V1.0</div>
+                        </div>
+                        <div class="flex-1 space-y-6 overflow-y-auto pr-2 custom-scrollbar">
+                            <div class="bg-blue-600/10 border border-blue-500/20 p-4 rounded-xl">
+                                <div class="text-blue-400 text-[10px] font-bold mb-1 uppercase">AI AGENT</div>
+                                <div class="text-white text-sm leading-relaxed">"I've analyzed your topic 'Modern
+                                    Architecture'. Generating 8-chapter outline... Extracted 42 key concepts found in
+                                    top-tier curricula."</div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="h-3 bg-gray-800 rounded-full w-3/4 animate-pulse"></div>
+                                <div class="h-3 bg-gray-800 rounded-full w-full animate-pulse delay-75"></div>
+                                <div class="h-3 bg-gray-800 rounded-full w-1/2 animate-pulse delay-150"></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div
+                                    class="aspect-square bg-gray-800/50 border border-gray-700 rounded-2xl flex flex-col items-center justify-center p-4">
+                                    <span class="text-2xl mb-2">📽️</span>
+                                    <span class="text-[10px] text-gray-500 font-bold uppercase">Video script</span>
+                                </div>
+                                <div
+                                    class="aspect-square bg-gray-800/50 border border-gray-700 rounded-2xl flex flex-col items-center justify-center p-4">
+                                    <span class="text-2xl mb-2">📝</span>
+                                    <span class="text-[10px] text-gray-500 font-bold uppercase">Quiz bank</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex gap-3">
+                            <div class="bg-gray-800 rounded-full h-12 flex-1 flex items-center px-4">
+                                <span class="text-gray-500 text-xs">Generating lesson plans...</span>
+                            </div>
+                            <div
+                                class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-500/40">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-10 -right-10 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl"></div>
+                    <div class="absolute -top-10 -left-10 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl"></div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="bg-white p-8 rounded-3xl shadow-lg border border-gray-100 hover-lift">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-yellow-100 text-yellow-600 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Video-to-Course</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed">Extract chapters and transcripts from any raw video
+                        file automatically.</p>
+                </div>
+                <div class="bg-white p-8 rounded-3xl shadow-lg border border-gray-100 hover-lift">
+                    <div class="w-12 h-12 rounded-xl bg-green-100 text-green-600 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 5h12M9 3v2m1.048 9.516a3 3 0 11-4.243-4.243 9 9 0 014.243 4.243zM9 9a9 9 0 014.243 4.243M9 9a9 9 0 004.243 4.243">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Global Translation</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed">Reach students in 40+ languages while keeping your
+                        brand voice consistent.</p>
+                </div>
+                <div class="bg-white p-8 rounded-3xl shadow-lg border border-gray-100 hover-lift">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Student Coach</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed">Personalized paths that adapt to how each
+                        individual student learns.</p>
+                </div>
+                <div class="bg-white p-8 rounded-3xl shadow-lg border border-gray-100 hover-lift">
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">AI Sales Agent</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed">Virtual assistant that handles lead qualification
+                        and closes deals 24/7.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Features -->
+    <section id="features" class="py-24 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-16 mb-24">
+                <div>
+                    <h2 class="text-3xl font-bold mb-6">Advanced Course Creation</h2>
+                    <p class="text-gray-600 mb-8 leading-relaxed">Everything you need to build world-class learning
+                        experiences, powered by AI and multimedia support.</p>
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 mr-4">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900">Drag-and-Drop Multimedia</h4>
+                                <p class="text-sm text-gray-500">Upload videos, PDFs, quizzes, assignments, and surveys
+                                    with ease.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 mr-4">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900">AI Co-Pilot</h4>
+                                <p class="text-sm text-gray-500">Generate course outlines and lesson content based on
+                                    your topic automatically.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 mr-4">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900">Engagement Tools</h4>
+                                <p class="text-sm text-gray-500">Student discussions, automated "drip" content, and
+                                    certificates of completion.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-100 rounded-3xl overflow-hidden relative border border-gray-200 shadow-inner group">
+                    <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200"
+                        alt="Course Builder"
+                        class="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-500">
+                    <div
+                        class="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <a href="course-builder.html"
+                            class="px-6 py-3 bg-white text-blue-600 font-bold rounded-xl shadow-xl">Open Course
+                            Builder</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <div class="order-2 md:order-1 bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
+                    <h3 class="text-2xl font-bold mb-6">Sales & Operations</h3>
+                    <div class="space-y-8">
+                        <div class="p-6 rounded-2xl bg-gray-50 border border-gray-100">
+                            <h4 class="font-bold mb-2">FlowCommerce</h4>
+                            <p class="text-sm text-gray-500 leading-relaxed">Built-in processor that handles taxes and
+                                payouts directly. Integrates with Stripe and PayPal for global reach.</p>
+                        </div>
+                        <div class="p-6 rounded-2xl bg-gray-50 border border-gray-100">
+                            <h4 class="font-bold mb-2">Revenue Models</h4>
+                            <p class="text-sm text-gray-500 leading-relaxed">Support for one-time purchases,
+                                subscriptions, payment plans, and coupon codes.</p>
+                        </div>
+                        <div class="p-6 rounded-2xl bg-gray-50 border border-gray-100">
+                            <h4 class="font-bold mb-2">Integrations App Store</h4>
+                            <p class="text-sm text-gray-500 leading-relaxed">Connect Mailchimp, Shopify, Google
+                                Analytics, and 100+ other tools.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-1 md:order-2">
+                    <h2 class="text-3xl font-bold mb-3">Branded Website Builder</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">You don’t need a separate website. Use our
+                        professional templates to build your entire presence.</p>
+                    <a href="site-builder.html" class="inline-flex items-center text-blue-600 font-bold mb-8 group">
+                        Try the Site Builder
+                        <span class="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+                    </a>
+                    <ul class="space-y-4">
+                        <li class="flex items-center text-gray-700 font-medium"><svg class="w-5 h-5 text-green-500 mr-3"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg> Branded Homepage</li>
+                        <li class="flex items-center text-gray-700 font-medium"><svg class="w-5 h-5 text-green-500 mr-3"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg> Course Landing Pages</li>
+                        <li class="flex items-center text-gray-700 font-medium"><svg class="w-5 h-5 text-green-500 mr-3"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg> Seamless Checkout Pages</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mobile App Section -->
+    <section id="app" class="py-24 bg-gray-900 text-white overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+            <div>
+                <h2 class="text-4xl font-bold mb-8">The LearnFlow Mobile App</h2>
+                <div class="mb-12">
+                    <h3 class="text-xl font-bold text-blue-400 mb-4">For Students (The Learners)</h3>
+                    <ul class="space-y-6">
+                        <li class="flex items-start">
+                            <span class="w-2 h-2 rounded-full bg-blue-500 mt-2 mr-4 flex-shrink-0"></span>
+                            <div>
+                                <p class="font-bold">Offline-Friendly Learning</p>
+                                <p class="text-sm text-gray-400">Watch videos, read text, and view PDFs directly in the
+                                    app, even without Wi-Fi.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="w-2 h-2 rounded-full bg-blue-500 mt-2 mr-4 flex-shrink-0"></span>
+                            <div>
+                                <p class="font-bold">Seamless Sync</p>
+                                <p class="text-sm text-gray-400">Start on your laptop, finish on your phone — exactly
+                                    where you left off.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="w-2 h-2 rounded-full bg-blue-500 mt-2 mr-4 flex-shrink-0"></span>
+                            <div>
+                                <p class="font-bold">Social Communities</p>
+                                <p class="text-sm text-gray-400">Private social networks: post, comment, and message
+                                    other students.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-purple-400 mb-4">For Creators (Business Owners)</h3>
+                    <ul class="space-y-6">
+                        <li class="flex items-start">
+                            <span class="w-2 h-2 rounded-full bg-purple-500 mt-2 mr-4 flex-shrink-0"></span>
+                            <div>
+                                <p class="font-bold">Higher Completion Rates</p>
+                                <p class="text-sm text-gray-400">Learning on-the-go leads to higher engagement and
+                                    finished courses.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="w-2 h-2 rounded-full bg-purple-500 mt-2 mr-4 flex-shrink-0"></span>
+                            <div>
+                                <p class="font-bold">White-labeled Branded App</p>
+                                <p class="text-sm text-gray-400">Get your own app in the App Store with your logo and
+                                    name.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="relative">
+                <div class="absolute -top-20 -right-20 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
+                <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200"
+                    alt="Mobile App" class="relative z-10 rounded-[3rem] shadow-2xl border-8 border-gray-800">
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black text-white py-20 px-6">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 border-b border-gray-800 pb-16">
+            <div>
+                <div class="flex items-center space-x-2 mb-6">
+                    <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">L
+                    </div>
+                    <span class="text-xl font-bold text-white">LearnFlow</span>
+                </div>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                    The infrastructure to run your entire education business.<br>
+                    Trusted by 35,000+ businesses worldwide.
+                </p>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6">Platform</h4>
+                <ul class="text-gray-400 text-sm space-y-4">
+                    <li><a href="course-builder.html" class="hover:text-white transition flex items-center">Course
+                            Builder <span
+                                class="ml-2 text-[8px] bg-blue-600/20 text-blue-400 px-1.5 py-0.5 rounded-full font-bold uppercase">Try
+                                Now</span></a></li>
+                    <li><a href="site-builder.html" class="hover:text-white transition flex items-center">Site Builder
+                            <span
+                                class="ml-2 text-[8px] bg-blue-600/20 text-blue-400 px-1.5 py-0.5 rounded-full font-bold uppercase">Try
+                                Now</span></a></li>
+                    <li><a href="features.html" class="hover:text-white transition">Full Feature Suite</a></li>
+                    <li><a href="pricing.html" class="hover:text-white transition">Pricing Plans</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6">Partnerships</h4>
+                <ul class="text-gray-400 text-sm space-y-4">
+                    <li><button
+                            class="w-full text-left px-4 py-2 bg-yellow-400/10 text-yellow-500 rounded-xl border border-yellow-400/20 hover:bg-yellow-400/20 transition-all text-xs font-bold uppercase tracking-widest">Become
+                            an Affiliate</button></li>
+                    <li><button
+                            class="w-full text-left px-4 py-2 bg-blue-400/10 text-blue-400 rounded-xl border border-blue-400/20 hover:bg-blue-400/20 transition-all text-xs font-bold uppercase tracking-widest">Become
+                            a Partner</button></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6">Company</h4>
+                <ul class="text-gray-400 text-sm space-y-4">
+                    <li><a href="about.html" class="hover:text-white transition">Careers</a></li>
+                    <li><a href="contact.html" class="hover:text-white transition">Contact Us</a></li>
+                    <li><a href="preview.html" class="hover:text-white transition">Live Demo</a></li>
+                </ul>
+            </div>
+        </div>
+        <div
+            class="max-w-7xl mx-auto pt-8 flex flex-col md:flex-row justify-between items-center text-gray-500 text-xs">
+            <p>© 2026 LearnFlow. A product of emergent.sh</p>
+            <div class="flex space-x-6 mt-4 md:mt-0">
+                <a href="#" class="hover:text-white transition">Privacy Policy</a>
+                <a href="#" class="hover:text-white transition">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>

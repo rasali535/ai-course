@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Builder | LearnFlow - All-in-One Education Business Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #2563eb, #9333ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gradient-border {
+            background: linear-gradient(135deg, #2563eb, #9333ea);
+        }
+
+        .builder-container {
+            background: white;
+            border-radius: 2rem;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .toolbar {
+            width: 80px;
+            background: #111827;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            py-8;
+        }
+
+        .settings-panel {
+            width: 300px;
+            background: white;
+            border-left: 1px solid #e5e7eb;
+        }
+
+        .canvas {
+            flex: 1;
+            background: #f3f4f6;
+            position: relative;
+            p: 12px;
+        }
+
+        .mock-page {
+            background: white;
+            height: 100%;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        .tool-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            items-center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+            color: #9ca3af;
+        }
+
+        .tool-btn:hover {
+            background: #1f2937;
+            color: white;
+        }
+
+        .tool-btn.active {
+            background: #2563eb;
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 text-gray-900">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass h-16 flex items-center border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 w-full flex justify-between items-center">
+            <a href="preview.html" class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-lg gradient-border flex items-center justify-center text-white font-bold">L
+                </div>
+                <span class="text-xl font-bold gradient-text">LearnFlow</span>
+            </a>
+            <div class="flex items-center space-x-6">
+                <div class="flex items-center space-x-2 px-3 py-1 bg-gray-100 rounded-full">
+                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                    <span class="text-[10px] font-bold text-gray-500 tracking-widest uppercase">Responsive View</span>
+                </div>
+                <button
+                    class="px-6 py-2 rounded-xl text-sm font-bold bg-blue-600 text-white shadow-lg shadow-blue-500/20">Launch
+                    Site</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Builder Interface -->
+    <main class="pt-24 pb-12 px-6 h-screen overflow-hidden">
+        <div class="max-w-7xl mx-auto h-full flex flex-col">
+            <div class="mb-6 flex justify-between items-end">
+                <div>
+                    <h1 class="text-3xl font-bold mb-1">Visual <span class="gradient-text">Site Builder</span></h1>
+                    <p class="text-gray-500 text-sm">Design your brand's home without touching a line of code.</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button
+                        class="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:text-blue-600 transition shadow-sm">💻</button>
+                    <button
+                        class="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:text-blue-600 transition shadow-sm">📱</button>
+                </div>
+            </div>
+
+            <div class="builder-container flex flex-1">
+                <!-- Toolbar -->
+                <aside class="toolbar p-4">
+                    <div class="tool-btn active">🛠️</div>
+                    <div class="tool-btn">🔤</div>
+                    <div class="tool-btn">🖼️</div>
+                    <div class="tool-btn">🎨</div>
+                    <div class="tool-btn">🔗</div>
+                    <div class="mt-auto tool-btn text-blue-400">⚡</div>
+                </aside>
+
+                <!-- Canvas -->
+                <section class="canvas">
+                    <div class="mock-page p-12">
+                        <!-- Header Mock -->
+                        <div class="flex justify-between items-center mb-16 border-b border-gray-100 pb-6 opacity-30">
+                            <div class="w-24 h-4 bg-gray-200 rounded"></div>
+                            <div class="space-x-4 flex">
+                                <div class="w-12 h-2 bg-gray-100 rounded"></div>
+                                <div class="w-12 h-2 bg-gray-100 rounded"></div>
+                            </div>
+                        </div>
+
+                        <!-- Active Section -->
+                        <div class="border-2 border-blue-600 rounded-3xl p-12 relative group bg-blue-50/20">
+                            <div
+                                class="absolute -top-3 left-6 px-3 py-1 bg-blue-600 text-white text-[10px] font-bold rounded uppercase">
+                                Hero Section</div>
+                            <div class="max-w-md">
+                                <h2 class="text-4xl font-extrabold mb-4 leading-tight">Your Brand Slogan <span
+                                        class="text-blue-600">Goes Here</span></h2>
+                                <p class="text-gray-400 text-sm mb-8">This is where you tell your story. Click elements
+                                    to edit colors, fonts, and layouts in real-time.</p>
+                                <div class="w-32 h-12 bg-blue-600 rounded-xl"></div>
+                            </div>
+
+                            <div class="absolute top-4 right-4 space-x-2 hidden group-hover:flex">
+                                <button
+                                    class="w-8 h-8 bg-white border border-gray-200 rounded-lg shadow-sm flex items-center justify-center">⚙️</button>
+                                <button
+                                    class="w-8 h-8 bg-white border border-gray-200 rounded-lg shadow-sm flex items-center justify-center">🗑️</button>
+                            </div>
+                        </div>
+
+                        <!-- Content Section Mock -->
+                        <div class="mt-20 grid grid-cols-3 gap-8 opacity-30">
+                            <div class="h-40 bg-gray-100 rounded-2xl"></div>
+                            <div class="h-40 bg-gray-100 rounded-2xl"></div>
+                            <div class="h-40 bg-gray-100 rounded-2xl"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Panel -->
+                <aside class="settings-panel p-6 overflow-y-auto">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">Styling Tools</h3>
+                    <div class="space-y-8">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-3 uppercase">Primary Gradient</label>
+                            <div class="flex space-x-2">
+                                <div class="w-10 h-10 rounded-full gradient-border ring-2 ring-blue-500 ring-offset-2">
+                                </div>
+                                <div
+                                    class="w-10 h-10 rounded-full bg-gradient-to-tr from-green-400 to-blue-500 border border-gray-100">
+                                </div>
+                                <div
+                                    class="w-10 h-10 rounded-full bg-gradient-to-tr from-orange-400 to-red-500 border border-gray-100">
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-3 uppercase">Typography</label>
+                            <select
+                                class="w-full h-10 bg-gray-50 border border-gray-200 rounded-lg px-3 text-sm font-medium">
+                                <option>Inter (Modern Sans)</option>
+                                <option>Outfit (Geometric)</option>
+                                <option>Playfair (Elegant Serif)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-3 uppercase">Layout Style</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div
+                                    class="h-10 bg-blue-50 border border-blue-200 rounded text-[10px] font-bold text-blue-600 flex items-center justify-center">
+                                    Minimal</div>
+                                <div
+                                    class="h-10 bg-white border border-gray-100 rounded text-[10px] font-bold text-gray-400 flex items-center justify-center hover:bg-gray-50">
+                                    Impactful</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-20 p-5 bg-blue-600 rounded-2xl text-white shadow-xl shadow-blue-500/20">
+                        <p class="text-[10px] font-bold uppercase mb-2 tracking-widest">FlowAI Logic</p>
+                        <p class="text-xs opacity-90 leading-relaxed mb-4">I've optimized your site for conversion based
+                            on 10,000+ top-performing landing pages.</p>
+                        <button class="w-full py-2 bg-white text-blue-600 rounded-lg text-xs font-bold">Apply Suggested
+                            Layout</button>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Partial -->
+    <footer class="bg-black text-white py-12 px-6 footer-nav">
+        <div
+            class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center space-y-8 md:space-y-0 text-center md:text-left">
+            <div>
+                <div class="flex items-center space-x-2 mb-2">
+                    <div class="w-6 h-6 rounded bg-blue-600 flex items-center justify-center font-bold text-[10px]">L
+                    </div>
+                    <span class="text-lg font-bold">LearnFlow</span>
+                </div>
+                <p class="text-gray-500 text-xs">© 2026 LearnFlow. A product of emergent.sh</p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-6">
+                <a href="preview.html"
+                    class="text-xs font-bold text-gray-400 hover:text-white uppercase tracking-widest">Home</a>
+                <a href="features.html"
+                    class="text-xs font-bold text-gray-400 hover:text-white uppercase tracking-widest">Features</a>
+                <a href="pricing.html"
+                    class="text-xs font-bold text-gray-400 hover:text-white uppercase tracking-widest">Pricing</a>
+                <button
+                    class="text-xs font-bold text-yellow-400 hover:text-yellow-300 uppercase tracking-widest bg-yellow-400/10 px-3 py-1.5 rounded-full border border-yellow-400/20">Become
+                    an Affiliate</button>
+                <button
+                    class="text-xs font-bold text-blue-400 hover:text-blue-300 uppercase tracking-widest bg-blue-400/10 px-3 py-1.5 rounded-full border border-blue-400/20">Become
+                    a Partner</button>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

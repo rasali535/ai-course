@@ -1,4 +1,4 @@
-import React from 'react';
+import { Link } from 'react-router-dom';
 import { heroData } from '../mockData';
 import { Button } from './ui/button';
 import { ArrowRight, Play } from 'lucide-react';
@@ -20,15 +20,15 @@ const Hero = () => {
             <div className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm mb-6 animate-fade-in">
               <span className="text-sm font-medium text-blue-600">{heroData.trustBadge}</span>
             </div>
-            
+
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight animate-fade-in-up">
               {heroData.title}
             </h1>
-            
+
             <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto lg:mx-0 animate-fade-in-up animation-delay-200">
               {heroData.subtitle}
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-in-up animation-delay-400">
               <Button
                 size="lg"
@@ -37,13 +37,15 @@ const Hero = () => {
                 {heroData.primaryCTA}
                 <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
               </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-2 border-gray-300 hover:border-blue-600 hover:bg-blue-50 transition-all duration-300"
-              >
-                {heroData.secondaryCTA}
-              </Button>
+              <Link to="/contact">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-2 border-gray-300 hover:border-blue-600 hover:bg-blue-50 transition-all duration-300 w-full sm:w-auto"
+                >
+                  {heroData.secondaryCTA}
+                </Button>
+              </Link>
             </div>
 
             {/* Trust indicators */}
@@ -66,7 +68,7 @@ const Hero = () => {
                 className="w-full h-auto"
               />
               <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/20 to-purple-600/20"></div>
-              
+
               {/* Floating stats card */}
               <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-sm rounded-xl p-4 shadow-lg">
                 <div className="flex items-center justify-between">
