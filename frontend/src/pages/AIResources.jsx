@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '../components/ui/button';
@@ -96,9 +97,11 @@ const AIResources = () => {
                         Harness the power of artificial intelligence to create better content faster, engage your students deeper, and grow your revenue smarter.
                     </p>
                     <div className="mt-10 flex flex-wrap justify-center gap-4">
-                        <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 h-12 rounded-xl">
-                            Try AI Tools Free
-                        </Button>
+                        <Link to="/signup">
+                            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 h-12 rounded-xl">
+                                Try AI Tools Free
+                            </Button>
+                        </Link>
                         <Button size="lg" variant="outline" className="border-gray-200 px-8 h-12 rounded-xl">
                             View AI Roadmap
                         </Button>
@@ -155,9 +158,11 @@ const AIResources = () => {
                                     Smart Quiz Creation
                                 </li>
                             </ul>
-                            <Button className="h-14 px-10 bg-gray-900 text-white rounded-2xl font-bold text-lg hover:bg-gray-800">
-                                Launch Your First AI Course
-                            </Button>
+                            <Link to="/signup">
+                                <Button className="h-14 px-10 bg-gray-900 text-white rounded-2xl font-bold text-lg hover:bg-gray-800">
+                                    Launch Your First AI Course
+                                </Button>
+                            </Link>
                         </div>
                         <div className="relative">
                             <div className="bg-gray-900 rounded-[2.5rem] p-8 shadow-2xl border-8 border-gray-800 h-[500px] flex flex-col">

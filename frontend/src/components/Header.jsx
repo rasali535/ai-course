@@ -50,9 +50,11 @@ const Header = () => {
             <Button variant="ghost" className="text-gray-700 hover:text-blue-600">
               Sign in
             </Button>
-            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
-              Start free trial
-            </Button>
+            <Link to="/signup">
+              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+                Start free trial
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile menu button */}

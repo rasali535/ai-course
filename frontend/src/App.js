@@ -7,6 +7,7 @@ import Pricing from "./pages/Pricing";
 import About from "./pages/About";
 import AIResources from "./pages/AIResources";
 import Contact from "./pages/Contact";
+import Signup from "./pages/Signup";
 import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
@@ -14,16 +15,16 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <ScrollToTop />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/features" element={<Features />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/ai-resources" element={<AIResources />} />
-          <Route path="/contact" element={<Contact />} />
-        </Routes>
-      </BrowserRouter>
-    </div>
+        <Route path="/" element={<Home />} />
+        <Route path="/features" element={<Features />} />
+        <Route path="/pricing" element={<Pricing />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/ai-resources" element={<AIResources />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/signup" element={<Signup />} />
+      </Routes>
+    </BrowserRouter>
+    </div >
   );
 }
 
