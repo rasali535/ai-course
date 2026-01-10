@@ -47,9 +47,11 @@ const Header = () => {
 
           {/* Desktop CTAs */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" className="text-gray-700 hover:text-blue-600">
-              Sign in
-            </Button>
+            <Link to="/signup">
+              <Button variant="ghost" className="text-gray-700 hover:text-blue-600">
+                Sign in
+              </Button>
+            </Link>
             <Link to="/signup">
               <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
                 Start free trial
@@ -81,12 +83,16 @@ const Header = () => {
                 </Link>
               ))}
               <div className="flex flex-col space-y-2 pt-4 border-t">
-                <Button variant="outline" className="w-full">
-                  Sign in
-                </Button>
-                <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
-                  Start free trial
-                </Button>
+                <Link to="/signup">
+                  <Button variant="outline" className="w-full">
+                    Sign in
+                  </Button>
+                </Link>
+                <Link to="/signup">
+                  <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+                    Start free trial
+                  </Button>
+                </Link>
               </div>
             </nav>
           </div>
