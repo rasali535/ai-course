@@ -36,7 +36,7 @@ const Footer = () => {
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
               <h3 className="text-2xl font-bold text-white mb-2">
-                Stay updated with the latest in online learning
+                Turn your knowledge into income in 48 hours
               </h3>
               <p className="text-gray-400">
                 Get tips, insights, and exclusive content delivered to your inbox.
@@ -65,7 +65,7 @@ const Footer = () => {
               LearnFlow
             </div>
             <p className="text-gray-400 text-sm mb-4">
-              Transform your expertise into courses, communities, and high-quality learning experiences.
+              Built for coaches, trainers, and consultants who want to turn their knowledge into income fast.
             </p>
             <div className="flex gap-3">
               <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors duration-300">

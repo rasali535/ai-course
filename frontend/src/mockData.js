@@ -7,19 +7,19 @@ export const navigationLinks = [
 ];
 
 export const heroData = {
-  title: "Powering the world's top learning businesses",
-  subtitle: "Transform your expertise into courses, communities, and other high-quality learning experiences. Our platform is designed to drive revenue growth for businesses like yours.",
-  primaryCTA: "Start 7-Day Free Trial",
-  secondaryCTA: "Talk to sales",
-  trustBadge: "Trusted by over 35,000 customers",
+  title: "Create and launch your online course in 48 hours — no tech skills needed.",
+  subtitle: "Built for coaches, trainers, and consultants who want to turn their knowledge into income fast.",
+  primaryCTA: "Get Early Access (Limited Spots)",
+  secondaryCTA: "Start Building Your Course Today",
+  trustBadge: "Early access platform for course creators",
   backgroundImage: "https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDF8MHwxfHNlYXJjaHwyfHxvbmxpbmUlMjBsZWFybmluZ3xlbnwwfHx8fDE3Njc5NzU4MDN8MA&ixlib=rb-4.1.0&q=85"
 };
 
 export const statsData = {
-  customers: "35K+",
-  customersLabel: "businesses supported",
-  revenue: "$3.7B",
-  revenueLabel: "earned by customers"
+  customers: "From idea",
+  customersLabel: "to income in 48 hours",
+  revenue: "100%",
+  revenueLabel: "Growth focused"
 };
 
 export const featuresData = [
@@ -127,7 +127,7 @@ export const platformFeaturesData = [
   {
     id: 'analytics',
     title: 'Analytics: Measure performance that matters',
-    description: "Our advanced analytics tools underpin your learning business, surfacing important, actionable insights that allow you and your customers to drive more meaningful results.",
+    description: "Our advanced analytics tools underpin your business, surfacing important, actionable insights that allow you to drive more meaningful results as a Coach, Therapist, Trainer, or Consultant.",
     features: [
       "Advanced analytics",
       "Custom dashboards to track student engagement and revenue",

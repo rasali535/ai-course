@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { heroData } from '../mockData';
+import { heroData, statsData } from '../mockData';
 import { Button } from './ui/button';
 import { ArrowRight, Play } from 'lucide-react';
 
@@ -71,16 +71,15 @@ const Hero = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/20 to-purple-600/20"></div>
 
-              {/* Floating stats card */}
               <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-sm rounded-xl p-4 shadow-lg">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-2xl font-bold text-gray-900">35K+</div>
-                    <div className="text-sm text-gray-600">Active businesses</div>
+                    <div className="text-2xl font-bold text-gray-900">{statsData.customers}</div>
+                    <div className="text-sm text-gray-600">{statsData.customersLabel}</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-gray-900">$3.7B</div>
-                    <div className="text-sm text-gray-600">Revenue generated</div>
+                    <div className="text-2xl font-bold text-gray-900">{statsData.revenue}</div>
+                    <div className="text-sm text-gray-600">{statsData.revenueLabel}</div>
                   </div>
                 </div>
               </div>

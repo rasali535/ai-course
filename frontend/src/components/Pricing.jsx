@@ -19,7 +19,7 @@ const pricingPlans = [
       'Custom domain',
       'Basic course builder'
     ],
-    cta: 'Start free trial',
+    cta: 'Get Early Access',
     popular: false
   },
   {
@@ -27,7 +27,7 @@ const pricingPlans = [
     name: 'Pro',
     price: '$99',
     period: '/month',
-    description: 'Best for growing your learning business',
+    description: 'Best for growing your practice',
     features: [
       'Everything in Basic',
       'Unlimited students',
@@ -38,7 +38,7 @@ const pricingPlans = [
       'Memberships & communities',
       'Advanced selling features'
     ],
-    cta: 'Start free trial',
+    cta: 'Get Early Access',
     popular: true
   },
   {
@@ -72,7 +72,7 @@ const Pricing = () => {
             Simple, transparent pricing
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Choose the perfect plan for your learning business. All plans include a 7-day free trial.
+            Choose the perfect plan for your knowledge business. All plans include 48-hour launch support.
           </p>
         </div>
 

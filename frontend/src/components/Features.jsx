@@ -16,10 +16,10 @@ const Features = () => {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            Learning experiences that convert on a platform that scales with you
+            We help you launch your course in 48 hours — even if you've never done it before.
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Whether you're selling your personal expertise, scaling an academy, or using online education to expand your company's revenue, we equip you with the tools and support you need.
+            Get everything you need to succeed: professional templates, step-by-step guidance, and optional support every step of the way.
           </p>
         </div>
 
@@ -81,7 +81,7 @@ const Features = () => {
             size="lg"
             className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
           >
-            Start free trial
+            Get Early Access (Limited Spots)
           </Button>
         </div>
       </div>

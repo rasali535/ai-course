@@ -3,7 +3,6 @@ from starlette.middleware.cors import CORSMiddleware
 import logging
 import os
 from fastapi.staticfiles import StaticFiles
-from backend.database import close_mongo_connection
 from backend.sql_database import engine, Base
 import backend.sql_models  # Ensure models are registered
 import backend.course_model # Ensure course models are registered
@@ -58,13 +57,6 @@ async def startup_event():
     except Exception as e:
         logger.error(f"Failed to initialize database: {e}")
         logger.warning("Application starting WITHOUT database connection. Some features may be limited.")
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    try:
-        await close_mongo_connection()
-    except:
-        pass
 
 # Logging
 logging.basicConfig(

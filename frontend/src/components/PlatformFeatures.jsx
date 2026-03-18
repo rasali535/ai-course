@@ -11,10 +11,10 @@ const PlatformFeatures = () => {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            LearnFlow's stand-out suite of features
+            Everything you need to turn your knowledge into income.
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Everything you need to build, sell, and scale your learning business.
+            Comprehensive tools built specifically for Coaches, Therapists, Trainers, and Consultants.
           </p>
         </div>
 

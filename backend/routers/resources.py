@@ -1,35 +1,39 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
-from backend.database import db
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from backend.sql_database import get_db
+from backend.sql_models import SQLResource
 from backend.models import Resource, ResourceCreate, User
 from backend.deps import get_current_user
 
 router = APIRouter()
 
 @router.get("/", response_model=List[Resource])
-async def get_resources():
-    resources = await db.resources.find().to_list(1000)
-    # Convert _id to id if not handled by helper?
-    # User.from_mongo logic might be needed for Resource too if Pydantic doesn't auto-map _id to id when pulling from dict
-    # But Resource model has `id` field.
-    # Let's clean it up before returning
-    results = []
-    for r in resources:
-         # Map _id to id string
-         r['id'] = str(r['_id'])
-         results.append(r)
-    return results
+async def get_resources(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(SQLResource))
+    # scalars() returns Python objects (SQLResource instances)
+    # Pydantic's from_attributes=True on Resource model will convert them
+    resources = result.scalars().all()
+    return resources
 
 @router.post("/", response_model=Resource)
-async def create_resource(resource: ResourceCreate, current_user: User = Depends(get_current_user)):
-    resource_dict = resource.model_dump()
-    new_resource = Resource(**resource_dict)
+async def create_resource(
+    resource: ResourceCreate, 
+    db: AsyncSession = Depends(get_db), 
+    current_user: User = Depends(get_current_user)
+):
+    # Only allow creation if user is admin? For now no check, as before.
     
-    # Store with _id?
-    doc = new_resource.model_dump()
-    # Pydantic generates ID, we can use it as _id or let Mongo generate one.
-    # Using generated ID
-    doc['_id'] = doc['id']
+    new_resource = SQLResource(
+        title=resource.title,
+        type=resource.type,
+        description=resource.description,
+        image=resource.image
+    )
     
-    await db.resources.insert_one(doc)
-    return new_resource
+    db.add(new_resource)
+    await db.commit()
+    await db.refresh(new_resource)
+    
+    return Resource.model_validate(new_resource)

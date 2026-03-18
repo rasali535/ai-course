@@ -1,13 +1,16 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from backend.database import db
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from backend.sql_database import get_db
+from backend.sql_models import SQLUser
 from backend.models import User, TokenData
 from backend.security import SECRET_KEY, ALGORITHM
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token")
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -22,7 +25,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise credentials_exception
         
-    user_dict = await db.users.find_one({"email": token_data.email})
-    if user_dict is None:
+    result = await db.execute(select(SQLUser).where(SQLUser.email == token_data.email))
+    user = result.scalar_one_or_none()
+    
+    if user is None:
         raise credentials_exception
-    return User.from_mongo(user_dict)
+        
+    return User.model_validate(user)

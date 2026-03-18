@@ -29,6 +29,7 @@ class UserInDB(UserBase):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class User(UserBase):
+    model_config = ConfigDict(from_attributes=True)
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     full_name: Optional[str] = None
     disabled: Optional[bool] = False
@@ -61,5 +62,6 @@ class ResourceCreate(ResourceBase):
     pass
 
 class Resource(ResourceBase):
+    model_config = ConfigDict(from_attributes=True)
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

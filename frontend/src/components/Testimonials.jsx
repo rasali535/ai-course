@@ -23,7 +23,7 @@ const Testimonials = () => {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-            Join the ranks of leading learning businesses
+            Join the ranks of leading Coaches, Therapists, Trainers, and Consultants
           </h2>
         </div>
 

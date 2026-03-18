@@ -1,13 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from backend.database import db
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from backend.sql_database import get_db
+from backend.sql_models import SQLUser
 from backend.models import UserCreate, User, Token
 from backend.security import get_password_hash, verify_password, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 from backend.deps import get_current_user
 from backend.services.email import email_service
 from datetime import timedelta
 import logging
-import pymongo.errors
 import secrets
 
 router = APIRouter()
@@ -16,29 +18,32 @@ logger = logging.getLogger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token")
 
 @router.post("/signup", response_model=User)
-async def signup(user: UserCreate):
+async def signup(user: UserCreate, db: AsyncSession = Depends(get_db)):
     
-    hashed_password = get_password_hash(user.password)
-    verification_token = secrets.token_urlsafe(32)
+    # Check existing user
+    result = await db.execute(select(SQLUser).where(SQLUser.email == user.email))
+    existing_user = result.scalar_one_or_none()
     
-    user_dict = user.model_dump()
-    user_dict["hashed_password"] = hashed_password
-    user_dict["is_verified"] = False
-    user_dict["verification_token"] = verification_token
-    del user_dict["password"]
-    
-    new_user = User(**user_dict)
-    
-    user_doc = new_user.model_dump()
-    user_doc["_id"] = user_doc["id"]
-    
-    try:
-        await db.users.insert_one(user_doc)
-    except pymongo.errors.DuplicateKeyError:
+    if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered"
         )
+        
+    hashed_password = get_password_hash(user.password)
+    verification_token = secrets.token_urlsafe(32)
+    
+    new_user = SQLUser(
+        email=user.email,
+        hashed_password=hashed_password,
+        full_name=user.full_name,
+        is_verified=False,
+        verification_token=verification_token
+    )
+    
+    db.add(new_user)
+    await db.commit()
+    await db.refresh(new_user)
     
     # Send verification email
     verify_url = f"https://pohei.de/verify-email?token={verification_token}"
@@ -57,41 +62,38 @@ async def signup(user: UserCreate):
         """
     )
     
-    if hasattr(new_user, "hashed_password"):
-        delattr(new_user, "hashed_password")
-    if hasattr(new_user, "verification_token"):
-        delattr(new_user, "verification_token")
-        
-    return new_user
+    return User.model_validate(new_user)
 
 @router.get("/verify-email")
-async def verify_email(token: str):
-    user = await db.users.find_one({"verification_token": token})
+async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(SQLUser).where(SQLUser.verification_token == token))
+    user = result.scalar_one_or_none()
+    
     if not user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid or expired verification token"
         )
     
-    await db.users.update_one(
-        {"_id": user["_id"]},
-        {"$set": {"is_verified": True}, "$unset": {"verification_token": ""}}
-    )
+    user.is_verified = True
+    user.verification_token = None
+    await db.commit()
     
     return {"message": "Email verified successfully! You can now sign in."}
 
 @router.post("/token", response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user_dict = await db.users.find_one({"email": form_data.username})
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(SQLUser).where(SQLUser.email == form_data.username))
+    user = result.scalar_one_or_none()
     
-    if not user_dict or not verify_password(form_data.password, user_dict["hashed_password"]):
+    if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    if not user_dict.get("is_verified", False):
+    if not user.is_verified:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Please verify your email address before signing in."
@@ -99,7 +101,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user_dict["email"]}, expires_delta=access_token_expires
+        data={"sub": user.email}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
