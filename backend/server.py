@@ -40,15 +40,14 @@ async def add_security_headers(request: Request, call_next):
     
     # Comprehensive CSP policy that handles Stripe and PostHog's complex loading
     csp_policy = (
-        "default-src 'self'; "
-        "script-src 'self' https://js.stripe.com https://m.stripe.network https://us.i.posthog.com https://app.posthog.com 'unsafe-inline' 'unsafe-eval' blob:; "
-        "style-src 'self' https://fonts.googleapis.com https://js.stripe.com 'unsafe-inline'; "
-        "img-src 'self' data: blob: https://*.unsplash.com https://*.stripe.com https://us.i.posthog.com; "
-        "connect-src 'self' https://*.supabase.co https://*.stripe.com https://us.i.posthog.com https://app.posthog.com ws: wss:; "
-        "frame-src 'self' https://js.stripe.com https://hooks.stripe.com; "
-        "font-src 'self' https://fonts.gstatic.com data:;"
+        "default-src 'self' *; "
+        "script-src 'self' * 'unsafe-inline' 'unsafe-eval' blob:; "
+        "style-src 'self' * 'unsafe-inline'; "
+        "img-src 'self' * data: blob:; "
+        "connect-src 'self' * ws: wss:; "
+        "frame-src 'self' *; "
+        "font-src 'self' * data:;"
     )
-    
     # Only set for HTML or entire API if needed for browser-level tests
     response.headers["Content-Security-Policy"] = csp_policy
     return response
