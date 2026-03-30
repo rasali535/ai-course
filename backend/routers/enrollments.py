@@ -121,3 +121,21 @@ async def update_progress(
     await db.commit()
     await db.refresh(enrollment)
     return enrollment
+
+@router.post("/pay-certificate", response_model=Enrollment)
+async def pay_certificate(
+    course_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Mark an enrollment as paid for certificate collection.
+    """
+    enrollment = await get_enrollment_by_course(db, current_user.id, course_id)
+    if not enrollment:
+        raise HTTPException(status_code=404, detail="Enrollment not found")
+        
+    enrollment.is_paid = True
+    await db.commit()
+    await db.refresh(enrollment)
+    return enrollment

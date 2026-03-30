@@ -15,6 +15,7 @@ class CourseBase(BaseModel):
     """Base course model for creation"""
     title: str
     description: Optional[str] = None
+    price: Optional[int] = 0
     modules: List[Dict[str, Any]] = []
 
 
@@ -57,6 +58,7 @@ class Enrollment(EnrollmentBase):
     id: str
     progress_data: Dict[str, Any] = {}
     is_completed: bool
+    is_paid: bool = False
     enrolled_at: datetime
     last_accessed: datetime
 

@@ -17,5 +17,6 @@ class EnrollmentModel(Base):
     progress_data = Column(JSONB, default={})
     
     is_completed = Column(Boolean, default=False)
+    is_paid = Column(Boolean, default=False) # For certificate collection
     last_accessed = Column(DateTime(timezone=True), server_default=func.now())
     enrolled_at = Column(DateTime(timezone=True), server_default=func.now())
