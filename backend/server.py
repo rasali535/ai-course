@@ -12,14 +12,19 @@ from backend.routers import auth, resources, payments, courses, enrollments, med
 # App init
 app = FastAPI()
 
-# CORS Configuration
+# CORS Architecture
 raw_origins = os.environ.get('CORS_ORIGINS', 'http://localhost:3000,http://localhost:8080,https://pohei.de,https://www.pohei.de,https://u723774100.pohei.de')
 origins = [origin.strip() for origin in raw_origins.split(',') if origin.strip()]
 
+# Credentials (cookies) are only allowed if we have explicit origins.
+# If '*' is used, Starlette/FastAPI will fail if allow_credentials=True.
+allow_all = "*" in origins
+credentials_allowed = not allow_all
+
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=True,
     allow_origins=origins,
+    allow_credentials=credentials_allowed,
     allow_methods=["*"],
     allow_headers=["*"],
 )

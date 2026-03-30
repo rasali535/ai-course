@@ -32,7 +32,7 @@
         * **Value**: Paste your Supabase connection string.
     * Add:
         * **Key**: `SUPABASE_URL`
-        * **Value**: `https://ihhnptuelpofwferarjr.supabase.co`
+        * **Value**: `https://khrthwtylnklbceixkuu.supabase.co`
     * Add:
         * **Key**: `SUPABASE_ANON_KEY`
         * **Value**: Paste the long string starting with `eyJ...` (provided in chat).
