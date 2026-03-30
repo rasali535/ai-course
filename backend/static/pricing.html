@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing | LearnFlow - All-in-One Education Business Platform</title>
+    <meta name="description"
+        content="Choose the perfect plan for your education business. Start with a 7-day free trial.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #2563eb, #9333ea);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gradient-border {
+            background: linear-gradient(135deg, #2563eb, #9333ea);
+        }
+
+        .plan-card {
+            transition: all 0.3s ease;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-4px);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 leading-tight">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass h-16 flex items-center">
+        <div class="max-w-7xl mx-auto px-6 w-full flex justify-between items-center">
+            <a href="preview.html" class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-lg gradient-border flex items-center justify-center text-white font-bold">L
+                </div>
+                <span class="text-xl font-bold gradient-text">LearnFlow</span>
+            </a>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-600">
+                <a href="features.html" class="hover:text-blue-600 transition-colors">Features</a>
+                <a href="pricing.html" class="text-blue-600 font-bold border-b-2 border-blue-600 pb-1">Pricing</a>
+                <a href="ai-resources.html" class="hover:text-blue-600 transition-colors">AI Resources</a>
+                <a href="tutorials.html" class="hover:text-blue-600 transition-colors">Tutorials</a>
+                <a href="about.html" class="hover:text-blue-600 transition-colors">About</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <a href="login.html" class="text-sm font-semibold text-gray-700 hover:text-blue-600">Sign in</a>
+                <a href="checkout.html"
+                    class="px-5 py-2.5 rounded-full text-sm font-semibold text-white gradient-border hover:opacity-90 transition-all shadow-lg shadow-blue-500/20">Start
+                    free trial</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <main class="pt-32 pb-20 px-6">
+        <div class="max-w-7xl mx-auto">
+            <!-- Hero Section -->
+            <div class="text-center mb-16">
+                <div
+                    class="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-bold mb-6 tracking-wide uppercase">
+                    💰 30-Day Free Trial
+                </div>
+                <h1 class="text-4xl md:text-6xl font-extrabold mb-6">
+                    Simple, <span class="gradient-text">Transparent</span> Pricing
+                </h1>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
+                    Scale from your first course to a global academy with no hidden fees. Cancel anytime.
+                </p>
+            </div>
+
+            <!-- Pricing Toggle (Monthly/Yearly) -->
+            <div class="flex justify-center mb-12">
+                <div class="bg-white rounded-full p-1 shadow-lg border border-gray-200">
+                    <button id="monthly-btn"
+                        class="px-6 py-2 rounded-full font-semibold text-sm transition bg-blue-600 text-white">
+                        Monthly
+                    </button>
+                    <button id="yearly-btn"
+                        class="px-6 py-2 rounded-full font-semibold text-sm transition text-gray-600">
+                        Yearly <span class="text-green-600 text-xs">Save 20%</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pricing Plans -->
+            <div class="grid md:grid-cols-3 gap-8 mb-20">
+                <!-- Starter Plan -->
+                <div class="plan-card bg-white p-8 rounded-3xl shadow-lg border-2 border-gray-200">
+                    <h3 class="text-2xl font-bold mb-2">Starter</h3>
+                    <p class="text-gray-500 text-sm mb-6">Perfect for getting started</p>
+                    <div class="mb-6">
+                        <div class="flex items-baseline">
+                            <span class="text-5xl font-extrabold" id="starter-price">$29</span>
+                            <span class="text-gray-500 ml-2">/month</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2" id="starter-yearly-price">$278/year when billed annually
+                        </p>
+                    </div>
+                    <ul class="space-y-4 mb-10">
+                        <li class="flex items-center text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Up to 3 courses
+                        </li>
+                        <li class="flex items-center text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            100 students
+                        </li>
+                        <li class="flex items-center text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            AI Course Builder
+                        </li>
+                        <li class="flex items-center text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Basic support
+                        </li>
+                        <li class="flex items-center text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Email support
+                        </li>
+                    </ul>
+                    <a href="checkout.html"
+                        class="block w-full text-center py-4 rounded-xl font-bold border-2 border-gray-300 hover:border-blue-600 hover:text-blue-600 transition">
+                        Start Free Trial
+                    </a>
+                </div>
+
+                <!-- Professional Plan (Most Popular) -->
+                <div
+                    class="plan-card bg-white p-8 rounded-3xl shadow-xl border-2 border-blue-600 relative transform scale-105">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <span class="bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-bold">Most
+                            Popular</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2">Professional</h3>
+                    <p class="text-gray-500 text-sm mb-6">For growing businesses</p>
+                    <div class="mb-6">
+                        <div class="flex items-baseline">
+                            <span class="text-5xl font-extrabold gradient-text" id="pro-price">$79</span>
+                            <span class="text-gray-500 ml-2">/month</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2" id="pro-yearly-price">$758/year when billed annually</p>
+                    </div>
+                    <ul class="space-y-4 mb-10">
+                        <li class="flex items-center text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <strong>Unlimited courses</strong>
+                        </li>
+                        <li class="flex items-center text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            1,000 students
+                        </li>
+                        <li class="flex items-center text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            AI Course Builder + Site Builder
+                        </li>
+                        <li class="flex items-center text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Priority support
+                        </li>
+                        <li class="flex items-center text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Custom domain
+                        </li>
+                        <li class="flex items-center text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Advanced analytics
+                        </li>
+                    </ul>
+                    <a href="checkout.html"
+                        class="block w-full text-center py-4 rounded-xl font-bold gradient-border text-white hover:opacity-90 transition shadow-xl shadow-blue-500/25">
+                        Start Free Trial
+                    </a>
+                </div>
+
+                <!-- Enterprise Plan -->
+                <div class="plan-card bg-white p-8 rounded-3xl shadow-lg border-2 border-gray-200">
+                    <h3 class="text-2xl font-bold mb-2">Enterprise</h3>
+                    <p class="text-gray-500 text-sm mb-6">For large organizations</p>
+                    <div class="mb-6">
+                        <div class="flex items-baseline">
+                            <span class="text-5xl font-extrabold" id="enterprise-price">$199</span>
+                            <span class="text-gray-500 ml-2">/month</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2" id="enterprise-yearly-price">$1,910/year when billed
+                            annually</p>
+                    </div>
+                    <ul class="space-y-4 mb-10">
+                        <li class="flex items-center text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Everything in Professional
+                        </li>
+                        <li class="flex items-center text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <strong>Unlimited students</strong>
+                        </li>
+                        <li class="flex items-center text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            White-label mobile app
+                        </li>
+                        <li class="flex items-center text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Dedicated account manager
+                        </li>
+                        <li class="flex items-center text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Custom integrations
+                        </li>
+                        <li class="flex items-center text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            SLA guarantee
+                        </li>
+                    </ul>
+                    <a href="contact.html"
+                        class="block w-full text-center py-4 rounded-xl font-bold border-2 border-gray-300 hover:border-blue-600 hover:text-blue-600 transition">
+                        Contact Sales
+                    </a>
+                </div>
+            </div>
+
+            <!-- Feature Comparison Table -->
+            <div class="bg-white rounded-3xl p-8 shadow-xl border border-gray-200 mb-20">
+                <h2 class="text-3xl font-bold mb-8 text-center">Compare Plans</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-gray-200">
+                                <th class="text-left py-4 px-4 font-bold">Feature</th>
+                                <th class="text-center py-4 px-4 font-bold">Starter</th>
+                                <th class="text-center py-4 px-4 font-bold">Professional</th>
+                                <th class="text-center py-4 px-4 font-bold">Enterprise</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            <tr class="border-b border-gray-100">
+                                <td class="py-4 px-4">Number of Courses</td>
+                                <td class="text-center py-4 px-4">3</td>
+                                <td class="text-center py-4 px-4">Unlimited</td>
+                                <td class="text-center py-4 px-4">Unlimited</td>
+                            </tr>
+                            <tr class="border-b border-gray-100">
+                                <td class="py-4 px-4">Students</td>
+                                <td class="text-center py-4 px-4">100</td>
+                                <td class="text-center py-4 px-4">1,000</td>
+                                <td class="text-center py-4 px-4">Unlimited</td>
+                            </tr>
+                            <tr class="border-b border-gray-100">
+                                <td class="py-4 px-4">AI Course Builder</td>
+                                <td class="text-center py-4 px-4">✓</td>
+                                <td class="text-center py-4 px-4">✓</td>
+                                <td class="text-center py-4 px-4">✓</td>
+                            </tr>
+                            <tr class="border-b border-gray-100">
+                                <td class="py-4 px-4">Site Builder</td>
+                                <td class="text-center py-4 px-4">-</td>
+                                <td class="text-center py-4 px-4">✓</td>
+                                <td class="text-center py-4 px-4">✓</td>
+                            </tr>
+                            <tr class="border-b border-gray-100">
+                                <td class="py-4 px-4">Custom Domain</td>
+                                <td class="text-center py-4 px-4">-</td>
+                                <td class="text-center py-4 px-4">✓</td>
+                                <td class="text-center py-4 px-4">✓</td>
+                            </tr>
+                            <tr class="border-b border-gray-100">
+                                <td class="py-4 px-4">White-label Mobile App</td>
+                                <td class="text-center py-4 px-4">-</td>
+                                <td class="text-center py-4 px-4">-</td>
+                                <td class="text-center py-4 px-4">✓</td>
+                            </tr>
+                            <tr class="border-b border-gray-100">
+                                <td class="py-4 px-4">Priority Support</td>
+                                <td class="text-center py-4 px-4">-</td>
+                                <td class="text-center py-4 px-4">✓</td>
+                                <td class="text-center py-4 px-4">✓</td>
+                            </tr>
+                            <tr>
+                                <td class="py-4 px-4">Dedicated Account Manager</td>
+                                <td class="text-center py-4 px-4">-</td>
+                                <td class="text-center py-4 px-4">-</td>
+                                <td class="text-center py-4 px-4">✓</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- FAQ Section -->
+            <div class="max-w-3xl mx-auto">
+                <h2 class="text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
+                <div class="space-y-6">
+                    <div class="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                        <h4 class="font-bold mb-2">Are there transaction fees?</h4>
+                        <p class="text-sm text-gray-600">No transaction fees! You keep 100% of your earnings (minus
+                            standard payment processing fees from Stripe/PayPal).</p>
+                    </div>
+                    <div class="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                        <h4 class="font-bold mb-2">Can I cancel anytime?</h4>
+                        <p class="text-sm text-gray-600">Yes, you can cancel your subscription at any time. No questions
+                            asked, no cancellation fees.</p>
+                    </div>
+                    <div class="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                        <h4 class="font-bold mb-2">What payment methods do you accept?</h4>
+                        <p class="text-sm text-gray-600">We accept all major credit cards (Visa, Mastercard, American
+                            Express) and PayPal through our secure payment processor, Stripe.</p>
+                    </div>
+                    <div class="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                        <h4 class="font-bold mb-2">Is there a free trial?</h4>
+                        <p class="text-sm text-gray-600">Yes! All plans come with a 7-day free trial. No credit card
+                            required to start.</p>
+                    </div>
+                    <div class="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                        <h4 class="font-bold mb-2">Can I upgrade or downgrade my plan?</h4>
+                        <p class="text-sm text-gray-600">Absolutely! You can upgrade or downgrade your plan at any time
+                            from your dashboard. Changes take effect immediately.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Section -->
+            <div class="mt-20 text-center bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-12 text-white">
+                <h2 class="text-3xl font-bold mb-4">Ready to start your education business?</h2>
+                <p class="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+                    Join thousands of creators who are building successful online courses with LearnFlow.
+                </p>
+                <a href="checkout.html"
+                    class="inline-flex px-8 py-4 bg-white text-blue-600 rounded-xl font-bold hover:bg-blue-50 transition shadow-xl">
+                    Start Your Free Trial
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black text-white py-20 px-6 mt-20">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 border-b border-gray-800 pb-16">
+            <div>
+                <div class="flex items-center space-x-2 mb-6">
+                    <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">L
+                    </div>
+                    <span class="text-xl font-bold">LearnFlow</span>
+                </div>
+                <p class="text-gray-400 text-sm">The infrastructure to run your entire education business.</p>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6">Platform</h4>
+                <ul class="text-gray-400 text-sm space-y-4">
+                    <li><a href="features.html" class="hover:text-white transition">Features</a></li>
+                    <li><a href="pricing.html" class="hover:text-white transition">Pricing</a></li>
+                    <li><a href="tutorials.html" class="hover:text-white transition">Tutorials</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6">Company</h4>
+                <ul class="text-gray-400 text-sm space-y-4">
+                    <li><a href="about.html" class="hover:text-white transition">About</a></li>
+                    <li><a href="contact.html" class="hover:text-white transition">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6">Legal</h4>
+                <ul class="text-gray-400 text-sm space-y-4">
+                    <li><a href="privacy.html" class="hover:text-white transition">Privacy Policy</a></li>
+                    <li><a href="terms.html" class="hover:text-white transition">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto pt-8 text-gray-500 text-xs text-center">
+            <p>© 2026 LearnFlow. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const monthlyBtn = document.getElementById('monthly-btn');
+        const yearlyBtn = document.getElementById('yearly-btn');
+
+        const prices = {
+            monthly: {
+                starter: 29,
+                pro: 79,
+                enterprise: 199
+            },
+            yearly: {
+                starter: 23,  // ~20% discount
+                pro: 63,
+                enterprise: 159
+            }
+        };
+
+        function updatePricing(billingCycle) {
+            if (billingCycle === 'yearly') {
+                document.getElementById('starter-price').textContent = '$' + prices.yearly.starter;
+                document.getElementById('pro-price').textContent = '$' + prices.yearly.pro;
+                document.getElementById('enterprise-price').textContent = '$' + prices.yearly.enterprise;
+
+                document.getElementById('starter-yearly-price').textContent = '$' + (prices.yearly.starter * 12) + '/year (save $' + ((prices.monthly.starter - prices.yearly.starter) * 12) + ')';
+                document.getElementById('pro-yearly-price').textContent = '$' + (prices.yearly.pro * 12) + '/year (save $' + ((prices.monthly.pro - prices.yearly.pro) * 12) + ')';
+                document.getElementById('enterprise-yearly-price').textContent = '$' + (prices.yearly.enterprise * 12) + '/year (save $' + ((prices.monthly.enterprise - prices.yearly.enterprise) * 12) + ')';
+
+                monthlyBtn.classList.remove('bg-blue-600', 'text-white');
+                monthlyBtn.classList.add('text-gray-600');
+                yearlyBtn.classList.add('bg-blue-600', 'text-white');
+                yearlyBtn.classList.remove('text-gray-600');
+            } else {
+                document.getElementById('starter-price').textContent = '$' + prices.monthly.starter;
+                document.getElementById('pro-price').textContent = '$' + prices.monthly.pro;
+                document.getElementById('enterprise-price').textContent = '$' + prices.monthly.enterprise;
+
+                document.getElementById('starter-yearly-price').textContent = '$' + (prices.monthly.starter * 12 * 0.8) + '/year when billed annually';
+                document.getElementById('pro-yearly-price').textContent = '$' + (prices.monthly.pro * 12 * 0.8) + '/year when billed annually';
+                document.getElementById('enterprise-yearly-price').textContent = '$' + (prices.monthly.enterprise * 12 * 0.8) + '/year when billed annually';
+
+                yearlyBtn.classList.remove('bg-blue-600', 'text-white');
+                yearlyBtn.classList.add('text-gray-600');
+                monthlyBtn.classList.add('bg-blue-600', 'text-white');
+                monthlyBtn.classList.remove('text-gray-600');
+            }
+        }
+
+        monthlyBtn.addEventListener('click', () => updatePricing('monthly'));
+        yearlyBtn.addEventListener('click', () => updatePricing('yearly'));
+    </script>
+
+    <script src="js/auth.js"></script>
+    <script src="js/header.js"></script>
+</body>
+
+</html>

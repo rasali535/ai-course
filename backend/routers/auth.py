@@ -19,63 +19,78 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token")
 
 @router.post("/signup", response_model=User)
 async def signup(user: UserCreate, db: AsyncSession = Depends(get_db)):
-    
-    # Check existing user
-    result = await db.execute(select(SQLUser).where(SQLUser.email == user.email))
-    existing_user = result.scalar_one_or_none()
-    
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
+    try:
+        # Check existing user
+        result = await db.execute(select(SQLUser).where(SQLUser.email == user.email))
+        existing_user = result.scalar_one_or_none()
+        
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered"
+            )
+            
+        hashed_password = get_password_hash(user.password)
+        verification_token = secrets.token_urlsafe(32)
+        
+        # Trial only for creators
+        trial_expiry = None
+        if user.role == 'creator':
+            trial_days = 7
+            trial_expiry = datetime.now(timezone.utc) + timedelta(days=trial_days)
+        
+        new_user = SQLUser(
+            email=user.email,
+            hashed_password=hashed_password,
+            full_name=user.full_name,
+            is_verified=False,
+            verification_token=verification_token,
+            plan=user.plan or 'basic',
+            role=user.role or 'learner',
+            trial_ends_at=trial_expiry
         )
         
-    hashed_password = get_password_hash(user.password)
-    verification_token = secrets.token_urlsafe(32)
-    
-    # Trial only for creators
-    trial_expiry = None
-    if user.role == 'creator':
-        trial_days = 7
-        trial_expiry = datetime.now(timezone.utc) + timedelta(days=trial_days)
-    
-    new_user = SQLUser(
-        email=user.email,
-        hashed_password=hashed_password,
-        full_name=user.full_name,
-        is_verified=False,
-        verification_token=verification_token,
-        plan=user.plan or 'basic',
-        role=user.role or 'learner',
-        trial_ends_at=trial_expiry
-    )
-    
-    db.add(new_user)
-    await db.commit()
-    await db.refresh(new_user)
-    
-    # Send verification email
-    verify_url = f"https://pohei.de/verify-email?token={verification_token}"
-    welcome_msg = "To start your journey, please verify your email address:"
-    if user.role == 'creator':
-        welcome_msg = "To start your 7-day free trial and access your academy, please verify your email address:"
+        db.add(new_user)
+        await db.commit()
+        await db.refresh(new_user)
+        
+        # Send verification email
+        verify_url = f"https://pohei.de/verify-email?token={verification_token}"
+        welcome_msg = "To start your journey, please verify your email address:"
+        if user.role == 'creator':
+            welcome_msg = "To start your 7-day free trial and access your academy, please verify your email address:"
 
-    await email_service.send_email(
-        to_emails=[user.email],
-        subject="Verify your LearnFlow account 🛡️",
-        html_content=f"""
-            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
-                <h1 style="color: #2563eb;">Welcome to LearnFlow, {user.full_name or 'there'}!</h1>
-                <p>{welcome_msg}</p>
-                <div style="margin: 30px 0;">
-                    <a href="{verify_url}" style="background-color: #2563eb; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">Verify Email Address</a>
-                </div>
-                <p style="color: #6b7280; font-size: 0.875rem;">If you didn't create an account, you can safely ignore this email.</p>
-            </div>
-        """
-    )
-    
-    return User.model_validate(new_user)
+        try:
+            await email_service.send_email(
+                to_emails=[user.email],
+                subject="Verify your LearnFlow account 🛡️",
+                html_content=f"""
+                    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
+                        <h1 style="color: #2563eb;">Welcome to LearnFlow, {user.full_name or 'there'}!</h1>
+                        <p>{welcome_msg}</p>
+                        <div style="margin: 30px 0;">
+                            <a href="{verify_url}" style="background-color: #2563eb; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">Verify Email Address</a>
+                        </div>
+                        <p style="color: #6b7280; font-size: 0.875rem;">If you didn't create an account, you can safely ignore this email.</p>
+                    </div>
+                """
+            )
+        except Exception as e:
+            logger.error(f"Non-blocking email error in signup: {e}")
+        
+        # Explicit model validation for SQLAlchemy
+        return User.model_validate(new_user)
+        
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        import traceback
+        logger.error(f"CRITICAL SIGNUP ERROR: {str(e)}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(
+            status_code=500,
+            detail=f"Internal registration error: {str(e)}"
+        )
 
 @router.get("/verify-email")
 async def verify_email(token: str, db: AsyncSession = Depends(get_db)):

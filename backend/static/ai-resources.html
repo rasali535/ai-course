@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resources | LearnFlow - Build Courses with AI</title>
+    <meta name="description"
+        content="Discover powerful AI tools and resources to create, manage, and scale your online education business">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #2563eb, #9333ea);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gradient-border {
+            background: linear-gradient(135deg, #2563eb, #9333ea);
+        }
+
+        .resource-card {
+            transition: all 0.3s ease;
+        }
+
+        .resource-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+        }
+
+        .ai-glow {
+            box-shadow: 0 0 30px rgba(37, 99, 235, 0.3);
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(147, 51, 234, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(147, 51, 234, 0.6);
+            }
+        }
+
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass h-16 flex items-center">
+        <div class="max-w-7xl mx-auto px-6 w-full flex justify-between items-center">
+            <a href="preview.html" class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-lg gradient-border flex items-center justify-center text-white font-bold">L
+                </div>
+                <span class="text-xl font-bold gradient-text">LearnFlow</span>
+            </a>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-600">
+                <a href="features.html" class="hover:text-blue-600 transition-colors">Features</a>
+                <a href="pricing.html" class="hover:text-blue-600 transition-colors">Pricing</a>
+                <a href="ai-resources.html" class="text-blue-600 font-bold border-b-2 border-blue-600 pb-1">AI
+                    Resources</a>
+                <a href="tutorials.html" class="hover:text-blue-600 transition-colors">Tutorials</a>
+                <a href="about.html" class="hover:text-blue-600 transition-colors">About</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <a href="login.html" class="text-sm font-semibold text-gray-700 hover:text-blue-600">Sign in</a>
+                <a href="checkout.html"
+                    class="px-5 py-2.5 rounded-full text-sm font-semibold text-white gradient-border hover:opacity-90 transition-all shadow-lg shadow-blue-500/20">
+                    Start free trial
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 px-6 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+        <div class="max-w-7xl mx-auto text-center">
+            <div
+                class="inline-flex items-center px-4 py-2 rounded-full bg-white border border-blue-200 text-blue-600 text-xs font-bold mb-6 tracking-wide uppercase shadow-lg">
+                ✨ Powered by Advanced AI
+            </div>
+            <h1 class="text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
+                AI-Powered <span class="gradient-text">Course Creation</span>
+            </h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed">
+                Leverage cutting-edge artificial intelligence to build world-class courses in minutes, not months.
+                Our AI tools handle the heavy lifting so you can focus on what you teach best.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="checkout.html"
+                    class="px-8 py-4 rounded-xl font-bold gradient-border text-white hover:opacity-90 transition shadow-xl shadow-blue-500/25">
+                    Try AI Course Builder
+                </a>
+                <a href="#tools"
+                    class="px-8 py-4 rounded-xl font-bold border-2 border-gray-300 bg-white hover:border-blue-600 hover:text-blue-600 transition">
+                    Explore AI Tools
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Tools Section -->
+    <section id="tools" class="py-20 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">AI-Powered Tools</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Everything you need to create, manage, and scale your education business with AI
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- AI Course Builder -->
+                <div class="resource-card bg-white rounded-3xl p-8 shadow-xl border-2 border-blue-100 pulse-glow">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center mb-6 text-2xl">
+                        🎓
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">AI Course Builder</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Generate complete course outlines, lesson plans, and learning objectives from a single topic.
+                        Our AI analyzes thousands of top-performing courses to create the perfect curriculum.
+                    </p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Topic-to-outline generation in 60 seconds
+                        </li>
+                        <li class="flex items-start text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Automatic chapter and lesson structuring
+                        </li>
+                        <li class="flex items-start text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Learning objectives for each module
+                        </li>
+                    </ul>
+                    <a href="frontend/public/course-builder.html"
+                        class="block w-full text-center py-3 rounded-xl font-bold bg-blue-600 text-white hover:bg-blue-700 transition">
+                        Launch Builder
+                    </a>
+                </div>
+
+                <!-- AI Script Writer -->
+                <div class="resource-card bg-white rounded-3xl p-8 shadow-xl border-2 border-purple-100">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 text-white flex items-center justify-center mb-6 text-2xl">
+                        📝
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">AI Script Writer</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Transform your course outline into engaging video scripts and lesson content.
+                        Perfect for creating professional video courses without the writer's block.
+                    </p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Professional video scripts
+                        </li>
+                        <li class="flex items-start text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Engaging storytelling format
+                        </li>
+                        <li class="flex items-start text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Customizable tone and style
+                        </li>
+                    </ul>
+                    <a href="checkout.html"
+                        class="block w-full text-center py-3 rounded-xl font-bold border-2 border-purple-600 text-purple-600 hover:bg-purple-50 transition">
+                        Try Script Writer
+                    </a>
+                </div>
+
+                <!-- AI Quiz Generator -->
+                <div class="resource-card bg-white rounded-3xl p-8 shadow-xl border-2 border-green-100">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 text-white flex items-center justify-center mb-6 text-2xl">
+                        ✅
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">AI Quiz Generator</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Create comprehensive quizzes and assessments automatically.
+                        Generate multiple choice, true/false, and open-ended questions from your content.
+                    </p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Multiple question types
+                        </li>
+                        <li class="flex items-start text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Difficulty level adjustment
+                        </li>
+                        <li class="flex items-start text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Instant answer explanations
+                        </li>
+                    </ul>
+                    <a href="checkout.html"
+                        class="block w-full text-center py-3 rounded-xl font-bold border-2 border-green-600 text-green-600 hover:bg-green-50 transition">
+                        Generate Quizzes
+                    </a>
+                </div>
+
+                <!-- AI Student Coach -->
+                <div class="resource-card bg-white rounded-3xl p-8 shadow-xl border-2 border-orange-100">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 text-white flex items-center justify-center mb-6 text-2xl">
+                        🤖
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">AI Student Coach</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        24/7 AI-powered support for your students. Answer questions, provide feedback,
+                        and guide learners through your course content automatically.
+                    </p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Instant question answering
+                        </li>
+                        <li class="flex items-start text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Personalized learning paths
+                        </li>
+                        <li class="flex items-start text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Progress tracking and insights
+                        </li>
+                    </ul>
+                    <a href="checkout.html"
+                        class="block w-full text-center py-3 rounded-xl font-bold border-2 border-orange-600 text-orange-600 hover:bg-orange-50 transition">
+                        Enable AI Coach
+                    </a>
+                </div>
+
+                <!-- AI Translator -->
+                <div class="resource-card bg-white rounded-3xl p-8 shadow-xl border-2 border-indigo-100">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 text-white flex items-center justify-center mb-6 text-2xl">
+                        🌍
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">AI Global Translator</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Reach students worldwide by translating your courses into 40+ languages.
+                        Maintain your brand voice while expanding your global reach.
+                    </p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            40+ language support
+                        </li>
+                        <li class="flex items-start text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Context-aware translation
+                        </li>
+                        <li class="flex items-start text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Subtitle generation
+                        </li>
+                    </ul>
+                    <a href="checkout.html"
+                        class="block w-full text-center py-3 rounded-xl font-bold border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 transition">
+                        Translate Course
+                    </a>
+                </div>
+
+                <!-- AI Sales Agent -->
+                <div class="resource-card bg-white rounded-3xl p-8 shadow-xl border-2 border-pink-100">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-500 to-pink-600 text-white flex items-center justify-center mb-6 text-2xl">
+                        💬
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">AI Sales Agent</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Convert visitors into customers with an AI sales assistant that qualifies leads,
+                        answers questions, and closes deals 24/7.
+                    </p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Lead qualification
+                        </li>
+                        <li class="flex items-start text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Personalized recommendations
+                        </li>
+                        <li class="flex items-start text-sm">
+                            <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Automated follow-ups
+                        </li>
+                    </ul>
+                    <a href="checkout.html"
+                        class="block w-full text-center py-3 rounded-xl font-bold border-2 border-pink-600 text-pink-600 hover:bg-pink-50 transition">
+                        Activate Sales AI
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="py-20 px-6 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">How AI Accelerates Your Course Creation</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    From idea to launch in record time with our AI-powered workflow
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div
+                        class="w-20 h-20 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mx-auto mb-6 text-3xl font-bold">
+                        1
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Enter Your Topic</h3>
+                    <p class="text-gray-600 text-sm">
+                        Simply describe what you want to teach. Our AI understands context and expertise level.
+                    </p>
+                </div>
+
+                <div class="text-center">
+                    <div
+                        class="w-20 h-20 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mx-auto mb-6 text-3xl font-bold">
+                        2
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">AI Generates Structure</h3>
+                    <p class="text-gray-600 text-sm">
+                        Get a complete course outline with chapters, lessons, and learning objectives in seconds.
+                    </p>
+                </div>
+
+                <div class="text-center">
+                    <div
+                        class="w-20 h-20 rounded-full bg-green-100 text-green-600 flex items-center justify-center mx-auto mb-6 text-3xl font-bold">
+                        3
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Customize & Refine</h3>
+                    <p class="text-gray-600 text-sm">
+                        Edit, add your expertise, and personalize the AI-generated content to match your style.
+                    </p>
+                </div>
+
+                <div class="text-center">
+                    <div
+                        class="w-20 h-20 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mx-auto mb-6 text-3xl font-bold">
+                        4
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Launch & Scale</h3>
+                    <p class="text-gray-600 text-sm">
+                        Publish your course and let AI handle student support, translations, and sales.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Capabilities -->
+    <section class="py-20 px-6 bg-gradient-to-br from-blue-600 to-purple-700 text-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">Powered by Advanced AI Models</h2>
+                <p class="text-xl text-blue-100 max-w-2xl mx-auto">
+                    We use state-of-the-art language models and machine learning to deliver exceptional results
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
+                    <div class="text-4xl mb-4">🧠</div>
+                    <h3 class="text-2xl font-bold mb-3">GPT-4 Integration</h3>
+                    <p class="text-blue-100">
+                        Leverage OpenAI's most advanced language model for natural, engaging course content generation.
+                    </p>
+                </div>
+
+                <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
+                    <div class="text-4xl mb-4">⚡</div>
+                    <h3 class="text-2xl font-bold mb-3">Real-Time Processing</h3>
+                    <p class="text-blue-100">
+                        Get instant results with our optimized AI pipeline. No waiting, no delays.
+                    </p>
+                </div>
+
+                <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
+                    <div class="text-4xl mb-4">🎯</div>
+                    <h3 class="text-2xl font-bold mb-3">Context-Aware</h3>
+                    <p class="text-blue-100">
+                        Our AI understands your industry, audience, and teaching style to deliver personalized content.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Success Stories -->
+    <section class="py-20 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">AI Success Stories</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    See how creators are using AI to build thriving education businesses
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+                    <div class="flex items-center mb-4">
+                        <div
+                            class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold mr-4">
+                            SJ
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Sarah Johnson</h4>
+                            <p class="text-sm text-gray-500">Marketing Consultant</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        "The AI Course Builder helped me create a 12-module course in just 3 days.
+                        What would have taken me months was done in a weekend!"
+                    </p>
+                    <div class="flex items-center text-yellow-500">
+                        ⭐⭐⭐⭐⭐
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+                    <div class="flex items-center mb-4">
+                        <div
+                            class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold mr-4">
+                            MC
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Michael Chen</h4>
+                            <p class="text-sm text-gray-500">Software Developer</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        "The AI Quiz Generator saved me countless hours. It creates perfectly tailored
+                        assessments that my students love."
+                    </p>
+                    <div class="flex items-center text-yellow-500">
+                        ⭐⭐⭐⭐⭐
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+                    <div class="flex items-center mb-4">
+                        <div
+                            class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold mr-4">
+                            EP
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Emma Peterson</h4>
+                            <p class="text-sm text-gray-500">Yoga Instructor</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        "The AI Student Coach handles 80% of student questions automatically.
+                        I can finally focus on creating content instead of answering emails."
+                    </p>
+                    <div class="flex items-center text-yellow-500">
+                        ⭐⭐⭐⭐⭐
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 px-6 bg-gray-900 text-white">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-4xl font-bold mb-6">Ready to Build Your Course with AI?</h2>
+            <p class="text-xl text-gray-300 mb-10">
+                Join thousands of creators who are using AI to build successful online courses faster than ever.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="checkout.html"
+                    class="px-8 py-4 rounded-xl font-bold gradient-border text-white hover:opacity-90 transition shadow-xl">
+                    Start Free Trial
+                </a>
+                <a href="tutorials.html"
+                    class="px-8 py-4 rounded-xl font-bold border-2 border-white text-white hover:bg-white hover:text-gray-900 transition">
+                    Watch Tutorials
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black text-white py-20 px-6">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 border-b border-gray-800 pb-16">
+            <div>
+                <div class="flex items-center space-x-2 mb-6">
+                    <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">L
+                    </div>
+                    <span class="text-xl font-bold">LearnFlow</span>
+                </div>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                    The AI-powered infrastructure to run your entire education business.
+                </p>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6">Platform</h4>
+                <ul class="text-gray-400 text-sm space-y-4">
+                    <li><a href="course-builder.html" class="hover:text-white transition">Course Builder</a></li>
+                    <li><a href="site-builder.html" class="hover:text-white transition">Site Builder</a></li>
+                    <li><a href="features.html" class="hover:text-white transition">Features</a></li>
+                    <li><a href="pricing.html" class="hover:text-white transition">Pricing</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6">Resources</h4>
+                <ul class="text-gray-400 text-sm space-y-4">
+                    <li><a href="ai-resources.html" class="hover:text-white transition">AI Resources</a></li>
+                    <li><a href="tutorials.html" class="hover:text-white transition">Tutorials</a></li>
+                    <li><a href="about.html" class="hover:text-white transition">About</a></li>
+                    <li><a href="contact.html" class="hover:text-white transition">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6">Legal</h4>
+                <ul class="text-gray-400 text-sm space-y-4">
+                    <li><a href="privacy.html" class="hover:text-white transition">Privacy Policy</a></li>
+                    <li><a href="terms.html" class="hover:text-white transition">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto pt-8 text-gray-500 text-xs text-center">
+            <p>© 2026 LearnFlow. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/header.js"></script>
+</body>
+
+</html>

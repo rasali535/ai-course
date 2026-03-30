@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorials & Guides | LearnFlow - Master Your Education Business</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #2563eb, #9333ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gradient-border {
+            background: linear-gradient(135deg, #2563eb, #9333ea);
+        }
+
+        .step-card {
+            transition: all 0.3s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .tutorial-nav.active {
+            color: #2563eb;
+            border-bottom: 2px solid #2563eb;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 leading-tight">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass h-16 flex items-center border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 w-full flex justify-between items-center">
+            <a href="preview.html" class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-lg gradient-border flex items-center justify-center text-white font-bold">L
+                </div>
+                <span class="text-xl font-bold gradient-text">LearnFlow</span>
+            </a>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-600">
+                <a href="features.html" class="hover:text-blue-600 transition-colors">Features</a>
+                <a href="pricing.html" class="hover:text-blue-600 transition-colors">Pricing</a>
+                <a href="ai-resources.html" class="hover:text-blue-600 transition-colors">AI Resources</a>
+                <a href="tutorials.html"
+                    class="hover:text-blue-600 transition-colors font-bold border-b-2 border-blue-600 pb-1">Tutorials</a>
+                <a href="about.html" class="hover:text-blue-600 transition-colors">About</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <a href="login.html" class="text-sm font-semibold text-gray-700 hover:text-blue-600">Sign in</a>
+                <a href="signup.html"
+                    class="px-5 py-2.5 rounded-full text-sm font-semibold text-white gradient-border hover:opacity-90 transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center">Start
+                    free trial</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-32 pb-24 px-6">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-16">
+                <h1 class="text-4xl md:text-5xl font-extrabold mb-4">LearnFlow <span
+                        class="gradient-text">Academy</span></h1>
+                <p class="text-xl text-gray-500">Master the tools and strategies to grow your audience and revenue.</p>
+            </div>
+
+            <!-- Tutorial 1: Build Your Course -->
+            <section id="build-course" class="mb-24">
+                <div class="flex items-center space-x-4 mb-8">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/20 text-xl">
+                        🎓</div>
+                    <h2 class="text-3xl font-bold">How to Build Your Course</h2>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="step-card bg-white p-8 rounded-[2rem] shadow-xl border border-gray-100">
+                        <div class="text-xs font-bold text-blue-600 uppercase mb-4 tracking-widest">Step 01</div>
+                        <h3 class="text-xl font-bold mb-3">Define Your Topic</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">Use the AI Research tool to find high-demand
+                            topics. Simply enter your interest and let FlowAI analyze market gaps.</p>
+                    </div>
+                    <div class="step-card bg-white p-8 rounded-[2rem] shadow-xl border border-gray-100">
+                        <div class="text-xs font-bold text-blue-600 uppercase mb-4 tracking-widest">Step 02</div>
+                        <h3 class="text-xl font-bold mb-3">Smart Outline</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">Head to the <a href="course-builder.html"
+                                class="text-blue-600 underline">Course Builder</a> and click "Generate with AI". You'll
+                            get an 8-module structure in 30 seconds.</p>
+                    </div>
+                    <div class="step-card bg-white p-8 rounded-[2rem] shadow-xl border border-gray-100">
+                        <div class="text-xs font-bold text-blue-600 uppercase mb-4 tracking-widest">Step 03</div>
+                        <h3 class="text-xl font-bold mb-3">Add Content</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">Drag in video lessons, quizzes, or text. Add
+                            assignments to keep your students actively engaged.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tutorial 2: Build Your Site -->
+            <section id="build-site" class="mb-24">
+                <div class="flex items-center space-x-4 mb-8">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center shadow-lg shadow-purple-500/20 text-xl">
+                        🌐</div>
+                    <h2 class="text-3xl font-bold">How to Build Your Site</h2>
+                </div>
+                <div
+                    class="bg-gradient-to-br from-purple-900 to-indigo-900 rounded-[3rem] p-10 text-white overflow-hidden relative">
+                    <div class="relative z-10 grid md:grid-cols-2 gap-12 items-center">
+                        <div>
+                            <h3 class="text-2xl font-bold mb-6">Create a Stunning Storefront</h3>
+                            <ul class="space-y-6">
+                                <li class="flex items-start">
+                                    <span
+                                        class="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center mr-4 text-xs font-bold">1</span>
+                                    <p class="text-purple-100 text-sm"><span class="font-bold text-white">Pick a
+                                            Template:</span> Start with one of our high-converting designs in the <a
+                                            href="site-builder.html" class="underline decoration-purple-400">Site
+                                            Builder</a>.</p>
+                                </li>
+                                <li class="flex items-start">
+                                    <span
+                                        class="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center mr-4 text-xs font-bold">2</span>
+                                    <p class="text-purple-100 text-sm"><span class="font-bold text-white">Brand
+                                            It:</span> Upload your logo and choose your "Signature Gradient" to
+                                        instantly match your branding across all pages.</p>
+                                </li>
+                                <li class="flex items-start">
+                                    <span
+                                        class="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center mr-4 text-xs font-bold">3</span>
+                                    <p class="text-purple-100 text-sm"><span class="font-bold text-white">Connect
+                                            Domain:</span> Head to Settings > Domains to point your custom URL (e.g.,
+                                        academy.yourbrand.com) to LearnFlow.</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-6">
+                            <div class="text-xs font-mono text-purple-300 mb-4 tracking-tighter uppercase">SITE_LOG_V2
+                            </div>
+                            <div class="space-y-3">
+                                <div class="h-2 bg-purple-500/30 rounded-full w-3/4"></div>
+                                <div class="h-2 bg-purple-500/30 rounded-full w-full"></div>
+                                <div class="h-10 bg-white/20 rounded-xl mt-6"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tutorial 3: Upload & Attach Files -->
+            <section id="file-management" class="mb-24">
+                <div class="flex items-center space-x-4 mb-8">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-green-600 text-white flex items-center justify-center shadow-lg shadow-green-500/20 text-xl">
+                        📎</div>
+                    <h2 class="text-3xl font-bold">Uploading & Attaching Files</h2>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-white p-10 rounded-[2.5rem] shadow-xl border border-gray-100">
+                        <h4 class="font-bold text-xl mb-4">The Media Library</h4>
+                        <p class="text-gray-500 text-sm mb-6">LearnFlow handles massive video files and diverse document
+                            types with a global CDN for instant playback.</p>
+                        <ul class="space-y-4">
+                            <li class="flex items-center text-sm font-medium"><svg class="w-4 h-4 text-green-500 mr-3"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7"></path>
+                                </svg> Bulk upload 50+ files at once</li>
+                            <li class="flex items-center text-sm font-medium"><svg class="w-4 h-4 text-green-500 mr-3"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7"></path>
+                                </svg> Auto-transcoding for all devices</li>
+                            <li class="flex items-center text-sm font-medium"><svg class="w-4 h-4 text-green-500 mr-3"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7"></path>
+                                </svg> Secure PDF watermarking</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-900 rounded-[2.5rem] p-10 text-white flex flex-col justify-center">
+                        <div class="text-center">
+                            <div
+                                class="w-20 h-20 bg-blue-600 rounded-full mx-auto mb-6 flex items-center justify-center text-3xl animate-pulse">
+                                ☁️</div>
+                            <p class="font-bold text-xl mb-2">Drop it here.</p>
+                            <p class="text-gray-400 text-xs">Drag any file into the Lesson Editor and we'll handle the
+                                rest (Storage is unlimited on Pro plans).</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tutorial 4: Marketing Tips -->
+            <section id="marketing-tips">
+                <div class="flex items-center space-x-4 mb-8">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-orange-600 text-white flex items-center justify-center shadow-lg shadow-orange-500/20 text-xl">
+                        🚀</div>
+                    <h2 class="text-3xl font-bold">Marketing & Growth Tips</h2>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="p-6 bg-white rounded-2xl shadow-lg border border-gray-100">
+                        <div class="text-2xl mb-4">📣</div>
+                        <h4 class="font-bold mb-2">Social Proof</h4>
+                        <p class="text-[11px] text-gray-500 uppercase font-bold tracking-widest mb-3 text-orange-600">
+                            Pro Tip</p>
+                        <p class="text-xs text-gray-500 leading-relaxed">Embed LearnFlow social loops to display live
+                            "Student just joined" notifications on your site.</p>
+                    </div>
+                    <div class="p-6 bg-white rounded-2xl shadow-lg border border-gray-100">
+                        <div class="text-2xl mb-4">📧</div>
+                        <h4 class="font-bold mb-2">Email Funnels</h4>
+                        <p class="text-[11px] text-gray-500 uppercase font-bold tracking-widest mb-3 text-orange-600">
+                            Strategy</p>
+                        <p class="text-xs text-gray-500 leading-relaxed">Set up an 3-day welcome sequence using FlowAI
+                            to maximize first-week course engagement.</p>
+                    </div>
+                    <div class="p-6 bg-white rounded-2xl shadow-lg border border-gray-100">
+                        <div class="text-2xl mb-4">🎟️</div>
+                        <h4 class="font-bold mb-2">Flash Sales</h4>
+                        <p class="text-[11px] text-gray-500 uppercase font-bold tracking-widest mb-3 text-orange-600">
+                            Revenue</p>
+                        <p class="text-xs text-gray-500 leading-relaxed">Use the Coupon Generator to create
+                            scarcity-based limited-time offers during launch week.</p>
+                    </div>
+                    <div class="p-6 bg-white rounded-2xl shadow-lg border border-gray-100">
+                        <div class="text-2xl mb-4">🏆</div>
+                        <h4 class="font-bold mb-2">Upsell Magic</h4>
+                        <p class="text-[11px] text-gray-500 uppercase font-bold tracking-widest mb-3 text-orange-600">
+                            Scaling</p>
+                        <p class="text-xs text-gray-500 leading-relaxed">Offer a "Masterclass Upgrade" on the thank-you
+                            page for a 22% average revenue boost.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black text-white py-20 px-6">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 border-b border-gray-800 pb-16 text-left">
+            <div>
+                <div class="flex items-center space-x-2 mb-6 text-left">
+                    <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">L
+                    </div>
+                    <span class="text-xl font-bold">LearnFlow</span>
+                </div>
+                <p class="text-gray-500 text-sm">Empowering educators with AI.</p>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6 text-left">Platform</h4>
+                <ul class="text-gray-400 text-sm space-y-4 text-left">
+                    <li><a href="course-builder.html" class="hover:text-white transition">Course Builder</a></li>
+                    <li><a href="site-builder.html" class="hover:text-white transition">Site Builder</a></li>
+                    <li><a href="pricing.html" class="hover:text-white transition">Pricing Plans</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6 text-left">Partnerships</h4>
+                <ul class="text-gray-400 text-sm space-y-4 text-left">
+                    <li><a href="affiliate.html"
+                            class="block w-full text-left px-4 py-2 bg-yellow-400/10 text-yellow-500 rounded-xl border border-yellow-400/20 hover:bg-yellow-400/20 transition-all text-xs font-bold uppercase tracking-widest text-center">Become
+                            an Affiliate</a></li>
+                    <li><a href="partner.html"
+                            class="block w-full text-left px-4 py-2 bg-blue-400/10 text-blue-400 rounded-xl border border-blue-400/20 hover:bg-blue-400/20 transition-all text-xs font-bold uppercase tracking-widest text-center">Become
+                            a Partner</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6 text-left">Company</h4>
+                <ul class="text-gray-400 text-sm space-y-4 text-left">
+                    <li><a href="about.html" class="hover:text-white transition">About Us</a></li>
+                    <li><a href="contact.html" class="hover:text-white transition">Contact Support</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Success | Welcome to LearnFlow</title>
+    <meta name="description" content="Your payment was successful. Welcome to LearnFlow!">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #2563eb, #9333ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gradient-border {
+            background: linear-gradient(135deg, #2563eb, #9333ea);
+        }
+
+        .checkmark-circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 2;
+            stroke-miterlimit: 10;
+            stroke: #10b981;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 3;
+            stroke: #fff;
+            stroke-miterlimit: 10;
+            margin: 0 auto;
+            box-shadow: inset 0px 0px 0px #10b981;
+            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        }
+
+        .checkmark-check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+
+        @keyframes stroke {
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes scale {
+
+            0%,
+            100% {
+                transform: none;
+            }
+
+            50% {
+                transform: scale3d(1.1, 1.1, 1);
+            }
+        }
+
+        @keyframes fill {
+            100% {
+                box-shadow: inset 0px 0px 0px 40px #10b981;
+            }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #2563eb;
+            position: absolute;
+            animation: confetti-fall 3s linear forwards;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm h-16 flex items-center">
+        <div class="max-w-7xl mx-auto px-6 w-full flex justify-between items-center">
+            <a href="preview.html" class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-lg gradient-border flex items-center justify-center text-white font-bold">L
+                </div>
+                <span class="text-xl font-bold gradient-text">LearnFlow</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="pt-32 pb-20 px-6">
+        <div class="max-w-3xl mx-auto text-center">
+            <!-- Success Animation -->
+            <div class="mb-8">
+                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+                    <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                </svg>
+            </div>
+
+            <!-- Success Message -->
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4">
+                Welcome to <span class="gradient-text">LearnFlow</span>!
+            </h1>
+            <p class="text-xl text-gray-600 mb-8">
+                Your payment was successful. Your 7-day free trial has started.
+            </p>
+
+            <!-- What's Next -->
+            <div class="bg-white rounded-3xl p-8 shadow-xl border border-gray-200 mb-8">
+                <h2 class="text-2xl font-bold mb-6">What's Next?</h2>
+                <div class="space-y-6 text-left">
+                    <div class="flex items-start">
+                        <div
+                            class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold flex-shrink-0 mr-4">
+                            1
+                        </div>
+                        <div>
+                            <h3 class="font-bold mb-1">Check Your Email</h3>
+                            <p class="text-sm text-gray-600">We've sent you a welcome email with your login credentials
+                                and getting started guide.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div
+                            class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold flex-shrink-0 mr-4">
+                            2
+                        </div>
+                        <div>
+                            <h3 class="font-bold mb-1">Access Your Dashboard</h3>
+                            <p class="text-sm text-gray-600">Start building your first course with our AI-powered course
+                                builder.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div
+                            class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold flex-shrink-0 mr-4">
+                            3
+                        </div>
+                        <div>
+                            <h3 class="font-bold mb-1">Launch Your Business</h3>
+                            <p class="text-sm text-gray-600">Use our site builder to create your branded website and
+                                start selling.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                <a href="dashboard.html"
+                    class="px-8 py-4 rounded-xl font-bold gradient-border text-white hover:opacity-90 transition shadow-xl shadow-blue-500/25">
+                    Go to Dashboard
+                </a>
+                <a href="tutorials.html"
+                    class="px-8 py-4 rounded-xl font-bold border-2 border-gray-300 bg-white hover:border-blue-600 hover:text-blue-600 transition">
+                    View Tutorials
+                </a>
+            </div>
+
+            <!-- Support Info -->
+            <div class="bg-gray-100 rounded-2xl p-6">
+                <h3 class="font-bold mb-2">Need Help Getting Started?</h3>
+                <p class="text-sm text-gray-600 mb-4">Our support team is here to help you succeed.</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center text-sm">
+                    <a href="contact.html" class="text-blue-600 font-semibold hover:underline">📧 Contact Support</a>
+                    <a href="tutorials.html" class="text-blue-600 font-semibold hover:underline">📚 Browse Tutorials</a>
+                    <a href="#" class="text-blue-600 font-semibold hover:underline">💬 Join Community</a>
+                </div>
+            </div>
+
+            <!-- Transaction Details -->
+            <div id="transaction-details" class="mt-8 text-left bg-white rounded-2xl p-6 border border-gray-200">
+                <h3 class="font-bold mb-4">Transaction Details</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Order ID:</span>
+                        <span id="order-id" class="font-mono">Loading...</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Date:</span>
+                        <span id="order-date"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Plan:</span>
+                        <span id="plan-name">Professional</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Trial Period:</span>
+                        <span class="font-semibold text-green-600">7 days free</span>
+                    </div>
+                    <div class="flex justify-between border-t border-gray-200 pt-2 mt-2">
+                        <span class="font-bold">Amount Charged Today:</span>
+                        <span class="font-bold">$0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black text-white py-12 px-6">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-400 text-sm">© 2026 LearnFlow. All rights reserved.</p>
+            <div class="flex space-x-6 mt-4 justify-center">
+                <a href="privacy.html" class="hover:text-white transition text-sm">Privacy Policy</a>
+                <a href="terms.html" class="hover:text-white transition text-sm">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Get session ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+
+        // Set current date
+        document.getElementById('order-date').textContent = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        // If session ID exists, display it
+        if (sessionId) {
+            document.getElementById('order-id').textContent = sessionId.substring(0, 20) + '...';
+
+            // Optionally, fetch session details from your backend
+            // fetchSessionDetails(sessionId);
+        } else {
+            document.getElementById('order-id').textContent = 'N/A';
+        }
+
+        // Create confetti effect
+        function createConfetti() {
+            const colors = ['#2563eb', '#9333ea', '#10b981', '#f59e0b', '#ef4444'];
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    document.body.appendChild(confetti);
+
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 30);
+            }
+        }
+
+        // Trigger confetti on page load
+        window.addEventListener('load', createConfetti);
+    </script>
+
+</body>
+
+</html>
