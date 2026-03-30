@@ -5,7 +5,8 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '../components/ui/button';
 import { BookOpen, Clock, Users, ArrowRight, Star, Search, Filter, PlayCircle, ShieldCheck } from 'lucide-react';
-import API_BASE from '../api_config';
+const API_BASE = 'http://localhost:8082';
+// import API_BASE from '../api_config';
 
 const Courses = () => {
     const [courses, setCourses] = useState([]);

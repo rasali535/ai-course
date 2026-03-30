@@ -3,7 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { CheckCircle, Mail, ArrowRight, Loader2, GraduationCap, PenTool } from 'lucide-react';
 
-import API_BASE from '../api_config';
+const API_BASE = 'http://localhost:8082';
+// import API_BASE from '../api_config';
 
 const Signup = () => {
     const navigate = useNavigate();
@@ -21,6 +22,8 @@ const Signup = () => {
     const [loading, setLoading] = useState(false);
     const [isSignedUp, setIsSignedUp] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+
+    console.log('[DEBUG] API_BASE in Signup.jsx:', API_BASE);
 
     const handleSignup = async (e) => {
         e.preventDefault();
