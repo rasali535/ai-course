@@ -15,7 +15,7 @@ MEDIA_BASE_URL = "/static/uploads"
 # Ensure upload directory exists
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-router = APIRouter(prefix="/api/media", tags=["media"])
+router = APIRouter(prefix="/media", tags=["media"])
 logger = logging.getLogger(__name__)
 
 @router.post("/upload")

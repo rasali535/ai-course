@@ -5,7 +5,7 @@ from backend.sql_database import get_db
 from backend.schemas import Course, CourseCreate, CourseUpdate
 from backend import crud
 
-router = APIRouter(prefix="/api/courses", tags=["courses"])
+router = APIRouter(prefix="/courses", tags=["courses"])
 
 
 @router.get("/", response_model=List[Course])

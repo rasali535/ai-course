@@ -9,7 +9,7 @@ from backend.schemas import Enrollment, EnrollmentCreate, EnrollmentUpdate
 from backend.deps import get_current_user
 import logging
 
-router = APIRouter(prefix="/api/enrollments", tags=["enrollments"])
+router = APIRouter(prefix="/enrollments", tags=["enrollments"])
 logger = logging.getLogger(__name__)
 
 # --- CRUD Functions (Inline for now, could be moved to crud.py) ---

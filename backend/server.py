@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, Request, Response
 from starlette.middleware.cors import CORSMiddleware
 import logging
 import os
@@ -13,11 +13,10 @@ from backend.routers import auth, resources, payments, courses, enrollments, med
 app = FastAPI()
 
 # CORS Architecture
-raw_origins = os.environ.get('CORS_ORIGINS', 'http://localhost:3000,http://localhost:8080,https://pohei.de,https://www.pohei.de,https://u723774100.pohei.de')
+raw_origins = os.environ.get('CORS_ORIGINS', 'http://localhost:3000,http://localhost:8080,http://localhost:8081,http://localhost:8082,https://pohei.de,https://www.pohei.de,https://u723774100.pohei.de')
 origins = [origin.strip() for origin in raw_origins.split(',') if origin.strip()]
 
 # Credentials (cookies) are only allowed if we have explicit origins.
-# If '*' is used, Starlette/FastAPI will fail if allow_credentials=True.
 allow_all = "*" in origins
 credentials_allowed = not allow_all
 
@@ -29,7 +28,29 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# API Router
+# Custom CSP Middleware to allow Stripe, PostHog and Inline Styles
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    
+    # Define CSP policy that allows Stripe and PostHog
+    # Note: Modern browsers (Chrome/Brave) might still enforce local policies, 
+    # but this explicitly authorizes our required services.
+    csp_policy = (
+        "default-src 'self'; "
+        "script-src 'self' https://js.stripe.com https://m.stripe.network https://us.i.posthog.com 'unsafe-inline' 'unsafe-eval' blob:; "
+        "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; "
+        "img-src 'self' data: https://*.unsplash.com https://*.stripe.com; "
+        "connect-src 'self' https://*.supabase.co https://*.stripe.com https://us.i.posthog.com ws: wss:; "
+        "frame-src 'self' https://js.stripe.com; "
+        "font-src 'self' https://fonts.gstatic.com;"
+    )
+    
+    # Only set for HTML responses or entire App if needed
+    response.headers["Content-Security-Policy"] = csp_policy
+    return response
+
+# Main API Router
 api_router = APIRouter(prefix="/api")
 
 @app.get("/")
@@ -39,17 +60,14 @@ async def root():
     """
     return {"message": "LearnFlow API is Pulse-Ready", "status": "active"}
 
-@api_router.get("/")
-async def api_root():
-    return {"message": "Welcome to AI Course Backend"}
-
 # Include sub-routers under /api
+# We use prefix empty if the router already has its own prefix, but it's cleaner to standardize here.
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
 api_router.include_router(resources.router, prefix="/resources", tags=["resources"])
 api_router.include_router(payments.router, prefix="/payments", tags=["payments"])
-api_router.include_router(ai.router)
-api_router.include_router(courses.router)
-api_router.include_router(enrollments.router)
+api_router.include_router(ai.router) # /api/ai
+api_router.include_router(courses.router) # /api/api/courses -> NEEDS FIX in courses.py
+api_router.include_router(enrollments.router) # Needs fix if it has double prefix
 api_router.include_router(media.router)
 
 app.include_router(api_router)
@@ -68,10 +86,10 @@ async def startup_event():
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-        logger.info("Database tables created/verified successfully.")
+        logging.info("Database tables created/verified successfully.")
     except Exception as e:
-        logger.error(f"Failed to initialize database: {e}")
-        logger.warning("Application starting WITHOUT database connection. Some features may be limited.")
+        logging.error(f"Failed to initialize database: {e}")
+        logging.warning("Application starting WITHOUT database connection. Some features may be limited.")
 
 # Logging
 logging.basicConfig(
