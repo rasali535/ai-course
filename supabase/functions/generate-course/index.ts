@@ -1,5 +1,8 @@
-// index.ts - Advanced Supabase Edge Function for Multimodal Course Gen
+// @ts-nocheck
+/// <reference lib="deno.ns" />
+// @ts-ignore
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// @ts-ignore
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
 
 // 🌐 CORS Headers
@@ -9,14 +12,14 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-serve(async (req) => {
+serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
     const { topic, user_id } = await req.json();
     if (!topic || !user_id) throw new Error("Missing topic or user_id.");
 
-    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    const GEMINI_API_KEY = (globalThis as any).Deno.env.get("GEMINI_API_KEY");
     // 🚀 Upgrading to Gemini 2.0 Flash for 2026 Multimodal Capabilities
     const GEMINI_MODEL = "gemini-2.0-flash"; 
     const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
@@ -105,7 +108,7 @@ serve(async (req) => {
       status: 200,
     });
 
-  } catch (error) {
+  } catch (error: any) {
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 400,

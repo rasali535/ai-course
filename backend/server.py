@@ -33,14 +33,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Custom CSP Middleware to allow Stripe, PostHog and Inline Styles
+# Robust CSP Middleware to allow Stripe, PostHog and Inline Styles
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
     
-    # Define CSP policy that allows Stripe and PostHog
-    # Note: Modern browsers (Chrome/Brave) might still enforce local policies, 
-    # but this explicitly authorizes our required services.
+    # Comprehensive CSP policy that handles Stripe and PostHog's complex loading
     csp_policy = (
         "default-src 'self'; "
         "script-src 'self' https://js.stripe.com https://m.stripe.network https://us.i.posthog.com 'unsafe-inline' 'unsafe-eval' blob:; "
@@ -51,7 +49,7 @@ async def add_security_headers(request: Request, call_next):
         "font-src 'self' https://fonts.gstatic.com;"
     )
     
-    # Only set for HTML responses or entire App if needed
+    # Only set for HTML or entire API if needed for browser-level tests
     response.headers["Content-Security-Policy"] = csp_policy
     return response
 
@@ -66,14 +64,14 @@ async def root():
     return {"message": "LearnFlow API is Pulse-Ready", "status": "active"}
 
 # Include sub-routers under /api
-# We use prefix empty if the router already has its own prefix, but it's cleaner to standardize here.
+# We standardize everything under /api/{router_prefix}
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
 api_router.include_router(resources.router, prefix="/resources", tags=["resources"])
 api_router.include_router(payments.router, prefix="/payments", tags=["payments"])
-api_router.include_router(ai.router) # /api/ai
-api_router.include_router(courses.router) # /api/api/courses -> NEEDS FIX in courses.py
-api_router.include_router(enrollments.router) # Needs fix if it has double prefix
-api_router.include_router(media.router)
+api_router.include_router(ai.router) # Already has /ai prefix
+api_router.include_router(courses.router) # Already has /courses prefix
+api_router.include_router(enrollments.router) # Already has /enrollments prefix
+api_router.include_router(media.router, prefix="/media", tags=["media"])
 
 app.include_router(api_router)
 
