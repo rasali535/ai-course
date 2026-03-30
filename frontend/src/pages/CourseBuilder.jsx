@@ -366,7 +366,7 @@ const CourseBuilder = () => {
 
         setIsGenerating(true);
         try {
-            const { data: functionData, error: functionError } = await supabase.functions.invoke('generate-course', {
+            const { data: functionData, error: functionError } = await supabase.functions.invoke('generate-full-course', {
                 body: { 
                     topic: courseTitle, 
                     user_id: localStorage.getItem('userId') || 'guest_user' 

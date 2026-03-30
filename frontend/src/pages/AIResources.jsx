@@ -77,8 +77,8 @@ const AIResources = () => {
 
         try {
             if (selectedTool.id === 'outline') {
-                // Real API Call to Supabase Edge Function
-                const { data: functionData, error: functionError } = await supabase.functions.invoke('generate-course', {
+                // Real API Call to Supabase Edge Function (Full Course with Quizzes)
+                const { data: functionData, error: functionError } = await supabase.functions.invoke('generate-full-course', {
                     body: { 
                         topic: toolInput, 
                         user_id: localStorage.getItem('userId') || 'guest_user' 
