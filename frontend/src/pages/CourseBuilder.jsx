@@ -24,6 +24,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Trash2, GripVertical, Plus, X, Loader2 } from 'lucide-react';
 
 import API_BASE from '../api_config';
+import { supabase } from '../supabase';
 
 // Sidebar Item Component (Draggable)
 const SidebarItem = ({ type, icon, label }) => {
@@ -365,13 +366,18 @@ const CourseBuilder = () => {
 
         setIsGenerating(true);
         try {
-            const response = await axios.post(`${API_BASE}/api/ai/generate-course`, {
-                topic: courseTitle,
-                target_audience: "Beginner"
+            const { data: functionData, error: functionError } = await supabase.functions.invoke('generate-course', {
+                body: { 
+                    topic: courseTitle, 
+                    user_id: localStorage.getItem('userId') || 'guest_user' 
+                }
             });
 
-            const generatedData = response.data;
-            console.log("DEBUG: AI Raw Response Body:", generatedData);
+            if (functionError) throw functionError;
+            
+            // The Edge Function returns { success: true, course: { content: { ... } } }
+            const generatedData = functionData.course.content;
+            console.log("DEBUG: AI Raw Response Body (Edge Function):", generatedData);
 
             if (!generatedData || !generatedData.modules || !Array.isArray(generatedData.modules)) {
                 let dataSnippet = JSON.stringify(generatedData).substring(0, 200);

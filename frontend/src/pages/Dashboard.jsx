@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { BarChart3, BookOpen, Globe, Users, Plus, ArrowRight } from 'lucide-react';
 
 import API_BASE from '../api_config';
+import { supabase } from '../supabase';
 
 const Dashboard = () => {
     const [courses, setCourses] = useState([]);
@@ -26,39 +27,38 @@ const Dashboard = () => {
 
         const fetchCourses = async () => {
             try {
-                let apiCourses = [];
-                try {
-                    const response = await axios.get(`${API_BASE}/api/courses/`);
-                    apiCourses = Array.isArray(response.data) ? response.data : [];
-                } catch (e) {
-                    console.warn("API Fetch failed, using LocalStorage only:", e);
-                }
+                // 1. Fetch from Supabase
+                const { data: sbCourses, error: sbError } = await supabase
+                    .from('courses')
+                    .select('*')
+                    .order('created_at', { ascending: false });
 
+                if (sbError) throw sbError;
+
+                // 2. Local fallback for older sessions
                 const localCourses = JSON.parse(localStorage.getItem('createdCourses') || '[]');
-                const allData = [...localCourses, ...apiCourses];
+                
+                const allData = [...sbCourses, ...localCourses];
 
-                const mappedCourses = allData.map((course, index) => ({
-                    id: course.id || `course-${index}`,
-                    title: course.title,
+                setCourses(allData.map((course, index) => ({
+                    ...course,
+                    id: course.id || `local-${index}`,
                     students: course.students || 0,
-                    progress: course.progress || 0,
-                    image: course.image || `https://images.unsplash.com/photo-${index % 2 === 0 ? '1633356122544-f134324a6cee' : '1677442136019-21780ecad995'}?w=400`,
-                    description: course.description
-                }));
-
-                setCourses(mappedCourses);
+                    progress: 65, // Mocked progress for active engagement
+                    image: `https://images.unsplash.com/photo-${index % 2 === 0 ? '1633356122544-f134224a6cee' : '1677442136019-21780ecad995'}?w=400`,
+                })));
 
                 // Calculate real stats
-                const totalStuds = mappedCourses.reduce((sum, c) => sum + (c.students || 0), 0);
+                const totalStuds = allData.reduce((sum, c) => sum + (c.students || 0), 0);
                 setRealStats({
                     totalStudents: totalStuds,
-                    activeCourses: mappedCourses.length,
+                    activeCourses: allData.length,
                     totalRevenue: totalStuds * 49.99,
-                    siteVisits: (mappedCourses.length * 154 + 42).toLocaleString()
+                    siteVisits: (allData.length * 154 + 42).toLocaleString()
                 });
 
             } catch (error) {
-                console.error("Error fetching courses:", error);
+                console.error("Error fetching courses from Supabase:", error);
                 setCourses([]);
             }
         };
@@ -120,7 +120,15 @@ const Dashboard = () => {
                                     <div className="flex-1 py-1 flex flex-col justify-between">
                                         <div>
                                             <div className="flex justify-between items-start mb-2">
-                                                <h3 className="font-black text-lg text-gray-900 line-clamp-1 tracking-tight">{course.title}</h3>
+                                                <div>
+                                                    <h3 className="font-black text-lg text-gray-900 line-clamp-1 tracking-tight">{course.title}</h3>
+                                                    <div className="flex gap-2 mt-1">
+                                                        <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${course.status === 'published' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'}`}>
+                                                            {course.status || 'Draft'}
+                                                        </span>
+                                                        {course.is_public && <span className="bg-blue-100 text-blue-600 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">Public</span>}
+                                                    </div>
+                                                </div>
                                                 <div className="flex items-center text-[10px] text-gray-400 font-black uppercase tracking-widest">
                                                     <Users size={12} className="mr-1" />
                                                     {course.students} Students
@@ -129,14 +137,25 @@ const Dashboard = () => {
                                             <div className="w-full bg-gray-100 h-1.5 rounded-full mt-4">
                                                 <div className="bg-blue-600 h-full rounded-full transition-all duration-1000" style={{ width: `${course.progress}%` }}></div>
                                             </div>
-                                            <div className="flex justify-between mt-2">
-                                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest opacity-50">Content Stats</span>
-                                                <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{course.progress}% Completion Rate</span>
-                                            </div>
                                         </div>
                                         <div className="flex gap-3 mt-6">
-                                            <Link to={`/course/${course.id}`} className="flex-1 py-2.5 text-center bg-gray-900 text-white rounded-lg text-xs font-bold hover:bg-black transition-colors">View Course</Link>
-                                            <Link to={`/course-builder/${course.id}`} className="flex-1 py-2.5 text-center bg-gray-50 text-gray-700 rounded-lg text-xs font-bold hover:bg-gray-100 transition-colors border border-gray-100">Edit content</Link>
+                                            {course.status === 'published' ? (
+                                                <Link to={`/course/${course.id}`} className="flex-1 py-2.5 text-center bg-gray-900 text-white rounded-lg text-xs font-bold hover:bg-black transition-colors">Course Center</Link>
+                                            ) : (
+                                                <button 
+                                                    onClick={async () => {
+                                                        const { error } = await supabase
+                                                            .from('courses')
+                                                            .update({ status: 'published', is_public: true })
+                                                            .eq('id', course.id);
+                                                        if (!error) window.location.reload();
+                                                    }}
+                                                    className="flex-1 py-2.5 text-center bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors"
+                                                >
+                                                    Publish to Center
+                                                </button>
+                                            )}
+                                            <Link to={`/course-builder/${course.id}`} className="flex-1 py-2.5 text-center bg-gray-50 text-gray-700 rounded-lg text-xs font-bold hover:bg-gray-100 transition-colors border border-gray-100">Review & Edit</Link>
                                         </div>
                                     </div>
                                 </div>

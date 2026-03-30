@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Brain, Sparkles, Wand2, MessageSquare, Layout, Globe, Zap, Shield, Cpu, Users, X, Send, Loader2 } from 'lucide-react';
 
 import API_BASE from '../api_config';
+import { supabase } from '../supabase';
 
 const AIResources = () => {
     const [selectedTool, setSelectedTool] = useState(null);
@@ -76,13 +77,17 @@ const AIResources = () => {
 
         try {
             if (selectedTool.id === 'outline') {
-                // Real API Call to Gemini
-                const response = await axios.post(`${API_BASE}/api/ai/generate-course`, {
-                    topic: toolInput,
-                    target_audience: "Beginner to Intermediate"
+                // Real API Call to Supabase Edge Function
+                const { data: functionData, error: functionError } = await supabase.functions.invoke('generate-course', {
+                    body: { 
+                        topic: toolInput, 
+                        user_id: localStorage.getItem('userId') || 'guest_user' 
+                    }
                 });
 
-                const courseData = response.data;
+                if (functionError) throw functionError;
+                
+                const courseData = functionData.course.content;
 
                 // Store full object for "Create Course" action
                 // But specifically for display, we just want the module titles
