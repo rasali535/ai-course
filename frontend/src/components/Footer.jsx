@@ -9,22 +9,22 @@ const Footer = () => {
     Product: [
       { name: 'Features', href: '/features' },
       { name: 'Pricing', href: '/pricing' },
-      { name: 'Case Studies', href: '#' },
-      { name: 'Updates', href: '#' }
+      { name: 'Case Studies', href: '/case-studies' },
+      { name: 'Updates', href: '/updates' }
     ],
     Company: [
       { name: 'About', href: '/about' },
-      { name: 'Careers', href: '#' },
+      { name: 'Careers', href: '/careers' },
       { name: 'Contact', href: '/contact' }
     ],
     Resources: [
       { name: 'AI Resources', href: '/ai-resources' },
-      { name: 'Help Center', href: '#' },
-      { name: 'Community', href: '#' }
+      { name: 'Help Center', href: '/help-center' },
+      { name: 'Community', href: '/community' }
     ],
     Legal: [
-      { name: 'Privacy', href: '#' },
-      { name: 'Terms', href: '#' }
+      { name: 'Privacy', href: '/privacy' },
+      { name: 'Terms', href: '/terms' }
     ]
   };
 
@@ -112,7 +112,7 @@ const Footer = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-gray-400 text-sm">
-              © 2025 LearnFlow. All rights reserved. Web and App dev by Ras Ali
+              © 2026 LearnFlow. All rights reserved. Web and App dev by Ras Ali
             </div>
             <div className="flex gap-6 text-sm">
               <Link to="/privacy" className="text-gray-400 hover:text-white transition-colors">
@@ -121,9 +121,9 @@ const Footer = () => {
               <Link to="/terms" className="text-gray-400 hover:text-white transition-colors">
                 Terms of Service
               </Link>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+              <Link to="/cookie-settings" className="text-gray-400 hover:text-white transition-colors">
                 Cookie Settings
-              </a>
+              </Link>
             </div>
           </div>
         </div>

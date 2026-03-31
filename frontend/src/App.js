@@ -21,6 +21,12 @@ import Terms from "./pages/Terms";
 import VerifyEmail from "./pages/VerifyEmail";
 import Courses from "./pages/Courses";
 import LearnerDashboard from "./pages/LearnerDashboard";
+import CaseStudies from "./pages/CaseStudies";
+import Updates from "./pages/Updates";
+import Careers from "./pages/Careers";
+import HelpCenter from "./pages/HelpCenter";
+import Community from "./pages/Community";
+import CookieSettings from "./pages/CookieSettings";
 import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
@@ -50,6 +56,12 @@ function App() {
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/learner-dashboard" element={<LearnerDashboard />} />
+          <Route path="/case-studies" element={<CaseStudies />} />
+          <Route path="/updates" element={<Updates />} />
+          <Route path="/careers" element={<Careers />} />
+          <Route path="/help-center" element={<HelpCenter />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/cookie-settings" element={<CookieSettings />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </HashRouter>
