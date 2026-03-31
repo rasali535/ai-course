@@ -136,7 +136,6 @@ const Header = () => {
               <div className="flex flex-col space-y-2 pt-4 border-t">
                 {isLoggedIn ? (
                   <>
-                  <>
                     {userRole === 'creator' ? (
                       <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
                         <Button variant="outline" className="w-full text-gray-700">
