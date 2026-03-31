@@ -45,10 +45,23 @@ const VerifyEmail = () => {
                     if (s) {
                         setStatus('success');
                         setMessage('Your email has been successfully verified! You are now logged in.');
+                        
+                        // ⏱️ Set 7-day trial starting NOW
+                        const now = new Date();
+                        const trialEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+                        await supabase
+                            .from('profiles')
+                            .update({ 
+                                trial_ends_at: trialEnd.toISOString(),
+                                subscription_status: 'trial' 
+                            })
+                            .eq('id', s.user.id);
+
                         const channel = supabase.channel(`signup-confirm:${s.user.email}`);
                         channel.subscribe((st) => {
                             if (st === 'SUBSCRIBED') {
                                 channel.send({ type: 'broadcast', event: 'confirmed' });
+                                console.log("Confirmation broadcast sent for", s.user.email);
                             }
                         });
                     }
