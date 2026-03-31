@@ -14,7 +14,7 @@ const Signup = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [role, setRole] = useState(initialRole === 'creator' ? 'creator' : 'learner');
+    const [role, setRole] = useState(initialRole === 'learner' ? 'learner' : 'creator');
     const [plan, setPlan] = useState('basic');
     const [loading, setLoading] = useState(false);
     const [isSignedUp, setIsSignedUp] = useState(false);

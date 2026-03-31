@@ -4,7 +4,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SupportChat from '../components/SupportChat';
 import { Link, useNavigate } from 'react-router-dom';
-import { BarChart3, BookOpen, Globe, Users, Plus, ArrowRight, Sparkles } from 'lucide-react';
+import { BarChart3, BookOpen, Globe, Users, Plus, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 
 import API_BASE from '../api_config';
 import { supabase } from '../supabase';
@@ -19,12 +19,13 @@ const Dashboard = () => {
     });
     const [profile, setProfile] = useState(null);
     const [isTrialExpired, setIsTrialExpired] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
         const checkAccess = async () => {
+            setIsLoading(true);
             const { data: { user } } = await supabase.auth.getUser();
-            const role = localStorage.getItem('userRole') || 'learner';
 
             if (!user) {
                 navigate('/login');
@@ -38,17 +39,18 @@ const Dashboard = () => {
                 .single();
 
             setProfile(profileData);
+            const userRole = profileData?.role || 'learner';
 
             // Access Logic
-            if (role !== 'creator') {
+            if (userRole !== 'creator') {
                 navigate('/learner-dashboard');
                 return;
             }
 
             // Trial Expiration Logic
             const now = new Date();
-            const trialEnd = new Date(profileData?.trial_ends_at);
-            const expired = profileData?.plan === 'basic' && now > trialEnd;
+            const trialEnd = profileData?.trial_ends_at ? new Date(profileData.trial_ends_at) : null;
+            const expired = trialEnd && profileData?.plan === 'basic' && now > trialEnd;
             setIsTrialExpired(expired);
 
             // If on a paid plan but status isn't active, redirect to checkout
@@ -56,6 +58,7 @@ const Dashboard = () => {
                 navigate(`/checkout?plan=${profileData.plan}&email=${user.email}&user_id=${user.id}`);
                 return;
             }
+            setIsLoading(false);
         };
 
         checkAccess();
@@ -100,6 +103,14 @@ const Dashboard = () => {
 
         fetchCourses();
     }, [navigate]);
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <Loader2 className="animate-spin text-blue-600" size={48} />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 pt-20">
