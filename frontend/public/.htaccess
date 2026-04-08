@@ -3,16 +3,23 @@
   RewriteBase /
   
   # 1. Do not rewrite API requests to index.html
-  # This prevents the "Unexpected token <" error in JSON parsing
   RewriteCond %{REQUEST_URI} ^/api/ [NC]
   RewriteRule ^ - [L]
 
-  # 2. Serve index.html for any other request that isn't a file
-  # This enables React Router (SPA) to handle navigation
+  # 2. Skip rewrite for existing files, directories, and symlinks
+  # This serves robots.txt, manifest.json, images, etc. directly
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d [OR]
+  RewriteCond %{REQUEST_FILENAME} -l
+  RewriteRule ^ - [L]
+
+  # 3. Handle known static files that might be requested without extension
+  # (Optional: for cleaner URLs to static assets if needed)
+  RewriteRule ^(robots\.txt|manifest\.json|sitemap\.xml|favicon\.ico|favicon\.png)$ - [L]
+
+  # 4. SPA Catch-all: Route everything else to index.html
+  # This enables React Router while letting real files pass through
   RewriteRule ^index\.html$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteCond %{REQUEST_FILENAME} !-l
   RewriteRule . /index.html [L]
 </IfModule>
 

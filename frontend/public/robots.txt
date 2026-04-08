@@ -1,0 +1,17 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Exclude sensitive paths
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /checkout/
+Disallow: /success/
+
+# Host
+Host: https://pohei.de
+
+# Sitemaps
+Sitemap: https://pohei.de/sitemap.xml
