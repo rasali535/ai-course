@@ -110,11 +110,15 @@ const Checkout = () => {
         setLoading(true);
         try {
             const finalPrice = computePrice();
+            const token = localStorage.getItem('token');
             const { data } = await axios.post(`${BACKEND_URL}/payments/paypal/create-order`, {
                 amount: finalPrice,
                 currency: currency,
+                description: planId || `certificate_${courseId}`,
                 return_url: `${window.location.origin}/success`,
                 cancel_url: `${window.location.origin}/checkout`
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
             });
 
             if (data.approvalUrl) {

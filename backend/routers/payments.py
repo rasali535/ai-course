@@ -302,7 +302,7 @@ async def create_paypal_order(request: Request, paypal_req: PayPalOrderRequest, 
                     "value": str(paypal_req.amount)
                 },
                 "description": paypal_req.description or "LearnFlow Subscription",
-                "custom_id": f"user_{current_user.id}" # Link to user
+                "custom_id": f"user_{current_user.id}_plan_{paypal_req.description or 'premium'}" # Link to user and plan/course
             }],
             "application_context": {
                 "return_url": paypal_req.return_url,
@@ -369,14 +369,34 @@ async def capture_paypal_order(order_id: str, db: AsyncSession = Depends(get_db)
                         custom_id = order_resp.json().get("purchase_units", [{}])[0].get("custom_id")
                 
                 if custom_id and custom_id.startswith("user_"):
-                    user_id = custom_id.replace("user_", "")
-                    result = await db.execute(select(SQLUser).where(SQLUser.id == user_id))
-                    user = result.scalar_one_or_none()
-                    if user:
-                        user.plan = "premium" # Default for now, should parse from description
-                        user.subscription_status = 'active'
-                        await db.commit()
-                        print(f"SUCCESS: PayPal Fulfillment complete for user {user_id}")
+                    parts = custom_id.split("_plan_")
+                    user_id = parts[0].replace("user_", "")
+                    plan_id = parts[1] if len(parts) > 1 else "premium"
+                    
+                    if plan_id.startswith("certificate_"):
+                        try:
+                            course_id_str = plan_id.replace("certificate_", "")
+                            course_id = int(course_id_str)
+                            from backend.enrollment_model import EnrollmentModel
+                            result_db = await db.execute(
+                                select(EnrollmentModel)
+                                .where(EnrollmentModel.user_id == user_id, EnrollmentModel.course_id == course_id)
+                            )
+                            enrollment = result_db.scalar_one_or_none()
+                            if enrollment:
+                                enrollment.is_paid = True
+                                await db.commit()
+                                print(f"SUCCESS: PayPal Certificate Payment complete for user {user_id}, course {course_id}")
+                        except Exception as ex:
+                            print(f"ERROR: PayPal Certificate Fulfillment failed: {ex}")
+                    else:
+                        result = await db.execute(select(SQLUser).where(SQLUser.id == user_id))
+                        user = result.scalar_one_or_none()
+                        if user:
+                            user.plan = plan_id
+                            user.subscription_status = 'active'
+                            await db.commit()
+                            print(f"SUCCESS: PayPal Fulfillment complete for user {user_id} plan {plan_id}")
             
             return {
                 "orderId": order_id,
@@ -704,14 +724,34 @@ async def paypal_webhook(request: Request, db: AsyncSession = Depends(get_db)):
             custom_id = resource.get("custom_id")
             
         if custom_id and custom_id.startswith("user_"):
-            user_id = custom_id.replace("user_", "")
-            result = await db.execute(select(SQLUser).where(SQLUser.id == user_id))
-            user = result.scalar_one_or_none()
-            if user:
-                user.plan = "premium"
-                user.subscription_status = 'active'
-                await db.commit()
-                print(f"SUCCESS: PayPal Fulfillment via Webhook for user {user_id}")
+            parts = custom_id.split("_plan_")
+            user_id = parts[0].replace("user_", "")
+            plan_id = parts[1] if len(parts) > 1 else "premium"
+            
+            if plan_id.startswith("certificate_"):
+                try:
+                    course_id_str = plan_id.replace("certificate_", "")
+                    course_id = int(course_id_str)
+                    from backend.enrollment_model import EnrollmentModel
+                    result_db = await db.execute(
+                        select(EnrollmentModel)
+                        .where(EnrollmentModel.user_id == user_id, EnrollmentModel.course_id == course_id)
+                    )
+                    enrollment = result_db.scalar_one_or_none()
+                    if enrollment:
+                        enrollment.is_paid = True
+                        await db.commit()
+                        print(f"SUCCESS: PayPal Webhook Certificate Payment complete for user {user_id}, course {course_id}")
+                except Exception as ex:
+                    print(f"ERROR: PayPal Webhook Certificate Fulfillment failed: {ex}")
+            else:
+                result = await db.execute(select(SQLUser).where(SQLUser.id == user_id))
+                user = result.scalar_one_or_none()
+                if user:
+                    user.plan = plan_id
+                    user.subscription_status = 'active'
+                    await db.commit()
+                    print(f"SUCCESS: PayPal Fulfillment via Webhook for user {user_id} plan {plan_id}")
                 
     return {"status": "success"}
 
