@@ -6,7 +6,7 @@ import { ShieldCheck, Lock, CreditCard, Loader2, ArrowRight, CheckCircle, Award,
 import { supabase } from '../supabase';
 import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_API_URL || 'https://pohei.de/api';
+const BACKEND_URL = process.env.REACT_APP_API_URL || 'https://ai-course-e97p.onrender.com';
 
 const Checkout = () => {
     const location = useLocation();

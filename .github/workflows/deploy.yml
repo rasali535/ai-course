@@ -33,7 +33,11 @@ jobs:
 
       - name: 🏗️ Build React App
         working-directory: ./frontend
-        run: npm run build
+        run: |
+          if [ -z "$REACT_APP_API_URL" ] || [ "$REACT_APP_API_URL" = "https://pohei.de/api" ]; then
+            export REACT_APP_API_URL="https://ai-course-e97p.onrender.com"
+          fi
+          npm run build
         env:
           CI: false
           REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
