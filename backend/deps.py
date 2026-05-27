@@ -18,16 +18,24 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
+        email: str = payload.get("email")
+        sub: str = payload.get("sub")
+        if not email and not sub:
             raise credentials_exception
-        token_data = TokenData(email=email)
     except JWTError:
         raise credentials_exception
         
-    result = await db.execute(select(SQLUser).where(SQLUser.email == token_data.email))
-    user = result.scalar_one_or_none()
-    
+    user = None
+    if email:
+        result = await db.execute(select(SQLUser).where(SQLUser.email == email))
+        user = result.scalar_one_or_none()
+    elif sub and "@" in sub:
+        result = await db.execute(select(SQLUser).where(SQLUser.email == sub))
+        user = result.scalar_one_or_none()
+    elif sub:
+        result = await db.execute(select(SQLUser).where(SQLUser.id == sub))
+        user = result.scalar_one_or_none()
+        
     if user is None:
         raise credentials_exception
         
