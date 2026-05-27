@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -8,8 +8,10 @@ from backend.models import UserCreate, User, Token
 from backend.security import get_password_hash, verify_password, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 from backend.deps import get_current_user
 from backend.services.email import email_service
+from backend.limiter import limiter
 from datetime import datetime, timezone, timedelta
 import logging
+import os
 import secrets
 
 router = APIRouter()
@@ -18,7 +20,8 @@ logger = logging.getLogger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token")
 
 @router.post("/signup", response_model=User)
-async def signup(user: UserCreate, db: AsyncSession = Depends(get_db)):
+@limiter.limit("5/minute")
+async def signup(request: Request, user: UserCreate, db: AsyncSession = Depends(get_db)):
     try:
         # Check existing user
         result = await db.execute(select(SQLUser).where(SQLUser.email == user.email))
@@ -55,7 +58,8 @@ async def signup(user: UserCreate, db: AsyncSession = Depends(get_db)):
         await db.refresh(new_user)
         
         # Send verification email
-        verify_url = f"https://pohei.de/verify-email?token={verification_token}"
+        frontend_url = os.getenv("FRONTEND_URL", "https://pohei.de")
+        verify_url = f"{frontend_url}/verify-email?token={verification_token}"
         welcome_msg = "To start your journey, please verify your email address:"
         if user.role == 'creator':
             welcome_msg = "To start your 7-day free trial and access your academy, please verify your email address:"
@@ -110,7 +114,8 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
     return {"message": "Email verified successfully! You can now sign in."}
 
 @router.post("/token", response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+@limiter.limit("10/minute")
+async def login_for_access_token(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(SQLUser).where(SQLUser.email == form_data.username))
     user = result.scalar_one_or_none()
     

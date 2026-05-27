@@ -4,8 +4,8 @@
     "private": true,
     "scripts": {
         "build": "mkdir -p backend/static && cd frontend && npm install && npm run build && cd .. && cp -r frontend/build/* backend/static/",
-        "start": "cd backend && uvicorn server:app",
-        "dev": "concurrently \"cd frontend && npm start\" \"cd backend && uvicorn server:app --reload\""
+        "start": "uvicorn backend.server:app",
+        "dev": "concurrently \"cd frontend && npm start\" \"uvicorn backend.server:app --reload\""
     },
     "devDependencies": {
         "concurrently": "^8.0.0"

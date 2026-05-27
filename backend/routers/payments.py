@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, HTTPException, Depends, Request, Response
 from pydantic import BaseModel, EmailStr
 from typing import Optional, Dict, Any
 import stripe
@@ -7,6 +7,11 @@ import requests
 import base64
 from backend.deps import get_current_user
 from backend.models import User
+from backend.sql_models import SQLUser
+from backend.sql_database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from backend.limiter import limiter
 
 # Initialize Stripe
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "sk_test_your_key_here")
@@ -62,6 +67,7 @@ class DPOPaymentRequest(BaseModel):
     company_ref: Optional[str] = None
     redirect_url: str
     back_url: str
+    result_url: Optional[str] = None # Added for webhook support
 
 # Helper Functions
 def get_paypal_access_token():
@@ -79,22 +85,45 @@ def get_paypal_access_token():
 
 # ============= STRIPE ENDPOINTS =============
 
-@router.post("/create-checkout-session")
-async def create_checkout_session(request: CheckoutSessionRequest):
+@router.post("/create-premium-checkout")
+@limiter.limit("5/minute")
+async def create_premium_checkout(
+    request: Request,
+    plan: str, 
+    success_url: str, 
+    cancel_url: str, 
+    current_user: User = Depends(get_current_user)
+):
     """
-    Create a Stripe Checkout Session for one-time payments or subscriptions
+    Create a Stripe Checkout Session for a specific plan linked to a user
     """
     try:
+        # Map human plan names to Price IDs
+        price_map = {
+            "standard": os.getenv("STRIPE_PRICE_STANDARD", "price_standard_placeholder"),
+            "premium": os.getenv("STRIPE_PRICE_PREMIUM", "price_premium_placeholder")
+        }
+        price_id = price_map.get(plan)
+        
+        if not price_id or price_id == "price_standard_placeholder":
+            # Fallback if no real IDs are set yet, but log it
+            print(f"WARNING: Using placeholder for {plan} plan. Payments will not work.")
+
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],
             line_items=[{
-                'price': request.price_id,
+                'price': price_id,
                 'quantity': 1,
             }],
-            mode='payment',  # or 'subscription' for recurring payments
-            success_url=request.success_url,
-            cancel_url=request.cancel_url,
-            customer_email=request.customer_email,
+            mode='subscription',
+            success_url=success_url,
+            cancel_url=cancel_url,
+            customer_email=current_user.email,
+            client_reference_id=current_user.id,
+            metadata={
+                "plan": plan,
+                "user_id": current_user.id
+            }
         )
         return {"sessionId": session.id, "url": session.url}
     except stripe.error.StripeError as e:
@@ -177,32 +206,66 @@ async def cancel_subscription(subscription_id: str, current_user: User = Depends
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/webhook")
-async def stripe_webhook(request: dict):
+async def stripe_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     """
-    Handle Stripe webhook events
+    Handle Stripe webhook events with signature verification
     """
-    # In production, verify the webhook signature
-    # sig_header = request.headers.get('stripe-signature')
-    # event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
-    
-    event_type = request.get('type')
-    
+    payload = await request.body()
+    sig_header = request.headers.get('stripe-signature')
+    endpoint_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
+
+    if not endpoint_secret:
+        # In development/sandbox, we might skip verification if secret is missing
+        # But for product readiness, we log a warning
+        print("WARNING: STRIPE_WEBHOOK_SECRET not set. Skipping verification (DEV ONLY).")
+        try:
+            event = stripe.Event.construct_from(await request.json(), stripe.api_key)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Invalid payload: {e}")
+    else:
+        try:
+            event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail="Invalid payload")
+        except stripe.error.SignatureVerificationError as e:
+            raise HTTPException(status_code=400, detail="Invalid signature")
+
+    event_type = event['type']
+    data_object = event['data']['object']
+
     if event_type == 'checkout.session.completed':
-        session = request.get('data', {}).get('object', {})
-        # Handle successful payment
-        # Update user subscription status in database
-        pass
-    
+        session = data_object
+        customer_email = session.get('customer_email')
+        client_reference_id = session.get('client_reference_id') # This should be the Supabase UserId
+        
+        # Determine plan from metadata
+        metadata = session.get('metadata', {})
+        plan_id = metadata.get('plan', 'standard')
+        
+        # Find user and update
+        user_id = client_reference_id
+        if user_id:
+            result = await db.execute(select(SQLUser).where(SQLUser.id == user_id))
+            user = result.scalar_one_or_none()
+            if user:
+                user.plan = plan_id
+                user.subscription_status = 'active'
+                user.stripe_customer_id = session.get('customer')
+                user.stripe_subscription_id = session.get('subscription')
+                await db.commit()
+                print(f"SUCCESS: Updated user {user_id} to {plan_id} plan via Stripe.")
+
     elif event_type == 'customer.subscription.deleted':
-        subscription = request.get('data', {}).get('object', {})
-        # Handle subscription cancellation
-        pass
-    
-    elif event_type == 'invoice.payment_failed':
-        invoice = request.get('data', {}).get('object', {})
-        # Handle failed payment
-        pass
-    
+        subscription = data_object
+        stripe_sub_id = subscription.get('id')
+        
+        result = await db.execute(select(SQLUser).where(SQLUser.stripe_subscription_id == stripe_sub_id))
+        user = result.scalar_one_or_none()
+        if user:
+            user.subscription_status = 'expired'
+            await db.commit()
+            print(f"INFO: Subscription {stripe_sub_id} deleted. User access revoked.")
+
     return {"status": "success"}
 
 @router.get("/prices")
@@ -219,7 +282,8 @@ async def get_prices():
 # ============= PAYPAL ENDPOINTS =============
 
 @router.post("/paypal/create-order")
-async def create_paypal_order(request: PayPalOrderRequest):
+@limiter.limit("5/minute")
+async def create_paypal_order(request: Request, paypal_req: PayPalOrderRequest, current_user: User = Depends(get_current_user)):
     """
     Create a PayPal order for payment
     """
@@ -234,14 +298,15 @@ async def create_paypal_order(request: PayPalOrderRequest):
             "intent": "CAPTURE",
             "purchase_units": [{
                 "amount": {
-                    "currency_code": request.currency,
-                    "value": str(request.amount)
+                    "currency_code": paypal_req.currency,
+                    "value": str(paypal_req.amount)
                 },
-                "description": request.description or "LearnFlow Subscription"
+                "description": paypal_req.description or "LearnFlow Subscription",
+                "custom_id": f"user_{current_user.id}" # Link to user
             }],
             "application_context": {
-                "return_url": request.return_url,
-                "cancel_url": request.cancel_url,
+                "return_url": paypal_req.return_url,
+                "cancel_url": paypal_req.cancel_url,
                 "brand_name": "LearnFlow",
                 "landing_page": "BILLING",
                 "user_action": "PAY_NOW"
@@ -273,7 +338,7 @@ async def create_paypal_order(request: PayPalOrderRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/paypal/capture-order/{order_id}")
-async def capture_paypal_order(order_id: str):
+async def capture_paypal_order(order_id: str, db: AsyncSession = Depends(get_db)):
     """
     Capture a PayPal order after customer approval
     """
@@ -291,6 +356,28 @@ async def capture_paypal_order(order_id: str):
         
         if response.status_code == 201:
             capture_data = response.json()
+            
+            # Fulfillment Logic
+            if capture_data.get("status") == "COMPLETED":
+                purchase_unit = capture_data.get("purchase_units", [{}])[0]
+                custom_id = purchase_unit.get("payments", {}).get("captures", [{}])[0].get("custom_id")
+                
+                # If custom_id is missing, check the original order
+                if not custom_id:
+                    order_resp = requests.get(f"{PAYPAL_API_BASE}/v2/checkout/orders/{order_id}", headers=headers)
+                    if order_resp.status_code == 200:
+                        custom_id = order_resp.json().get("purchase_units", [{}])[0].get("custom_id")
+                
+                if custom_id and custom_id.startswith("user_"):
+                    user_id = custom_id.replace("user_", "")
+                    result = await db.execute(select(SQLUser).where(SQLUser.id == user_id))
+                    user = result.scalar_one_or_none()
+                    if user:
+                        user.plan = "premium" # Default for now, should parse from description
+                        user.subscription_status = 'active'
+                        await db.commit()
+                        print(f"SUCCESS: PayPal Fulfillment complete for user {user_id}")
+            
             return {
                 "orderId": order_id,
                 "status": capture_data["status"],
@@ -331,7 +418,8 @@ async def get_paypal_order_status(order_id: str):
 # ============= DPO (Direct Pay Online) ENDPOINTS =============
 
 @router.post("/dpo/create-token")
-async def create_dpo_token(request: DPOPaymentRequest):
+@limiter.limit("5/minute")
+async def create_dpo_token(request: Request, dpo_req: DPOPaymentRequest, current_user: User = Depends(get_current_user)):
     """
     Create a DPO Payment Token
     """
@@ -342,7 +430,7 @@ async def create_dpo_token(request: DPOPaymentRequest):
         
         # Ensure currency for Botswana is supported
         # Botswana Pula (BWP)
-        currency = request.currency.upper()
+        currency = dpo_req.currency.upper()
         
         # Current Date Time for ServiceDate
         now = datetime.now().strftime("%Y/%m/%d %H:%M")
@@ -352,22 +440,28 @@ async def create_dpo_token(request: DPOPaymentRequest):
   <CompanyToken>{company_token}</CompanyToken>
   <Request>createToken</Request>
   <Transaction>
-    <PaymentAmount>{request.amount:.2f}</PaymentAmount>
+    <PaymentAmount>{dpo_req.amount:.2f}</PaymentAmount>
     <PaymentCurrency>{currency}</PaymentCurrency>
-    <CompanyRef>{request.company_ref or "Order-" + base64.b64encode(os.urandom(6)).decode()}</CompanyRef>
-    <RedirectURL>{request.redirect_url}</RedirectURL>
-    <BackURL>{request.back_url}</BackURL>
+    <CompanyRef>{f"user_{current_user.id}"}</CompanyRef>
+    <RedirectURL>{dpo_req.redirect_url}</RedirectURL>
+    <BackURL>{dpo_req.back_url}</BackURL>
     <CompanyRefContinuous>0</CompanyRefContinuous>
     <TransactionApproval>0</TransactionApproval>
   </Transaction>
   <Services>
     <Service>
       <ServiceType>{service_type}</ServiceType>
-      <ServiceDescription>{request.service_description}</ServiceDescription>
+      <ServiceDescription>{dpo_req.service_description}</ServiceDescription>
       <ServiceDate>{now}</ServiceDate>
     </Service>
   </Services>
 </API3G>"""
+
+        # Update XML if result_url is provided
+        if dpo_req.result_url:
+            # Insert ResultURL after BackURL
+            xml_payload = xml_payload.replace(f"<BackURL>{dpo_req.back_url}</BackURL>", 
+                                             f"<BackURL>{dpo_req.back_url}</BackURL>\n    <ResultURL>{dpo_req.result_url}</ResultURL>")
 
         headers = {"Content-Type": "application/xml"}
         
@@ -390,7 +484,7 @@ async def create_dpo_token(request: DPOPaymentRequest):
                 "transRef": mock_trans_ref,
                 "paymentUrl": f"{DPO_PAYMENT_URL}{mock_trans_token}",
                 "currency": currency,
-                "amount": request.amount
+                "amount": dpo_req.amount
             }
 
         response = requests.post(DPO_API_URL, data=xml_payload, headers=headers)
@@ -419,7 +513,7 @@ async def create_dpo_token(request: DPOPaymentRequest):
         raise HTTPException(status_code=500, detail=f"DPO Token Creation Failed: {str(e)}")
 
 @router.get("/dpo/verify-token/{trans_token}")
-async def verify_dpo_token(trans_token: str):
+async def verify_dpo_token(trans_token: str, db: AsyncSession = Depends(get_db)):
     """
     Verify status of a DPO Transaction
     """
@@ -450,7 +544,20 @@ async def verify_dpo_token(trans_token: str):
             root = ET.fromstring(response.text)
             result = root.find("Result").text if root.find("Result") is not None else "Error"
             result_explanation = root.find("ResultExplanation").text if root.find("ResultExplanation") is not None else ""
+            company_ref = root.find("CompanyRef").text if root.find("CompanyRef") is not None else ""
             
+            # Fulfillment Logic
+            if result == "000":
+                if company_ref and company_ref.startswith("user_"):
+                    user_id = company_ref.replace("user_", "")
+                    result_db = await db.execute(select(SQLUser).where(SQLUser.id == user_id))
+                    user = result_db.scalar_one_or_none()
+                    if user:
+                        user.plan = "premium" # Or parse from metadata if added
+                        user.subscription_status = 'active'
+                        await db.commit()
+                        print(f"SUCCESS: DPO Fulfillment complete for user {user_id}")
+
             return {
                 "result": result,
                 "resultExplanation": result_explanation,
@@ -570,6 +677,74 @@ async def get_payout_information():
             "live_chat": "Available in dashboard"
         }
     }
+
+@router.post("/paypal/webhook")
+async def paypal_webhook(request: Request, db: AsyncSession = Depends(get_db)):
+    """
+    Handle PayPal webhook events
+    """
+    payload = await request.json()
+    event_type = payload.get("event_type")
+    
+    print(f"INFO: Received PayPal Webhook: {event_type}")
+    
+    # In production, verify the webhook signature here
+    # https://developer.paypal.com/docs/api/notifications/v1/#webhooks-verify-signature_post
+    
+    if event_type in ["CHECKOUT.ORDER.APPROVED", "PAYMENT.CAPTURE.COMPLETED"]:
+        resource = payload.get("resource", {})
+        
+        # Extract user_id from custom_id (if available)
+        custom_id = None
+        if event_type == "CHECKOUT.ORDER.APPROVED":
+            purchase_units = resource.get("purchase_units", [])
+            if purchase_units:
+                custom_id = purchase_units[0].get("custom_id")
+        else: # PAYMENT.CAPTURE.COMPLETED
+            custom_id = resource.get("custom_id")
+            
+        if custom_id and custom_id.startswith("user_"):
+            user_id = custom_id.replace("user_", "")
+            result = await db.execute(select(SQLUser).where(SQLUser.id == user_id))
+            user = result.scalar_one_or_none()
+            if user:
+                user.plan = "premium"
+                user.subscription_status = 'active'
+                await db.commit()
+                print(f"SUCCESS: PayPal Fulfillment via Webhook for user {user_id}")
+                
+    return {"status": "success"}
+
+@router.post("/dpo/webhook")
+async def dpo_webhook(request: Request, db: AsyncSession = Depends(get_db)):
+    """
+    Handle DPO Push Notification (Webhook)
+    DPO sends an XML payload to the ResultURL
+    """
+    body = await request.body()
+    try:
+        root = ET.fromstring(body)
+        result = root.find("Result").text if root.find("Result") is not None else ""
+        company_ref = root.find("CompanyRef").text if root.find("CompanyRef") is not None else ""
+        trans_token = root.find("TransactionToken").text if root.find("TransactionToken") is not None else ""
+        
+        print(f"INFO: DPO Webhook received for {company_ref}. Result: {result}")
+        
+        if result == "000" and company_ref.startswith("user_"):
+            user_id = company_ref.replace("user_", "")
+            result_db = await db.execute(select(SQLUser).where(SQLUser.id == user_id))
+            user = result_db.scalar_one_or_none()
+            if user:
+                user.plan = "premium" # Or parse from metadata
+                user.subscription_status = 'active'
+                await db.commit()
+                print(f"SUCCESS: DPO Fulfillment via Webhook for user {user_id}")
+                
+        # DPO expects a specific response to acknowledge the webhook
+        return Response(content='<?xml version="1.0" encoding="utf-8"?><API3G><Response>OK</Response></API3G>', media_type="application/xml")
+    except Exception as e:
+        print(f"ERROR: DPO Webhook processing failed: {e}")
+        return Response(content='<?xml version="1.0" encoding="utf-8"?><API3G><Response>Error</Response></API3G>', media_type="application/xml")
 
 @router.get("/my-earnings")
 async def get_my_earnings(current_user: User = Depends(get_current_user)):

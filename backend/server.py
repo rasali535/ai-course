@@ -1,5 +1,8 @@
 from fastapi import FastAPI, APIRouter, Request, Response
 from starlette.middleware.cors import CORSMiddleware
+from backend.limiter import limiter
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 import logging
 import os
 from fastapi.staticfiles import StaticFiles
@@ -13,8 +16,10 @@ from dotenv import load_dotenv
 # Load environment variables from .env
 load_dotenv()
 
-# App init
+# Rate Limiter Init
 app = FastAPI()
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # CORS Architecture
 # We pull from env but provide a comprehensive default for local development.
@@ -38,18 +43,25 @@ app.add_middleware(
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
     
-    # Comprehensive CSP policy that handles Stripe and PostHog's complex loading
+    # Comprehensive CSP policy
+    # Tightened for production: limited default-src and clarified sources
     csp_policy = (
-        "default-src 'self' *; "
-        "script-src 'self' * 'unsafe-inline' 'unsafe-eval' blob:; "
-        "style-src 'self' * 'unsafe-inline'; "
-        "img-src 'self' * data: blob:; "
-        "connect-src 'self' * ws: wss:; "
-        "frame-src 'self' *; "
-        "font-src 'self' * data:;"
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.paypal.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "img-src 'self' data: https://*.stripe.com https://www.paypalobjects.com; "
+        "connect-src 'self' https://api.stripe.com https://api-m.sandbox.paypal.com https://api-m.paypal.com; "
+        "frame-src 'self' https://js.stripe.com https://www.paypal.com; "
+        "font-src 'self' https://fonts.gstatic.com;"
     )
-    # Only set for HTML or entire API if needed for browser-level tests
+    
     response.headers["Content-Security-Policy"] = csp_policy
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    
     return response
 
 # Main API Router
@@ -91,7 +103,23 @@ async def startup_event():
         logging.info("Database tables created/verified successfully.")
     except Exception as e:
         logging.error(f"Failed to initialize database: {e}")
-        logging.warning("Application starting WITHOUT database connection. Some features may be limited.")
+        try:
+            logging.info("Attempting fallback to local SQLite database...")
+            from backend import sql_database
+            from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+            from sqlalchemy.orm import sessionmaker
+            sqlite_url = "sqlite+aiosqlite:///./learnflow.db"
+            sql_database.DATABASE_URL = sqlite_url
+            sql_database.engine = create_async_engine(sqlite_url, echo=True)
+            sql_database.AsyncSessionLocal = sessionmaker(
+                sql_database.engine, class_=AsyncSession, expire_on_commit=False
+            )
+            async with sql_database.engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            logging.info("Successfully initialized fallback SQLite database.")
+        except Exception as sqlite_err:
+            logging.error(f"Failed to initialize fallback SQLite: {sqlite_err}")
+            logging.warning("Application starting WITHOUT database connection. Some features may be limited.")
 
 # Logging
 logging.basicConfig(
