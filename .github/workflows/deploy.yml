@@ -35,7 +35,7 @@ jobs:
         working-directory: ./frontend
         run: |
           if [ -z "$REACT_APP_API_URL" ] || [ "$REACT_APP_API_URL" = "https://pohei.de/api" ]; then
-            export REACT_APP_API_URL="https://ai-course-e97p.onrender.com"
+            export REACT_APP_API_URL="https://ai-course-e97p.onrender.com/api"
           fi
           npm run build
         env:
