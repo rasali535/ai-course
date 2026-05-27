@@ -10,6 +10,7 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState('learner');
+  const [userName, setUserName] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,6 +18,19 @@ const Header = () => {
     setIsLoggedIn(loggedIn);
     const role = localStorage.getItem('userRole') || 'learner';
     setUserRole(role);
+    const storedName = localStorage.getItem('userName') || 'User';
+    setUserName(storedName);
+
+    const fetchSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setIsLoggedIn(true);
+        const name = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User';
+        setUserName(name);
+        setUserRole(session.user.user_metadata?.role || 'learner');
+      }
+    };
+    fetchSession();
   }, []);
 
   const handleLogout = async () => {
@@ -73,13 +87,13 @@ const Header = () => {
                 {userRole === 'creator' ? (
                   <Link to="/dashboard">
                     <Button variant="ghost" className="text-blue-600 font-bold">
-                      Admin
+                      {userName}
                     </Button>
                   </Link>
                 ) : (
                   <Link to="/learner-dashboard">
                     <Button variant="ghost" className="text-blue-600 font-bold">
-                      Portal
+                      {userName}
                     </Button>
                   </Link>
                 )}
@@ -135,13 +149,13 @@ const Header = () => {
                     {userRole === 'creator' ? (
                       <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
                         <Button variant="outline" className="w-full text-gray-700">
-                          Admin Dashboard
+                          Dashboard ({userName})
                         </Button>
                       </Link>
                     ) : (
                       <Link to="/learner-dashboard" onClick={() => setIsMobileMenuOpen(false)}>
                         <Button variant="outline" className="w-full text-blue-600 border-blue-100 font-bold">
-                          My Academy
+                          Academy ({userName})
                         </Button>
                       </Link>
                     )}

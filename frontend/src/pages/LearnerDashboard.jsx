@@ -34,7 +34,8 @@ const LearnerDashboard = () => {
                 // Merge auth data and profile data
                 const userData = {
                     ...authUser,
-                    ...profile
+                    ...profile,
+                    full_name: profile?.full_name || authUser.user_metadata?.full_name || 'Learner'
                 };
                 setUser(userData);
 

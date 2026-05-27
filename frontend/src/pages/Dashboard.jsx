@@ -38,8 +38,16 @@ const Dashboard = () => {
                 .eq('id', user.id)
                 .single();
 
-            setProfile(profileData);
-            const userRole = profileData?.role || 'learner';
+            const mergedProfile = profileData ? {
+                ...profileData,
+                full_name: profileData.full_name || user.user_metadata?.full_name
+            } : {
+                full_name: user.user_metadata?.full_name || 'Creator',
+                role: user.user_metadata?.role || 'creator'
+            };
+
+            setProfile(mergedProfile);
+            const userRole = mergedProfile?.role || 'learner';
 
             // Access Logic
             if (userRole !== 'creator') {
@@ -139,7 +147,7 @@ const Dashboard = () => {
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                     <div>
-                        <h1 className="text-3xl font-black text-gray-900 mb-2 tracking-tighter">Welcome back, Creator! 👋</h1>
+                        <h1 className="text-3xl font-black text-gray-900 mb-2 tracking-tighter">Welcome back, {profile?.full_name || 'Creator'}! 👋</h1>
                         <p className="text-gray-500 font-medium">Here's what's happening in your academy today.</p>
                     </div>
                     <Link to="/course-builder" className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20 group">
