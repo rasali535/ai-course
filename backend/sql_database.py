@@ -12,7 +12,21 @@ if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
 elif DATABASE_URL and DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
 
-engine = create_async_engine(DATABASE_URL, echo=True)
+# Handle sslmode query parameter which causes asyncpg to crash
+connect_args = {}
+if DATABASE_URL and "sslmode" in DATABASE_URL:
+    import urllib.parse as urlparse
+    url_parts = list(urlparse.urlparse(DATABASE_URL))
+    query = dict(urlparse.parse_qsl(url_parts[4]))
+    if "sslmode" in query:
+        # If sslmode is require/prefer/allow, pass ssl=True to asyncpg
+        if query["sslmode"] in ["require", "prefer", "allow"]:
+            connect_args["ssl"] = True
+        del query["sslmode"]
+    url_parts[4] = urlparse.urlencode(query)
+    DATABASE_URL = urlparse.urlunparse(url_parts)
+
+engine = create_async_engine(DATABASE_URL, echo=True, connect_args=connect_args)
 
 AsyncSessionLocal = sessionmaker(
     engine, class_=AsyncSession, expire_on_commit=False

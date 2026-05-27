@@ -22,3 +22,4 @@ cryptography>=42.0.8
 passlib[bcrypt]
 sendgrid>=6.11.0
 slowapi>=0.1.9
+aiosqlite>=0.20.0
