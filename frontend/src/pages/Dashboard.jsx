@@ -4,7 +4,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SupportChat from '../components/SupportChat';
 import { Link, useNavigate } from 'react-router-dom';
-import { BarChart3, BookOpen, Globe, Users, Plus, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
+import { BarChart3, BookOpen, Globe, Users, Plus, ArrowRight, Sparkles, Loader2, Clock } from 'lucide-react';
 
 import API_BASE from '../api_config';
 import { supabase } from '../supabase';
