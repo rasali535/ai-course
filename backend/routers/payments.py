@@ -81,7 +81,7 @@ def get_paypal_access_token():
     response = requests.post(f"{PAYPAL_API_BASE}/v1/oauth2/token", headers=headers, data=data)
     if response.status_code == 200:
         return response.json().get("access_token")
-    raise HTTPException(status_code=500, detail="Failed to get PayPal access token")
+    raise HTTPException(status_code=500, detail=f"Failed to get PayPal access token. Status: {response.status_code}, Response: {response.text}")
 
 # ============= STRIPE ENDPOINTS =============
 
