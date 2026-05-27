@@ -13,6 +13,9 @@ CREATE TABLE IF NOT EXISTS public.courses (
   updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
+-- Index foreign keys for performance
+CREATE INDEX IF NOT EXISTS courses_user_id_idx ON public.courses (user_id);
+
 -- Ensure columns exist even if table was created previously
 ALTER TABLE public.courses ADD COLUMN IF NOT EXISTS status text DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived'));
 ALTER TABLE public.courses ADD COLUMN IF NOT EXISTS is_public boolean DEFAULT false;
@@ -35,7 +38,7 @@ DROP POLICY IF EXISTS "Users can view their own courses." ON public.courses;
 CREATE POLICY "Users can view their own courses." 
   ON public.courses 
   FOR SELECT 
-  USING (auth.uid() = user_id);
+  USING ((select auth.uid()) = user_id);
 
 -- policy: anyone can select published courses
 DROP POLICY IF EXISTS "Anyone can view published courses." ON public.courses;
@@ -49,21 +52,21 @@ DROP POLICY IF EXISTS "Users can create their own courses." ON public.courses;
 CREATE POLICY "Users can create their own courses." 
   ON public.courses 
   FOR INSERT 
-  WITH CHECK (auth.uid() = user_id);
+  WITH CHECK ((select auth.uid()) = user_id);
 
 -- policy: users can update their own courses
 DROP POLICY IF EXISTS "Users can update their own courses." ON public.courses;
 CREATE POLICY "Users can update their own courses." 
   ON public.courses 
   FOR UPDATE 
-  USING (auth.uid() = user_id);
+  USING ((select auth.uid()) = user_id);
 
 -- policy: users can delete their own courses
 DROP POLICY IF EXISTS "Users can delete their own courses." ON public.courses;
 CREATE POLICY "Users can delete their own courses." 
   ON public.courses 
   FOR DELETE 
-  USING (auth.uid() = user_id);
+  USING ((select auth.uid()) = user_id);
 
 -- 4. Set up Auto-Update Trigger for updated_at column
 CREATE OR REPLACE FUNCTION public.handle_updated_at()

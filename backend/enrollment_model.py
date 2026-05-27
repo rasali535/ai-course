@@ -8,8 +8,8 @@ class EnrollmentModel(Base):
     __tablename__ = "enrollments"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String, ForeignKey("profiles.id"), nullable=False)
-    course_id = Column(Integer, ForeignKey("courses.id"), nullable=False)
+    user_id = Column(String, ForeignKey("profiles.id"), nullable=False, index=True)
+    course_id = Column(Integer, ForeignKey("courses.id"), nullable=False, index=True)
     
     # Progress Data
     # Structure: { "module_id": { "lesson_id": true/false }, "overall_percent": 0-100 }

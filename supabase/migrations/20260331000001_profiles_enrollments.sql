@@ -20,10 +20,10 @@ CREATE POLICY "Public profiles are viewable by everyone." ON public.profiles
   FOR SELECT USING (true);
 
 CREATE POLICY "Users can insert their own profile." ON public.profiles
-  FOR INSERT WITH CHECK (auth.uid() = id);
+  FOR INSERT WITH CHECK ((select auth.uid()) = id);
 
 CREATE POLICY "Users can update own profile." ON public.profiles
-  FOR UPDATE USING (auth.uid() = id);
+  FOR UPDATE USING ((select auth.uid()) = id);
 
 -- Create Enrollments Table
 CREATE TABLE IF NOT EXISTS public.enrollments (
@@ -37,18 +37,22 @@ CREATE TABLE IF NOT EXISTS public.enrollments (
   updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
+-- Index foreign keys for performance
+CREATE INDEX IF NOT EXISTS enrollments_user_id_idx ON public.enrollments (user_id);
+CREATE INDEX IF NOT EXISTS enrollments_course_id_idx ON public.enrollments (course_id);
+
 -- Enable RLS on Enrollments
 ALTER TABLE public.enrollments ENABLE ROW LEVEL SECURITY;
 
 -- Enrollments Policies
 CREATE POLICY "Users can view their own enrollments." ON public.enrollments
-  FOR SELECT USING (auth.uid() = user_id);
+  FOR SELECT USING ((select auth.uid()) = user_id);
 
 CREATE POLICY "Users can create their own enrollments." ON public.enrollments
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
+  FOR INSERT WITH CHECK ((select auth.uid()) = user_id);
 
 CREATE POLICY "Users can update their own enrollments." ON public.enrollments
-  FOR UPDATE USING (auth.uid() = user_id);
+  FOR UPDATE USING ((select auth.uid()) = user_id);
 
 -- Profile Trigger for New Users
 CREATE OR REPLACE FUNCTION public.handle_new_user()
