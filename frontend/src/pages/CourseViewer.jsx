@@ -65,7 +65,29 @@ const CourseViewer = () => {
             .single();
           
           if (profile?.role === 'creator' && profile?.plan === 'basic' && profile?.trial_ends_at) {
-            const expired = new Date() > new Date(profile.trial_ends_at);
+            const now = new Date();
+            let expired = now > new Date(profile.trial_ends_at);
+            
+            // Name-based trial abuse check
+            if (!expired) {
+              const nameToMatch = profile.full_name;
+              if (nameToMatch && nameToMatch.toLowerCase() !== 'creator' && nameToMatch.toLowerCase() !== 'user' && nameToMatch.toLowerCase() !== 'learner') {
+                const { data: matchedProfiles } = await supabase
+                  .from('profiles')
+                  .select('*')
+                  .ilike('full_name', nameToMatch);
+                
+                if (matchedProfiles && matchedProfiles.length > 0) {
+                  const hasExpiredMatch = matchedProfiles.some(p => {
+                    const tEnd = p.trial_ends_at ? new Date(p.trial_ends_at) : null;
+                    return p.plan === 'basic' && tEnd && now > tEnd;
+                  });
+                  if (hasExpiredMatch) {
+                    expired = true;
+                  }
+                }
+              }
+            }
             setIsTrialExpired(expired);
           }
         }

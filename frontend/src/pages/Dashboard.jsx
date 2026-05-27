@@ -68,7 +68,28 @@ const Dashboard = () => {
             // Trial Expiration Logic
             const now = new Date();
             const trialEnd = mergedProfile?.trial_ends_at ? new Date(mergedProfile.trial_ends_at) : null;
-            const expired = trialEnd && mergedProfile?.plan === 'basic' && now > trialEnd;
+            let expired = trialEnd && mergedProfile?.plan === 'basic' && now > trialEnd;
+
+            // Name-based trial abuse check (only for basic plan)
+            if (!expired && mergedProfile?.plan === 'basic') {
+                const nameToMatch = mergedProfile?.full_name;
+                if (nameToMatch && nameToMatch.toLowerCase() !== 'creator' && nameToMatch.toLowerCase() !== 'user' && nameToMatch.toLowerCase() !== 'learner') {
+                    const { data: matchedProfiles } = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .ilike('full_name', nameToMatch);
+                    
+                    if (matchedProfiles && matchedProfiles.length > 0) {
+                        const hasExpiredMatch = matchedProfiles.some(p => {
+                            const tEnd = p.trial_ends_at ? new Date(p.trial_ends_at) : null;
+                            return p.plan === 'basic' && tEnd && now > tEnd;
+                        });
+                        if (hasExpiredMatch) {
+                            expired = true;
+                        }
+                    }
+                }
+            }
             setIsTrialExpired(expired);
 
             // If on a paid plan but status isn't active, redirect to checkout
@@ -148,7 +169,6 @@ const Dashboard = () => {
                             <Link to="/pricing" className="block w-full py-5 bg-blue-600 text-white rounded-2xl font-black shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all flex items-center justify-center gap-3">
                                 Upgrade Plan Now <ArrowRight size={20} />
                             </Link>
-                            <button onClick={() => navigate('/login')} className="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-900">Sign in to another account</button>
                         </div>
                     </div>
                 </div>
