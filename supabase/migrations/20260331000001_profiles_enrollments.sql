@@ -2,6 +2,8 @@
 -- Create Profiles Table Link to auth.users
 CREATE TABLE IF NOT EXISTS public.profiles (
   id uuid REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+  email text UNIQUE,
+  hashed_password text,
   full_name text,
   role text DEFAULT 'learner' CHECK (role IN ('learner', 'creator', 'admin')),
   plan text DEFAULT 'basic',
@@ -11,6 +13,14 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   created_at timestamp with time zone DEFAULT now() NOT NULL,
   updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
+
+-- Ensure email and hashed_password columns exist in public.profiles (for existing tables)
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email text UNIQUE;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS hashed_password text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS is_verified boolean DEFAULT false;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS verification_token text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS stripe_customer_id text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS stripe_subscription_id text;
 
 -- Enable RLS on Profiles
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
@@ -65,9 +75,10 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
-  INSERT INTO public.profiles (id, full_name, role, plan, subscription_status)
+  INSERT INTO public.profiles (id, email, full_name, role, plan, subscription_status)
   VALUES (
     new.id, 
+    new.email,
     new.raw_user_meta_data->>'full_name', 
     COALESCE(new.raw_user_meta_data->>'role', 'learner'),
     COALESCE(new.raw_user_meta_data->>'plan', 'basic'),
