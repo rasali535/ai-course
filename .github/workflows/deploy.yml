@@ -13,7 +13,6 @@ jobs:
   deploy-frontend:
     name: Frontend Deployment
     runs-on: ubuntu-latest
-    if: contains(github.event.head_commit.modified, 'frontend/') || contains(github.event.head_commit.modified, 'deploy.yml')
     steps:
       - name: 🚚 Checkout code
         uses: actions/checkout@v4
@@ -66,7 +65,6 @@ jobs:
   deploy-backend:
     name: Backend Docker Publish
     runs-on: ubuntu-latest
-    if: contains(github.event.head_commit.modified, 'backend/') || contains(github.event.head_commit.modified, 'deploy.yml')
     steps:
       - name: 🚚 Checkout code
         uses: actions/checkout@v4
