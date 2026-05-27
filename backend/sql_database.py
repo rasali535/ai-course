@@ -21,7 +21,11 @@ if DATABASE_URL and "sslmode" in DATABASE_URL:
     if "sslmode" in query:
         # If sslmode is require/prefer/allow, pass ssl=True to asyncpg
         if query["sslmode"] in ["require", "prefer", "allow"]:
-            connect_args["ssl"] = True
+            import ssl
+            ssl_context = ssl.create_default_context()
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+            connect_args["ssl"] = ssl_context
         del query["sslmode"]
     url_parts[4] = urlparse.urlencode(query)
     DATABASE_URL = urlparse.urlunparse(url_parts)

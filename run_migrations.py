@@ -13,7 +13,7 @@ if not DATABASE_URL:
 
 # Supabase project ref from the DATABASE_URL
 project_ref = "gcxpgwywpesalfbkeakm" 
-password = "Aliana202x@"
+password = "Aliana12##2"
 quoted_password = quote(password)
 
 # Connection URIs to try:
