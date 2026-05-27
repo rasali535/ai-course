@@ -4,7 +4,7 @@ import { supabase } from '../supabase';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '../components/ui/button';
-import { BookOpen, GraduationCap, Clock, CheckCircle, ChevronRight, Layout, Play, Lock, AlertCircle, Award, CreditCard, Sparkles } from 'lucide-react';
+import { BookOpen, GraduationCap, Clock, CheckCircle, ChevronRight, Layout, Play, Lock, AlertCircle, Award, CreditCard, Sparkles, ArrowRight } from 'lucide-react';
 
 const LearnerDashboard = () => {
     const [user, setUser] = useState(null);
@@ -97,6 +97,30 @@ const LearnerDashboard = () => {
     return (
         <div className="min-h-screen bg-gray-50 pt-20 font-sans">
             <Header />
+
+            {user?.role === 'creator' && trialStatus?.isExpired && user?.subscription_status !== 'active' && (
+                <div className="fixed inset-0 z-[60] bg-gray-900/40 backdrop-blur-md flex items-center justify-center p-4">
+                    <div className="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-10 text-center animate-in zoom-in duration-500">
+                        <div className="w-20 h-20 bg-orange-50 rounded-3xl flex items-center justify-center mx-auto mb-8">
+                            <Sparkles className="text-orange-600" size={40} />
+                        </div>
+                        <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tighter uppercase italic">Trial Expired</h2>
+                        <p className="text-gray-500 font-medium mb-10 leading-relaxed italic uppercase text-[10px] tracking-widest px-4">
+                            Your 7-day trial of LearnFlow has ended. Upgrade now to preserve your academy, download files, and continue accessing your portal.
+                        </p>
+                        <div className="space-y-4">
+                            <Link to="/pricing" className="block w-full py-5 bg-blue-600 text-white rounded-2xl font-black shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all flex items-center justify-center gap-3">
+                                Upgrade Plan Now <ArrowRight size={20} />
+                            </Link>
+                            <button onClick={async () => {
+                                await supabase.auth.signOut();
+                                localStorage.clear();
+                                window.location.href = '/login';
+                            }} className="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-900">Sign in to another account</button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="max-w-7xl mx-auto px-6 py-12">
                 {/* Dashboard Header */}

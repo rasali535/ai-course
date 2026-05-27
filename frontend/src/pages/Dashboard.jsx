@@ -21,6 +21,14 @@ const Dashboard = () => {
     const [isTrialExpired, setIsTrialExpired] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
+    const getTrialDaysLeft = () => {
+        if (!profile?.trial_ends_at) return null;
+        const expiry = new Date(profile.trial_ends_at);
+        const now = new Date();
+        const diffTime = expiry - now;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return Math.max(0, diffDays);
+    };
 
     useEffect(() => {
         const checkAccess = async () => {
@@ -43,7 +51,9 @@ const Dashboard = () => {
                 full_name: profileData.full_name || user.user_metadata?.full_name
             } : {
                 full_name: user.user_metadata?.full_name || 'Creator',
-                role: user.user_metadata?.role || 'creator'
+                role: user.user_metadata?.role || 'creator',
+                plan: 'basic',
+                trial_ends_at: user.created_at || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
             };
 
             setProfile(mergedProfile);
@@ -57,8 +67,8 @@ const Dashboard = () => {
 
             // Trial Expiration Logic
             const now = new Date();
-            const trialEnd = profileData?.trial_ends_at ? new Date(profileData.trial_ends_at) : null;
-            const expired = trialEnd && profileData?.plan === 'basic' && now > trialEnd;
+            const trialEnd = mergedProfile?.trial_ends_at ? new Date(mergedProfile.trial_ends_at) : null;
+            const expired = trialEnd && mergedProfile?.plan === 'basic' && now > trialEnd;
             setIsTrialExpired(expired);
 
             // If on a paid plan but status isn't active, redirect to checkout
@@ -145,6 +155,23 @@ const Dashboard = () => {
             )}
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                {profile?.plan === 'basic' && !isTrialExpired && (
+                    <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-2xl p-6 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg shadow-blue-500/20">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center border border-white/20">
+                                <Clock size={24} />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-lg">Your 7-Day Free Trial is Active</h3>
+                                <p className="text-sm text-blue-100 font-medium">You have {getTrialDaysLeft()} days remaining to build and publish courses on LearnFlow.</p>
+                            </div>
+                        </div>
+                        <Link to="/pricing" className="px-6 py-3 bg-white text-blue-700 rounded-xl font-bold hover:bg-blue-50 transition-all flex-shrink-0 text-center shadow-md">
+                            Upgrade Plan Now
+                        </Link>
+                    </div>
+                )}
+
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                     <div>
                         <h1 className="text-3xl font-black text-gray-900 mb-2 tracking-tighter">Welcome back, {profile?.full_name || 'Creator'}! 👋</h1>
