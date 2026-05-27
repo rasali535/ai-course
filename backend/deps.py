@@ -10,19 +10,45 @@ from backend.security import SECRET_KEY, ALGORITHM
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token")
 
+import os
+import requests
+
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://gcxpgwywpesalfbkeakm.supabase.co")
+SUPABASE_ANON_KEY = os.environ.get("SUPABASE_ANON_KEY", "sb_publishable_MPtdrG6UHTiT82o78y2GJQ_oML-dacm")
+
 async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    
+    email = None
+    sub = None
+    
+    # Try local JWT decoding first (HS256)
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("email")
-        sub: str = payload.get("sub")
-        if not email and not sub:
-            raise credentials_exception
+        email = payload.get("email")
+        sub = payload.get("sub")
     except JWTError:
+        # Fallback to verifying token with Supabase Auth API (supports ES256/ECC P-256 automatically)
+        try:
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "apikey": SUPABASE_ANON_KEY
+            }
+            resp = requests.get(f"{SUPABASE_URL}/auth/v1/user", headers=headers, timeout=5)
+            if resp.status_code == 200:
+                user_data = resp.json()
+                email = user_data.get("email")
+                sub = user_data.get("id")
+            else:
+                raise credentials_exception
+        except Exception:
+            raise credentials_exception
+            
+    if not email and not sub:
         raise credentials_exception
         
     user = None
