@@ -16,12 +16,15 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- Profiles Policies
+DROP POLICY IF EXISTS "Public profiles are viewable by everyone." ON public.profiles;
 CREATE POLICY "Public profiles are viewable by everyone." ON public.profiles
   FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Users can insert their own profile." ON public.profiles;
 CREATE POLICY "Users can insert their own profile." ON public.profiles
   FOR INSERT WITH CHECK ((select auth.uid()) = id);
 
+DROP POLICY IF EXISTS "Users can update own profile." ON public.profiles;
 CREATE POLICY "Users can update own profile." ON public.profiles
   FOR UPDATE USING ((select auth.uid()) = id);
 
@@ -45,16 +48,20 @@ CREATE INDEX IF NOT EXISTS enrollments_course_id_idx ON public.enrollments (cour
 ALTER TABLE public.enrollments ENABLE ROW LEVEL SECURITY;
 
 -- Enrollments Policies
+DROP POLICY IF EXISTS "Users can view their own enrollments." ON public.enrollments;
 CREATE POLICY "Users can view their own enrollments." ON public.enrollments
   FOR SELECT USING ((select auth.uid()) = user_id);
 
+DROP POLICY IF EXISTS "Users can create their own enrollments." ON public.enrollments;
 CREATE POLICY "Users can create their own enrollments." ON public.enrollments
   FOR INSERT WITH CHECK ((select auth.uid()) = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own enrollments." ON public.enrollments;
 CREATE POLICY "Users can update their own enrollments." ON public.enrollments
   FOR UPDATE USING ((select auth.uid()) = user_id);
 
 -- Profile Trigger for New Users
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN

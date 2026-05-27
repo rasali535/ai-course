@@ -4,6 +4,7 @@ import Footer from '../components/Footer';
 import { Link, useLocation } from 'react-router-dom';
 import { CheckCircle, ArrowRight, Play, Layout, Users, Loader2, AlertCircle } from 'lucide-react';
 import axios from 'axios';
+import { supabase } from '../supabase';
 
 const BACKEND_URL = process.env.REACT_APP_API_URL || 'https://ai-course-e97p.onrender.com/api';
 
@@ -15,7 +16,12 @@ const Success = () => {
     useEffect(() => {
         const verifyPayment = async () => {
             const params = new URLSearchParams(location.search);
-            const token = localStorage.getItem('token');
+            // Get fresh token from Supabase session
+            const { data: sessionData } = await supabase.auth.getSession();
+            const token = sessionData?.session?.access_token || localStorage.getItem('token');
+            if (sessionData?.session?.access_token) {
+                localStorage.setItem('token', sessionData.session.access_token);
+            }
             
             // 1. Check for DPO
             const dpoToken = params.get('transToken');

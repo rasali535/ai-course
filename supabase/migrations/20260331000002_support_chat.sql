@@ -14,6 +14,7 @@ CREATE INDEX IF NOT EXISTS support_messages_sender_id_idx ON public.support_mess
 ALTER TABLE public.support_messages ENABLE ROW LEVEL SECURITY;
 
 -- Policies
+DROP POLICY IF EXISTS "Users can only see/send their own messages" ON public.support_messages;
 CREATE POLICY "Users can only see/send their own messages" ON public.support_messages
 FOR ALL USING ((select auth.uid()) = sender_id);
 

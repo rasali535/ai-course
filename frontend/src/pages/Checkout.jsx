@@ -93,7 +93,13 @@ const Checkout = () => {
                 payCurrency = 'USD';
             }
 
-            const token = localStorage.getItem('token');
+            // Get fresh token from Supabase session
+            const { data: sessionData } = await supabase.auth.getSession();
+            const token = sessionData?.session?.access_token || localStorage.getItem('token');
+            if (sessionData?.session?.access_token) {
+                localStorage.setItem('token', sessionData.session.access_token);
+            }
+
             const { data } = await axios.post(`${BACKEND_URL}/payments/paypal/create-order`, {
                 amount: finalPrice,
                 currency: payCurrency,
