@@ -32,7 +32,7 @@ const pricingPlans = [
       'Unlimited students',
       'Advanced AI course generation',
       'Custom branding',
-      'DPO Payment integration',
+      'PayPal Payment integration',
       'Priority email support'
     ],
     cta: 'Get Started Pro',

@@ -79,41 +79,24 @@ const Checkout = () => {
         return currency === 'USD' ? Math.round(basePrice / exchangeRate) : basePrice;
     };
 
-    const [paymentMethod, setPaymentMethod] = useState('dpo');
-
-    const handleStripePayment = async () => {
-        setLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            const { data } = await axios.post(`${BACKEND_URL}/payments/create-premium-checkout`, {
-                plan: planId || 'standard',
-                success_url: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-                cancel_url: `${window.location.origin}/checkout?plan=${planId}`
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            if (data.url) {
-                window.location.href = data.url;
-            } else {
-                throw new Error("Stripe session creation failed");
-            }
-        } catch (error) {
-            console.error("Stripe Error:", error);
-            alert("Failed to initiate Stripe checkout: " + (error.response?.data?.detail || error.message));
-        } finally {
-            setLoading(false);
-        }
-    };
+    const [paymentMethod, setPaymentMethod] = useState('paypal_account');
 
     const handlePayPalPayment = async () => {
         setLoading(true);
         try {
-            const finalPrice = computePrice();
+            let finalPrice = computePrice();
+            let payCurrency = currency;
+            
+            // PayPal doesn't support BWP. Convert BWP to USD before creating order.
+            if (currency === 'BWP') {
+                finalPrice = Math.round(finalPrice / exchangeRate);
+                payCurrency = 'USD';
+            }
+
             const token = localStorage.getItem('token');
             const { data } = await axios.post(`${BACKEND_URL}/payments/paypal/create-order`, {
                 amount: finalPrice,
-                currency: currency,
+                currency: payCurrency,
                 description: planId || `certificate_${courseId}`,
                 return_url: `${window.location.origin}/success`,
                 cancel_url: `${window.location.origin}/checkout`
@@ -134,49 +117,8 @@ const Checkout = () => {
         }
     };
 
-    const handleDPOPayment = async () => {
-        setLoading(true);
-        const finalPrice = computePrice();
-        
-        try {
-            const token = localStorage.getItem('token');
-            const { data: functionData } = await axios.post(`${BACKEND_URL}/payments/dpo/create-token`, {
-                amount: finalPrice,
-                currency: currency,
-                service_description: type === 'certificate' ? `Certificate Collection: ${courseData?.title}` : `Subscription: ${courseData?.title}`,
-                customer_email: customerInfo.email,
-                customer_first_name: customerInfo.firstName,
-                customer_last_name: customerInfo.lastName,
-                redirect_url: `${window.location.origin}/success?gateway=dpo`,
-                back_url: `${window.location.origin}/checkout`,
-                result_url: `${BACKEND_URL}/payments/dpo/webhook`
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            const { result, paymentUrl, transToken, resultExplanation } = functionData;
-
-            if (result === "000") {
-                // IMPORTANT: We NO LONGER update the database here.
-                // The database will be updated on the success page after token verification
-                // Or via a webhook (if available).
-                
-                window.location.href = paymentUrl;
-            } else {
-                alert(`Payment creation failed: ${resultExplanation}`);
-            }
-        } catch (error) {
-            console.error("Payment Error:", error);
-            alert("Failed to initiate payment: " + error.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const handleFinalPayment = () => {
-        if (paymentMethod === 'stripe') handleStripePayment();
-        else if (paymentMethod === 'paypal') handlePayPalPayment();
-        else handleDPOPayment();
+        handlePayPalPayment();
     };
 
     if (fetching) {
@@ -250,43 +192,48 @@ const Checkout = () => {
                         </div>
                     </div>
 
-                    {/* DPO Interface */}
+                    {/* Payment Interface */}
                     <div className="md:col-span-3 bg-white rounded-[3rem] p-12 border border-gray-100 shadow-xl shadow-gray-200/40">
                         <div className="mb-10 p-2 bg-gray-50 border border-gray-100 rounded-3xl flex gap-1">
                             <button 
-                                onClick={() => setPaymentMethod('dpo')}
-                                className={`flex-1 py-4 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'dpo' ? 'bg-white shadow-lg text-blue-600 border border-blue-50' : 'text-gray-400 hover:text-gray-600'}`}
+                                onClick={() => setPaymentMethod('paypal_account')}
+                                className={`flex-1 py-4 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'paypal_account' ? 'bg-white shadow-lg text-blue-600 border border-blue-50' : 'text-gray-400 hover:text-gray-600'}`}
                             >
-                                💳 Africa Gateway (DPO)
+                                💠 PayPal Account
                             </button>
                             <button 
-                                onClick={() => setPaymentMethod('stripe')}
-                                className={`flex-1 py-4 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'stripe' ? 'bg-white shadow-lg text-indigo-600 border border-indigo-50' : 'text-gray-400 hover:text-gray-600'}`}
+                                onClick={() => setPaymentMethod('paypal_card')}
+                                className={`flex-1 py-4 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'paypal_card' ? 'bg-white shadow-lg text-indigo-600 border border-indigo-50' : 'text-gray-400 hover:text-gray-600'}`}
                             >
-                                🌍 Global (Stripe)
-                            </button>
-                            <button 
-                                onClick={() => setPaymentMethod('paypal')}
-                                className={`flex-1 py-4 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'paypal' ? 'bg-white shadow-lg text-blue-800 border border-blue-50' : 'text-gray-400 hover:text-gray-600'}`}
-                            >
-                                💠 PayPal
+                                💳 Visa / Debit Card
                             </button>
                         </div>
 
                         <div className="flex items-center mb-10 gap-4">
-                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-inner ${
-                                paymentMethod === 'dpo' ? 'bg-blue-50 text-blue-600' : 
-                                paymentMethod === 'stripe' ? 'bg-indigo-50 text-indigo-600' : 'bg-blue-100 text-blue-800'
-                            }`}>
-                                {paymentMethod === 'stripe' ? <Globe size={32} /> : <ShieldCheck size={32} />}
+                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-inner bg-blue-50 text-blue-600`}>
+                                {paymentMethod === 'paypal_account' ? <ShieldCheck size={32} /> : <CreditCard size={32} />}
                             </div>
                             <div>
                                 <h3 className="text-2xl font-black tracking-tighter leading-none italic uppercase">
-                                    {paymentMethod === 'dpo' ? 'Direct Pay Online' : paymentMethod === 'stripe' ? 'Stripe Checkout' : 'PayPal Payment'}
+                                    {paymentMethod === 'paypal_account' ? 'PayPal Checkout' : 'Credit / Debit Card'}
                                 </h3>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Verified Gateway Merchant</p>
+                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">
+                                    {paymentMethod === 'paypal_account' ? 'Secure PayPal Merchant' : 'Secure Card Processing via PayPal'}
+                                </p>
                             </div>
                         </div>
+
+                        {currency === 'BWP' && (
+                            <div className="mb-8 p-5 bg-amber-50 border border-amber-100 rounded-[1.5rem] flex items-start gap-4 text-amber-800">
+                                <span className="text-lg">💡</span>
+                                <div>
+                                    <h4 className="text-xs font-black uppercase tracking-wider mb-1">Currency Note</h4>
+                                    <p className="text-[10px] font-bold leading-relaxed italic">
+                                        PayPal does not process BWP directly. Your payment of P{computePrice()} will be converted and processed in USD (approx. ${Math.round(computePrice() / exchangeRate)} USD) at checkout.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="space-y-6 mb-10">
                             <div className="grid grid-cols-2 gap-4">
@@ -320,24 +267,11 @@ const Checkout = () => {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
-                            <div className="p-5 bg-blue-50 border border-blue-100 rounded-[1.5rem] flex items-center gap-4">
-                                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-blue-600 shadow-sm font-bold text-[10px]">MD</div>
-                                <p className="text-[10px] text-blue-800 font-bold leading-tight italic">Supports Mobile Money in Botswana (Orange/Mascom).</p>
-                            </div>
-                            <div className="p-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] flex items-center gap-4">
-                                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-gray-600 shadow-sm font-bold text-[10px]">CC</div>
-                                <p className="text-[10px] text-gray-600 font-bold leading-tight italic">Supports Visa, Mastercard & International Debit.</p>
-                            </div>
-                        </div>
-
                         <button
                             onClick={handleFinalPayment}
                             disabled={loading}
                             className={`w-full h-20 text-white rounded-[1.5rem] font-black text-xl shadow-2xl transition-all flex items-center justify-center gap-4 relative overflow-hidden italic group ${
-                                paymentMethod === 'stripe' ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200' : 
-                                paymentMethod === 'paypal' ? 'bg-[#0070ba] hover:bg-[#003087] shadow-blue-200' : 
-                                'bg-gray-900 hover:bg-blue-600 shadow-gray-200'
+                                paymentMethod === 'paypal_account' ? 'bg-[#0070ba] hover:bg-[#003087] shadow-blue-200' : 'bg-gray-900 hover:bg-blue-600 shadow-gray-200'
                             }`}
                         >
                             {loading && (
@@ -345,9 +279,10 @@ const Checkout = () => {
                                     <Loader2 className="animate-spin" />
                                 </div>
                             )}
-                            {type === 'certificate' ? 'Claim Official Certificate' : 'Initialize Enrollment'}
+                            {paymentMethod === 'paypal_account' ? 'Pay with PayPal' : 'Pay with Visa / Card'}
                             <ArrowRight className="group-hover:translate-x-2 transition-transform" />
                         </button>
+                    </div>
                     </div>
                 </div>
 
