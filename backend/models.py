@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
-from typing import List, Optional
+from typing import List, Optional, Union
 import uuid
 from datetime import datetime, timezone
 
@@ -26,7 +26,7 @@ class UserInDB(UserBase):
     hashed_password: str
     full_name: Optional[str] = None
     disabled: Optional[bool] = None
-    is_verified: bool = False
+    is_verified: Optional[bool] = False
     verification_token: Optional[str] = None
     plan: Optional[str] = 'basic'
     role: Optional[str] = 'learner'
@@ -36,10 +36,10 @@ class UserInDB(UserBase):
 
 class User(UserBase):
     model_config = ConfigDict(from_attributes=True)
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    id: Union[str, uuid.UUID] = Field(default_factory=lambda: str(uuid.uuid4()))
     full_name: Optional[str] = None
     disabled: Optional[bool] = False
-    is_verified: bool = False
+    is_verified: Optional[bool] = False
     plan: Optional[str] = 'basic'
     role: Optional[str] = 'learner'
     subscription_status: Optional[str] = 'trial'
