@@ -283,7 +283,6 @@ const Checkout = () => {
                             <ArrowRight className="group-hover:translate-x-2 transition-transform" />
                         </button>
                     </div>
-                    </div>
                 </div>
 
                 <div className="mt-12 flex justify-center items-center gap-8 opacity-40">
