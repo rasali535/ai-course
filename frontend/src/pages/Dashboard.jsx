@@ -93,8 +93,8 @@ const Dashboard = () => {
             setIsTrialExpired(expired);
 
             // If on a paid plan but status isn't active, redirect to checkout
-            if (profileData?.plan !== 'basic' && profileData?.subscription_status !== 'active') {
-                navigate(`/checkout?plan=${profileData.plan}&email=${user.email}&user_id=${user.id}`);
+            if (mergedProfile.plan !== 'basic' && mergedProfile.subscription_status !== 'active') {
+                navigate(`/checkout?plan=${mergedProfile.plan}&email=${user.email}&user_id=${user.id}`);
                 return;
             }
             setIsLoading(false);
