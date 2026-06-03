@@ -23,7 +23,15 @@ import {
     useSortable
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Trash2, GripVertical, Plus, X, Loader2 } from 'lucide-react';
+import { 
+    Trash2, GripVertical, Plus, X, Loader2, 
+    Eye, EyeOff, Film, ArrowLeft, ArrowRight, 
+    CheckCircle, FileText, HelpCircle, Trophy, 
+    Clock, Sparkles, BookOpen, RotateCcw 
+} from 'lucide-react';
+import AIVideoPlayer from '../components/AIVideoPlayer';
+import { motion, AnimatePresence } from 'framer-motion';
+import confetti from 'canvas-confetti';
 
 // Sidebar Item Component (Draggable)
 const SidebarItem = ({ type, icon, label }) => {
@@ -187,6 +195,21 @@ const CourseBuilder = () => {
     const [finalExam, setFinalExam] = useState([]); // Added state for final exam
     const [isGenerating, setIsGenerating] = useState(false);
     const [authLoading, setAuthLoading] = useState(true);
+    
+    // Preview Mode states
+    const [previewMode, setPreviewMode] = useState(false);
+    const [previewModuleIdx, setPreviewModuleIdx] = useState(0);
+    const [previewLessonIdx, setPreviewLessonIdx] = useState(0);
+    const [previewQuizMode, setPreviewQuizMode] = useState(false);
+    const [showPreviewVideo, setShowPreviewVideo] = useState(false);
+    const [previewQuizState, setPreviewQuizState] = useState({
+        currentQuestion: 0,
+        selectedOption: null,
+        isCorrect: null,
+        score: 0,
+        isFinished: false,
+        results: []
+    });
 
     const { id } = useParams();
     const navigate = useNavigate();
@@ -477,6 +500,79 @@ const CourseBuilder = () => {
         }
     };
 
+    // Preview Mode Helpers & Handlers
+    const previewModules = (modules || []).map(m => {
+        const lessons = m.lessons || (m.content || []).map(item => ({
+            title: item.title || item.text || "Untitled Lesson",
+            content: item.text || ""
+        }));
+        
+        const quiz = (m.quiz || []).map(q => {
+            let answerIdx = q.answer;
+            if (answerIdx === undefined && q.correct_answer !== undefined) {
+                const idx = q.options.indexOf(q.correct_answer);
+                if (idx !== -1) {
+                    answerIdx = idx;
+                } else {
+                    answerIdx = 0;
+                }
+            }
+            return {
+                ...q,
+                answer: answerIdx
+            };
+        });
+
+        return {
+            ...m,
+            lessons,
+            quiz
+        };
+    });
+
+    const activePreviewModule = previewModules[previewModuleIdx] || null;
+    const activePreviewLesson = activePreviewModule?.lessons?.[previewLessonIdx] || null;
+
+    const handlePreviewOptionSelect = (optionIdx) => {
+        if (previewQuizState.isCorrect !== null) return;
+
+        const currentModule = previewModules[previewModuleIdx];
+        if (!currentModule || !currentModule.quiz) return;
+
+        const question = currentModule.quiz[previewQuizState.currentQuestion];
+        if (!question) return;
+
+        const isCorrect = optionIdx === question.answer;
+
+        setPreviewQuizState(prev => ({
+            ...prev,
+            selectedOption: optionIdx,
+            isCorrect: isCorrect,
+            score: isCorrect ? prev.score + 1 : prev.score,
+            results: [...prev.results, { question: question.question, isCorrect }]
+        }));
+
+        setTimeout(() => {
+            if (previewQuizState.currentQuestion < currentModule.quiz.length - 1) {
+                setPreviewQuizState(prev => ({
+                    ...prev,
+                    currentQuestion: prev.currentQuestion + 1,
+                    selectedOption: null,
+                    isCorrect: null
+                }));
+            } else {
+                setPreviewQuizState(prev => ({
+                    ...prev,
+                    isFinished: true
+                }));
+                const finalScore = isCorrect ? previewQuizState.score + 1 : previewQuizState.score;
+                if (Math.round((finalScore / currentModule.quiz.length) * 100) >= 80) {
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                }
+            }
+        }, 2000);
+    };
+
     if (authLoading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -507,108 +603,461 @@ const CourseBuilder = () => {
                             className="text-gray-500 mt-2 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-blue-600 outline-none w-full"
                         />
                     </div>
-                    <button
-                        onClick={handleSaveCourse}
-                        className="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg shadow-gray-900/20 flex items-center"
-                    >
-                        Save Course
-                    </button>
+                    <div className="flex gap-3 flex-shrink-0">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setPreviewQuizState({
+                                    currentQuestion: 0,
+                                    selectedOption: null,
+                                    isCorrect: null,
+                                    score: 0,
+                                    isFinished: false,
+                                    results: []
+                                });
+                                setPreviewModuleIdx(0);
+                                setPreviewLessonIdx(0);
+                                setPreviewQuizMode(false);
+                                setPreviewMode(!previewMode);
+                            }}
+                            className={`px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 border-2 ${
+                                previewMode 
+                                    ? 'bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 shadow-lg shadow-blue-100' 
+                                    : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                            }`}
+                        >
+                            {previewMode ? <EyeOff size={18} /> : <Eye size={18} />}
+                            {previewMode ? "Exit Preview" : "Learner Preview"}
+                        </button>
+                        <button
+                            onClick={handleSaveCourse}
+                            className="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg shadow-gray-900/20 flex items-center"
+                        >
+                            Save Course
+                        </button>
+                    </div>
                 </div>
 
-                <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragStart={handleDragStart}
-                    onDragEnd={handleDragEnd}
-                >
-                    <div className="bg-white rounded-3xl shadow-2xl flex h-[700px] border border-gray-100 overflow-hidden">
-                        {/* Sidebar Tools */}
-                        <aside className="w-[260px] bg-white border-r border-gray-100 p-6 hidden md:block overflow-y-auto">
-                            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">Components</h3>
-                            <div className="space-y-3">
-                                <SidebarItem type="text" label="Text Lesson" icon="📄" />
-                                <SidebarItem type="video" label="Video Player" icon="📽️" />
-                                <SidebarItem type="quiz" label="Interactive Quiz" icon="❓" />
-                                <SidebarItem type="file" label="Downloadable File" icon="📁" />
-                                <button
-                                    onClick={generateAIContent}
-                                    disabled={isGenerating}
-                                    className="w-full p-3 bg-blue-50 rounded-xl border border-blue-100 flex items-center cursor-pointer hover:bg-white hover:shadow-sm transition-all text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {isGenerating ? (
-                                        <>
-                                            <Loader2 size={18} className="animate-spin mr-3" />
-                                            <span className="text-sm font-bold tracking-tight">Generating...</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <span className="mr-3">✨</span>
-                                            <span className="text-sm font-bold tracking-tight">AI Multi-Generator</span>
-                                        </>
-                                    )}
-                                </button>
+                {previewMode ? (
+                    <div className="bg-white rounded-[2rem] shadow-2xl flex h-[750px] border border-gray-100 overflow-hidden font-inter">
+                        {/* Sidebar Navigation */}
+                        <aside className="w-80 border-r border-gray-100 flex flex-col bg-gray-50/50">
+                            <div className="p-6 border-b border-gray-100 bg-white">
+                                <span className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] block mb-2">LEARNER MODE PREVIEW</span>
+                                <h1 className="text-sm font-black text-gray-900 line-clamp-2 leading-relaxed">{courseTitle}</h1>
+                                <div className="mt-4 flex items-center gap-2">
+                                    <div className="h-1.5 flex-1 bg-gray-100 rounded-full overflow-hidden">
+                                        <div 
+                                            className="h-full bg-blue-600 rounded-full transition-all duration-1000" 
+                                            style={{ width: `${previewModules.length > 0 ? ((previewModuleIdx + 1) / previewModules.length) * 100 : 0}%` }}
+                                        />
+                                    </div>
+                                    <span className="text-[10px] font-bold text-gray-400">
+                                        {previewModules.length > 0 ? Math.round((previewModuleIdx / previewModules.length) * 100) : 0}%
+                                    </span>
+                                </div>
                             </div>
 
-                            <div className="mt-12 p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
-                                <p className="text-[10px] font-bold text-indigo-600 uppercase mb-2">Pro Tip</p>
-                                <p className="text-[11px] text-gray-600 leading-relaxed">Drag components directly into modules to build your course.</p>
+                            <div className="flex-1 overflow-y-auto p-4 space-y-6">
+                                {previewModules.length === 0 ? (
+                                    <p className="text-center text-xs font-bold text-gray-400 py-10">No modules added yet. Add modules to preview.</p>
+                                ) : (
+                                    previewModules.map((module, mIdx) => (
+                                        <div key={mIdx} className="space-y-2">
+                                            <h3 className="px-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">
+                                                Module {mIdx + 1}
+                                            </h3>
+                                            <div className="space-y-1">
+                                                {(module.lessons || []).map((lesson, lIdx) => {
+                                                    const isActive = previewModuleIdx === mIdx && previewLessonIdx === lIdx && !previewQuizMode;
+                                                    const isPassed = mIdx < previewModuleIdx || (mIdx === previewModuleIdx && lIdx < previewLessonIdx);
+                                                    
+                                                    return (
+                                                        <button
+                                                            key={lIdx}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setPreviewModuleIdx(mIdx);
+                                                                setPreviewLessonIdx(lIdx);
+                                                                setPreviewQuizMode(false);
+                                                            }}
+                                                            className={`w-full text-left p-3 rounded-2xl text-sm font-bold flex items-center gap-3 transition-all ${
+                                                                isActive 
+                                                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
+                                                                    : 'text-gray-600 hover:bg-white hover:shadow-sm'
+                                                            }`}
+                                                        >
+                                                            <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                                                                isActive ? 'bg-white/20' : 'bg-gray-100'
+                                                            }`}>
+                                                                {isPassed ? <CheckCircle className="w-3.5 h-3.5 text-green-500" /> : <FileText className="w-3.5 h-3.5" />}
+                                                            </div>
+                                                            <span className="line-clamp-1">{lesson.title}</span>
+                                                        </button>
+                                                    );
+                                                })}
+                                                
+                                                {module.quiz && module.quiz.length > 0 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setPreviewModuleIdx(mIdx);
+                                                            setPreviewQuizMode(true);
+                                                            setPreviewLessonIdx((module.lessons || []).length - 1);
+                                                            setPreviewQuizState({
+                                                                currentQuestion: 0,
+                                                                selectedOption: null,
+                                                                isCorrect: null,
+                                                                score: 0,
+                                                                isFinished: false,
+                                                                results: []
+                                                            });
+                                                        }}
+                                                        className={`w-full text-left p-3 rounded-2xl text-sm font-bold flex items-center gap-3 transition-all ${
+                                                            previewQuizMode && previewModuleIdx === mIdx 
+                                                                ? 'bg-purple-600 text-white shadow-lg shadow-purple-200' 
+                                                                : 'text-gray-600 hover:bg-white hover:shadow-sm'
+                                                        }`}
+                                                    >
+                                                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                                                            previewQuizMode && previewModuleIdx === mIdx ? 'bg-white/20' : 'bg-gray-100'
+                                                        }`}>
+                                                            <HelpCircle className="w-3.5 h-3.5" />
+                                                        </div>
+                                                        <span>Module Assessment</span>
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </aside>
 
-                        {/* Editor Canvas */}
-                        <section className="flex-1 p-8 bg-gray-50/50 flex flex-col">
-                            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                                <SortableContext
-                                    items={modules.map(m => m.id)}
-                                    strategy={verticalListSortingStrategy}
-                                >
-                                    {modules.map((module) => (
-                                        <SortableModule
-                                            key={module.id}
-                                            id={module.id}
-                                            module={module}
-                                            onDelete={handleDeleteModule}
-                                            onRemoveContent={handleRemoveContent}
-                                            onUpdateModule={handleUpdateModule}
-                                            onUpdateContent={handleUpdateContent}
-                                        />
-                                    ))}
-                                </SortableContext>
+                        {/* Main Content Area */}
+                        <main className="flex-1 overflow-y-auto bg-white flex flex-col">
+                            <div className="max-w-3xl mx-auto w-full px-6 py-10 flex-1 flex flex-col justify-between">
+                                <AnimatePresence mode="wait">
+                                    {!previewQuizMode ? (
+                                        activePreviewLesson ? (
+                                            <motion.div
+                                                key={`preview-lesson-${previewModuleIdx}-${previewLessonIdx}`}
+                                                initial={{ opacity: 0, y: 15 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -15 }}
+                                                transition={{ duration: 0.3 }}
+                                                className="flex-1 flex flex-col"
+                                            >
+                                                <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                                    <div>
+                                                        <div className="flex items-center gap-3 text-[10px] font-black text-blue-600 uppercase tracking-[0.3em] mb-4">
+                                                            <span className="px-2 py-1 bg-blue-50 rounded-md">Module {previewModuleIdx + 1}</span>
+                                                            <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+                                                            <span>Lesson {previewLessonIdx + 1}</span>
+                                                        </div>
+                                                        <h2 className="text-3xl font-black text-gray-900 tracking-tighter">
+                                                            {activePreviewLesson.title}
+                                                        </h2>
+                                                    </div>
+                                                    <button 
+                                                        type="button"
+                                                        onClick={() => setShowPreviewVideo(true)}
+                                                        className="flex items-center gap-2.5 px-6 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-blue-200 transition-all hover:-translate-y-0.5 active:translate-y-0 flex-shrink-0"
+                                                    >
+                                                        <Film className="w-4 h-4" /> Play AI Video Lecture
+                                                    </button>
+                                                </div>
 
-                                {/* Add Module Button */}
-                                <button
-                                    onClick={handleAddModule}
-                                    className="w-full py-4 border-2 border-dashed border-gray-200 rounded-2xl text-gray-400 font-bold hover:border-blue-500 hover:text-blue-500 hover:bg-blue-50 transition-all flex items-center justify-center gap-2"
-                                >
-                                    <Plus size={20} />
-                                    Add New Module
-                                </button>
+                                                <div className="prose prose-lg max-w-none prose-slate flex-1">
+                                                    <div className="whitespace-pre-wrap text-gray-700 leading-relaxed text-base bg-gray-50/50 p-8 rounded-2xl border border-gray-100 font-medium">
+                                                        {activePreviewLesson.content}
+                                                    </div>
+                                                </div>
 
-                                {/* AI Insertion Point */}
-                                <div
-                                    onClick={generateAIContent}
-                                    className="mt-6 py-8 text-center border-2 border-dashed border-blue-100 rounded-3xl bg-blue-50/30 cursor-pointer hover:bg-blue-50 transition-colors"
-                                >
-                                    <div className="inline-flex items-center text-blue-600 font-bold">
-                                        <span className="mr-2">✨</span> Generate next 3 modules for "{courseTitle}"
-                                    </div>
-                                    <p className="text-xs text-blue-400 mt-2">Personalized based on your course topic</p>
-                                </div>
+                                                <div className="mt-12 flex items-center justify-between pt-8 border-t border-gray-100">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            if (previewLessonIdx > 0) {
+                                                                setPreviewLessonIdx(prev => prev - 1);
+                                                            } else if (previewModuleIdx > 0) {
+                                                                const prevMod = previewModules[previewModuleIdx - 1];
+                                                                setPreviewModuleIdx(prev => prev - 1);
+                                                                setPreviewLessonIdx((prevMod?.lessons || []).length - 1);
+                                                            }
+                                                        }}
+                                                        disabled={previewModuleIdx === 0 && previewLessonIdx === 0}
+                                                        className="flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-gray-900 transition-colors disabled:opacity-0"
+                                                    >
+                                                        <ChevronLeft className="w-5 h-5" /> Previous
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const mod = previewModules[previewModuleIdx];
+                                                            if (previewLessonIdx < (mod?.lessons || []).length - 1) {
+                                                                setPreviewLessonIdx(prev => prev + 1);
+                                                            } else {
+                                                                setPreviewQuizMode(true);
+                                                            }
+                                                        }}
+                                                        className="flex items-center gap-3 px-8 h-14 bg-gray-900 text-white rounded-2xl font-bold hover:bg-blue-600 transition-all shadow-xl shadow-gray-200 active:scale-95"
+                                                    >
+                                                        Next Step <ChevronRight className="w-5 h-5" />
+                                                    </button>
+                                                </div>
+                                            </motion.div>
+                                        ) : (
+                                            <div className="text-center py-20 text-gray-400">Select a lesson to preview.</div>
+                                        )
+                                    ) : (
+                                        activePreviewModule && activePreviewModule.quiz && activePreviewModule.quiz.length > 0 && (
+                                            <motion.div
+                                                key={`preview-quiz-${previewModuleIdx}`}
+                                                initial={{ opacity: 0, scale: 0.97 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                exit={{ opacity: 0, scale: 1.03 }}
+                                                transition={{ duration: 0.3 }}
+                                                className="max-w-2xl mx-auto w-full"
+                                            >
+                                                {!previewQuizState.isFinished ? (
+                                                    <div className="bg-white rounded-3xl border-2 border-gray-100 p-8 shadow-xl relative overflow-hidden">
+                                                        <div className="absolute top-0 left-0 w-full h-1.5 bg-gray-50">
+                                                            <div 
+                                                                className="h-full bg-purple-600 transition-all duration-500"
+                                                                style={{ width: `${((previewQuizState.currentQuestion + 1) / activePreviewModule.quiz.length) * 100}%` }}
+                                                            />
+                                                        </div>
+
+                                                        <div className="mb-8">
+                                                            <span className="inline-block px-3 py-1 bg-purple-50 text-purple-600 rounded-lg text-[10px] font-black uppercase tracking-widest mb-4">
+                                                                Module {previewModuleIdx + 1} Assessment Preview
+                                                            </span>
+                                                            <h3 className="text-xl md:text-2xl font-black text-gray-900 leading-tight tracking-tight">
+                                                                {activePreviewModule.quiz[previewQuizState.currentQuestion]?.question}
+                                                            </h3>
+                                                        </div>
+
+                                                        <div className="space-y-3">
+                                                            {(activePreviewModule.quiz[previewQuizState.currentQuestion]?.options || []).map((option, idx) => {
+                                                                const isSelected = previewQuizState.selectedOption === idx;
+                                                                const isCorrect = previewQuizState.isCorrect;
+                                                                
+                                                                let borderClass = "border-gray-100 hover:border-gray-300";
+                                                                let bgClass = "bg-white";
+                                                                let textClass = "text-gray-700";
+
+                                                                if (isSelected) {
+                                                                    if (isCorrect) {
+                                                                        borderClass = "border-green-500 ring-4 ring-green-50 shadow-lg";
+                                                                        bgClass = "bg-green-50";
+                                                                        textClass = "text-green-900";
+                                                                    } else if (isCorrect === false) {
+                                                                        borderClass = "border-red-500 ring-4 ring-red-50";
+                                                                        bgClass = "bg-red-50";
+                                                                        textClass = "text-red-900";
+                                                                    } else {
+                                                                        borderClass = "border-blue-600 shadow-xl shadow-blue-100";
+                                                                        bgClass = "bg-blue-50";
+                                                                        textClass = "text-blue-900";
+                                                                    }
+                                                                }
+
+                                                                return (
+                                                                    <motion.button
+                                                                        key={idx}
+                                                                        type="button"
+                                                                        onClick={() => handlePreviewOptionSelect(idx)}
+                                                                        whileTap={{ scale: 0.98 }}
+                                                                        className={`w-full p-4 text-left rounded-2xl border-2 font-bold text-base transition-all flex items-center justify-between group ${borderClass} ${bgClass} ${textClass}`}
+                                                                    >
+                                                                        {option}
+                                                                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                                                                            isSelected ? 'border-transparent bg-white/50' : 'border-gray-100 group-hover:border-blue-200'
+                                                                        }`}>
+                                                                            {isSelected && isCorrect && <CheckCircle className="w-4 h-4 text-green-600" />}
+                                                                            {isSelected && isCorrect === false && <RotateCcw className="w-4 h-4 text-red-600" />}
+                                                                        </div>
+                                                                    </motion.button>
+                                                                );
+                                                            })}
+                                                        </div>
+
+                                                        {previewQuizState.isCorrect !== null && activePreviewModule.quiz[previewQuizState.currentQuestion]?.explanation && (
+                                                            <div className="mt-8 p-4 rounded-xl border bg-gray-50 border-gray-100 flex items-start gap-3">
+                                                                <HelpCircle className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
+                                                                <div>
+                                                                    <p className="text-[10px] font-black uppercase text-gray-400 mb-1">Explanation</p>
+                                                                    <p className="text-xs text-gray-600 leading-relaxed font-semibold">
+                                                                        {activePreviewModule.quiz[previewQuizState.currentQuestion]?.explanation}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-center bg-white rounded-[2.5rem] p-10 border-2 border-gray-100 shadow-xl">
+                                                        <div className="w-24 h-24 bg-blue-50 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
+                                                            <Trophy className="w-12 h-12 text-blue-600" />
+                                                        </div>
+                                                        <h3 className="text-3xl font-black text-gray-900 tracking-tighter mb-2">Module {previewModuleIdx + 1} Assessment Complete!</h3>
+                                                        <p className="text-gray-500 mb-8 text-base font-medium">
+                                                            You scored <span className="text-blue-600 font-black">{Math.round((previewQuizState.score / activePreviewModule.quiz.length) * 100)}%</span> in this preview assessment.
+                                                        </p>
+
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setPreviewQuizState({
+                                                                    currentQuestion: 0,
+                                                                    selectedOption: null,
+                                                                    isCorrect: null,
+                                                                    score: 0,
+                                                                    isFinished: false,
+                                                                    results: []
+                                                                })}
+                                                                className="h-14 rounded-xl border-2 border-gray-100 font-bold hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
+                                                            >
+                                                                <RotateCcw className="w-4 h-4" /> Retake
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    if (previewModuleIdx < previewModules.length - 1) {
+                                                                        setPreviewModuleIdx(prev => prev + 1);
+                                                                        setPreviewLessonIdx(0);
+                                                                        setPreviewQuizMode(false);
+                                                                        setPreviewQuizState({
+                                                                            currentQuestion: 0,
+                                                                            selectedOption: null,
+                                                                            isCorrect: null,
+                                                                            score: 0,
+                                                                            isFinished: false,
+                                                                            results: []
+                                                                        });
+                                                                    } else {
+                                                                        setPreviewMode(false);
+                                                                    }
+                                                                }}
+                                                                className="h-14 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg flex items-center justify-center gap-2"
+                                                            >
+                                                                {previewModuleIdx < previewModules.length - 1 ? "Next Module" : "Exit Preview"} <ChevronRight className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </motion.div>
+                                        )
+                                    )}
+                                </AnimatePresence>
                             </div>
-                        </section>
+                        </main>
                     </div>
+                ) : (
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragStart={handleDragStart}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <div className="bg-white rounded-3xl shadow-2xl flex h-[700px] border border-gray-100 overflow-hidden">
+                            {/* Sidebar Tools */}
+                            <aside className="w-[260px] bg-white border-r border-gray-100 p-6 hidden md:block overflow-y-auto">
+                                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">Components</h3>
+                                <div className="space-y-3">
+                                    <SidebarItem type="text" label="Text Lesson" icon="📄" />
+                                    <SidebarItem type="video" label="Video Player" icon="📽️" />
+                                    <SidebarItem type="quiz" label="Interactive Quiz" icon="❓" />
+                                    <SidebarItem type="file" label="Downloadable File" icon="📁" />
+                                    <button
+                                        onClick={generateAIContent}
+                                        disabled={isGenerating}
+                                        className="w-full p-3 bg-blue-50 rounded-xl border border-blue-100 flex items-center cursor-pointer hover:bg-white hover:shadow-sm transition-all text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {isGenerating ? (
+                                            <>
+                                                <Loader2 size={18} className="animate-spin mr-3" />
+                                                <span className="text-sm font-bold tracking-tight">Generating...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span className="mr-3">✨</span>
+                                                <span className="text-sm font-bold tracking-tight">AI Multi-Generator</span>
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
 
-                    <DragOverlay>
-                        {activeId && activeId.toString().startsWith('sidebar-') ? (
-                            <div className="p-3 bg-white rounded-xl border border-blue-500 shadow-xl w-[200px] flex items-center opacity-90 cursor-grabbing">
-                                <span className="mr-3">{activeItem?.icon}</span>
-                                <span className="text-sm font-medium">{activeItem?.label}</span>
-                            </div>
-                        ) : null}
-                    </DragOverlay>
+                                <div className="mt-12 p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
+                                    <p className="text-[10px] font-bold text-indigo-600 uppercase mb-2">Pro Tip</p>
+                                    <p className="text-[11px] text-gray-600 leading-relaxed">Drag components directly into modules to build your course.</p>
+                                </div>
+                            </aside>
 
-                </DndContext>
+                            {/* Editor Canvas */}
+                            <section className="flex-1 p-8 bg-gray-50/50 flex flex-col">
+                                <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                                    <SortableContext
+                                        items={modules.map(m => m.id)}
+                                        strategy={verticalListSortingStrategy}
+                                    >
+                                        {modules.map((module) => (
+                                            <SortableModule
+                                                key={module.id}
+                                                id={module.id}
+                                                module={module}
+                                                onDelete={handleDeleteModule}
+                                                onRemoveContent={handleRemoveContent}
+                                                onUpdateModule={handleUpdateModule}
+                                                onUpdateContent={handleUpdateContent}
+                                            />
+                                        ))}
+                                    </SortableContext>
+
+                                    {/* Add Module Button */}
+                                    <button
+                                        onClick={handleAddModule}
+                                        className="w-full py-4 border-2 border-dashed border-gray-200 rounded-2xl text-gray-400 font-bold hover:border-blue-500 hover:text-blue-500 hover:bg-blue-50 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <Plus size={20} />
+                                        Add New Module
+                                    </button>
+
+                                    {/* AI Insertion Point */}
+                                    <div
+                                        onClick={generateAIContent}
+                                        className="mt-6 py-8 text-center border-2 border-dashed border-blue-100 rounded-3xl bg-blue-50/30 cursor-pointer hover:bg-blue-50 transition-colors"
+                                    >
+                                        <div className="inline-flex items-center text-blue-600 font-bold">
+                                            <span className="mr-2">✨</span> Generate next 3 modules for "{courseTitle}"
+                                        </div>
+                                        <p className="text-xs text-blue-400 mt-2">Personalized based on your course topic</p>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <DragOverlay>
+                            {activeId && activeId.toString().startsWith('sidebar-') ? (
+                                <div className="p-3 bg-white rounded-xl border border-blue-500 shadow-xl w-[200px] flex items-center opacity-90 cursor-grabbing">
+                                    <span className="mr-3">{activeItem?.icon}</span>
+                                    <span className="text-sm font-medium">{activeItem?.label}</span>
+                                </div>
+                            ) : null}
+                        </DragOverlay>
+
+                    </DndContext>
+                )}
             </div>
+
+            {showPreviewVideo && activePreviewLesson && (
+                <AIVideoPlayer 
+                    lessonTitle={activePreviewLesson.title}
+                    lessonContent={activePreviewLesson.content}
+                    onClose={() => setShowPreviewVideo(false)}
+                />
+            )}
+
             <Footer />
         </div>
     );

@@ -15,12 +15,14 @@ import {
   RotateCcw,
   Clock,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Film
 } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { supabase } from '../supabase';
 import confetti from 'canvas-confetti';
+import AIVideoPlayer from '../components/AIVideoPlayer';
 
 const CourseViewer = () => {
   const { id } = useParams();
@@ -31,6 +33,7 @@ const CourseViewer = () => {
   const [activeModuleIdx, setActiveModuleIdx] = useState(0);
   const [activeLessonIdx, setActiveLessonIdx] = useState(0);
   const [isQuizMode, setIsQuizMode] = useState(false);
+  const [showAIVideo, setShowAIVideo] = useState(false);
   const [quizState, setQuizState] = useState({
     currentQuestion: 0,
     selectedOption: null,
@@ -359,15 +362,23 @@ const CourseViewer = () => {
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.4, ease: "easeOut" }}
                 >
-                  <div className="mb-12">
-                    <div className="flex items-center gap-3 text-[10px] font-black text-blue-600 uppercase tracking-[0.3em] mb-4">
-                      <span className="px-2 py-1 bg-blue-50 rounded-md">Module {activeModuleIdx + 1}</span>
-                      <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-                      <span>Lesson {activeLessonIdx + 1}</span>
+                  <div className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div>
+                      <div className="flex items-center gap-3 text-[10px] font-black text-blue-600 uppercase tracking-[0.3em] mb-4">
+                        <span className="px-2 py-1 bg-blue-50 rounded-md">Module {activeModuleIdx + 1}</span>
+                        <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+                        <span>Lesson {activeLessonIdx + 1}</span>
+                      </div>
+                      <h2 className="text-4xl font-black text-gray-900 tracking-tighter sm:text-5xl">
+                        {typeof activeLesson === 'string' ? activeLesson : activeLesson.title}
+                      </h2>
                     </div>
-                    <h2 className="text-4xl font-black text-gray-900 tracking-tighter sm:text-5xl">
-                      {typeof activeLesson === 'string' ? activeLesson : activeLesson.title}
-                    </h2>
+                    <button 
+                      onClick={() => setShowAIVideo(true)}
+                      className="flex items-center gap-2.5 px-6 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-blue-200 transition-all hover:-translate-y-0.5 active:translate-y-0 flex-shrink-0"
+                    >
+                      <Film className="w-4 h-4" /> Play AI Video Lecture
+                    </button>
                   </div>
 
                   <div className="prose prose-lg max-w-none prose-slate">
@@ -549,6 +560,14 @@ const CourseViewer = () => {
           </div>
         </main>
       </div>
+
+      {showAIVideo && activeLesson && (
+        <AIVideoPlayer 
+          lessonTitle={activeLesson.title}
+          lessonContent={activeLesson.content}
+          onClose={() => setShowAIVideo(false)}
+        />
+      )}
     </div>
   );
 };
