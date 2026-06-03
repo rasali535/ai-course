@@ -216,7 +216,29 @@ const CourseBuilder = () => {
                 }
 
                 // Check trial status
-                if (profile?.plan === 'basic' && new Date() > new Date(profile.trial_ends_at)) {
+                let expired = profile?.plan === 'basic' && profile.trial_ends_at && new Date() > new Date(profile.trial_ends_at);
+
+                if (!expired && profile?.plan === 'basic') {
+                    const nameToMatch = profile?.full_name || user.user_metadata?.full_name;
+                    if (nameToMatch && nameToMatch.toLowerCase() !== 'creator' && nameToMatch.toLowerCase() !== 'user' && nameToMatch.toLowerCase() !== 'learner') {
+                        const { data: matchedProfiles } = await supabase
+                            .from('profiles')
+                            .select('*')
+                            .ilike('full_name', nameToMatch);
+                        
+                        if (matchedProfiles && matchedProfiles.length > 0) {
+                            const hasExpiredMatch = matchedProfiles.some(p => {
+                                const tEnd = p.trial_ends_at ? new Date(p.trial_ends_at) : null;
+                                return p.plan === 'basic' && tEnd && new Date() > tEnd;
+                            });
+                            if (hasExpiredMatch) {
+                                expired = true;
+                            }
+                        }
+                    }
+                }
+
+                if (expired) {
                     navigate('/dashboard');
                     return;
                 }
