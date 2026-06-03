@@ -48,10 +48,10 @@ async def add_security_headers(request: Request, call_next):
     csp_policy = (
         "default-src 'self'; "
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.paypal.com https://m.stripe.network blob:; "
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://m.stripe.network; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://m.stripe.network https://www.paypal.com https://www.paypalobjects.com; "
         "img-src 'self' data: https://*.stripe.com https://www.paypalobjects.com https://m.stripe.network; "
-        "connect-src 'self' https://api.stripe.com https://api-m.sandbox.paypal.com https://api-m.paypal.com https://m.stripe.network; "
-        "frame-src 'self' https://js.stripe.com https://www.paypal.com https://m.stripe.network; "
+        "connect-src 'self' https://api.stripe.com https://api-m.sandbox.paypal.com https://api-m.paypal.com https://www.paypal.com https://m.stripe.network; "
+        "frame-src 'self' https://js.stripe.com https://www.paypal.com https://m.stripe.network https://www.paypalobjects.com; "
         "font-src 'self' https://fonts.gstatic.com;"
     )
     
