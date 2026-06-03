@@ -102,9 +102,39 @@ const CourseViewer = () => {
         
         // Handle potential different content structures
         const content = data.content || {};
+        const rawModules = content.modules || [];
+        const mappedModules = rawModules.map(m => {
+            const lessons = m.lessons || (m.content || []).map(item => ({
+                title: item.title || item.text || "Untitled Lesson",
+                content: item.text || ""
+            }));
+            
+            const quiz = (m.quiz || []).map(q => {
+                let answerIdx = q.answer;
+                if (answerIdx === undefined && q.correct_answer !== undefined) {
+                    const idx = q.options.indexOf(q.correct_answer);
+                    if (idx !== -1) {
+                        answerIdx = idx;
+                    } else {
+                        answerIdx = 0;
+                    }
+                }
+                return {
+                    ...q,
+                    answer: answerIdx
+                };
+            });
+
+            return {
+                ...m,
+                lessons: lessons,
+                quiz: quiz
+            };
+        });
+
         setCourse({
           ...data,
-          modules: content.modules || []
+          modules: mappedModules
         });
       } catch (err) {
         console.error('Error fetching course:', err);
