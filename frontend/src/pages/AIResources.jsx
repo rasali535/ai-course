@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabase';
+import axios from 'axios';
+import { API_BASE } from '../api_config';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '../components/ui/button';
@@ -93,17 +95,13 @@ const AIResources = () => {
 
         try {
             if (selectedTool.id === 'outline') {
-                // Real API Call to Supabase Edge Function (Full Course with Quizzes)
-                const { data: functionData, error: functionError } = await supabase.functions.invoke('generate-full-course', {
-                    body: { 
-                        topic: toolInput, 
-                        user_id: localStorage.getItem('userId') || 'guest_user' 
-                    }
+                // Real API Call to FastAPI Backend (Full Course with Quizzes)
+                const response = await axios.post(`${API_BASE}/api/ai/generate-course`, {
+                    topic: toolInput,
+                    target_audience: "Beginners"
                 });
-
-                if (functionError) throw functionError;
                 
-                const courseData = functionData.course.content;
+                const courseData = response.data;
 
                 // Store full object for "Create Course" action
                 // But specifically for display, we just want the module titles

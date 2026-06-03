@@ -5,8 +5,9 @@ import Footer from '../components/Footer';
 import { ShieldCheck, Lock, CreditCard, Loader2, ArrowRight, CheckCircle, Award, Sparkles, Globe } from 'lucide-react';
 import { supabase } from '../supabase';
 import axios from 'axios';
+import { API_BASE } from '../api_config';
 
-const BACKEND_URL = process.env.REACT_APP_API_URL || 'https://ai-course-e97p.onrender.com/api';
+const BACKEND_URL = `${API_BASE}/api`;
 
 const Checkout = () => {
     const location = useLocation();

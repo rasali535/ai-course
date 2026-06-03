@@ -10,7 +10,7 @@ from backend.sql_database import engine, Base
 import backend.sql_models  # Ensure models are registered
 import backend.course_model # Ensure course models are registered
 import backend.enrollment_model # Ensure enrollment models are registered
-from backend.routers import auth, resources, payments, courses, enrollments, media, ai
+from backend.routers import auth, resources, payments, courses, enrollments, media, ai, webhooks
 from dotenv import load_dotenv
 
 # Load environment variables from .env
@@ -83,6 +83,7 @@ api_router.include_router(ai.router) # Already has /ai prefix
 api_router.include_router(courses.router) # Already has /courses prefix
 api_router.include_router(enrollments.router) # Already has /enrollments prefix
 api_router.include_router(media.router, prefix="/media", tags=["media"])
+api_router.include_router(webhooks.router)
 
 app.include_router(api_router)
 
