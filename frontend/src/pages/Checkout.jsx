@@ -84,8 +84,9 @@ const Checkout = () => {
                 if (existing) { setSdkReady(true); return; }
 
                 const script = document.createElement('script');
-                script.src = `https://www.paypal.com/sdk/js?client-id=${data.clientId}&components=buttons,card-fields&currency=USD&intent=capture`;
+                script.src = `https://www.paypal.com/sdk/js?client-id=${data.clientId}&components=buttons,card-fields&currency=USD&intent=capture&enable-funding=venmo`;
                 script.setAttribute('data-paypal-sdk', 'true');
+                script.setAttribute('data-sdk-integration-source', 'developer-studio');
                 script.async = true;
                 script.onload = () => setSdkReady(true);
                 script.onerror = () => setSdkError('Failed to load PayPal SDK');
@@ -123,12 +124,25 @@ const Checkout = () => {
     }, [computePrice, currency, courseId, planId]);
 
     // Shared: capture order via backend
-    const onApprove = useCallback(async (data) => {
+    const onApprove = useCallback(async (data, actions) => {
         try {
             const token = await getAuthToken();
-            await axios.post(`${BACKEND_URL}/payments/paypal/capture-order/${data.orderID}`, {}, {
+            const response = await axios.post(`${BACKEND_URL}/payments/paypal/capture-order/${data.orderID}`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
+
+            const captureData = response.data;
+
+            // Handle INSTRUMENT_DECLINED - let payer choose another method
+            const errorDetail = captureData?.details?.[0];
+            if (errorDetail?.issue === 'INSTRUMENT_DECLINED' && actions) {
+                return actions.restart();
+            }
+
+            if (errorDetail) {
+                throw new Error(`${errorDetail.description} (${errorDetail.issue})`);
+            }
+
             navigate('/success');
         } catch (err) {
             console.error('Capture error:', err);
@@ -207,12 +221,21 @@ const Checkout = () => {
         return () => { cardFieldsRef.current = null; setCardFieldsReady(false); };
     }, [sdkReady, paymentMethod, createOrder, onApprove]);
 
-    // Handle card form submit
+    // Handle card form submit - pass billing address per PayPal docs
     const handleCardSubmit = async () => {
         if (!cardFieldsRef.current) return;
         setLoading(true);
         try {
-            await cardFieldsRef.current.submit();
+            await cardFieldsRef.current.submit({
+                cardholderName: `${customerInfo.firstName} ${customerInfo.lastName}`,
+                billingAddress: {
+                    addressLine1: document.getElementById('card-billing-address-line-1')?.value || '',
+                    addressLine2: document.getElementById('card-billing-address-line-2')?.value || '',
+                    adminArea2: document.getElementById('card-billing-address-city')?.value || '',
+                    countryCode: document.getElementById('card-billing-address-country-code')?.value || 'BW',
+                    postalCode: document.getElementById('card-billing-address-postal-code')?.value || '',
+                },
+            });
         } catch (err) {
             console.error('Card submit error:', err);
             alert('Card payment failed: ' + (err.message || 'Please check your card details.'));
@@ -418,6 +441,35 @@ const Checkout = () => {
                                             <div>
                                                 <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 italic">CVV</label>
                                                 <div id="card-cvv-field" className="h-14 bg-gray-50 border border-gray-100 rounded-2xl overflow-hidden transition-all focus-within:ring-4 focus-within:ring-blue-500/10 focus-within:border-blue-600"></div>
+                                            </div>
+                                        </div>
+
+                                        {/* Billing Address - passed to PayPal on submit */}
+                                        <div className="pt-4 border-t border-gray-100">
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 italic">Billing Address</p>
+                                            <div className="space-y-3">
+                                                <input 
+                                                    type="text" id="card-billing-address-line-1" placeholder="Address line 1"
+                                                    className="w-full h-12 px-5 bg-gray-50 border border-gray-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 focus:outline-none text-sm font-medium text-gray-900 transition-all"
+                                                />
+                                                <input 
+                                                    type="text" id="card-billing-address-line-2" placeholder="Address line 2 (optional)"
+                                                    className="w-full h-12 px-5 bg-gray-50 border border-gray-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 focus:outline-none text-sm font-medium text-gray-900 transition-all"
+                                                />
+                                                <div className="grid grid-cols-3 gap-3">
+                                                    <input 
+                                                        type="text" id="card-billing-address-city" placeholder="City"
+                                                        className="w-full h-12 px-5 bg-gray-50 border border-gray-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 focus:outline-none text-sm font-medium text-gray-900 transition-all"
+                                                    />
+                                                    <input 
+                                                        type="text" id="card-billing-address-country-code" placeholder="Country (BW)" defaultValue="BW"
+                                                        className="w-full h-12 px-5 bg-gray-50 border border-gray-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 focus:outline-none text-sm font-medium text-gray-900 transition-all"
+                                                    />
+                                                    <input 
+                                                        type="text" id="card-billing-address-postal-code" placeholder="Postal code"
+                                                        className="w-full h-12 px-5 bg-gray-50 border border-gray-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 focus:outline-none text-sm font-medium text-gray-900 transition-all"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
 

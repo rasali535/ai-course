@@ -318,7 +318,16 @@ async def create_paypal_order_sdk(request: Request, order_req: PayPalSDKOrderReq
                 },
                 "description": order_req.description or "LearnFlow Course",
                 "custom_id": custom_id
-            }]
+            }],
+            "payment_source": {
+                "card": {
+                    "attributes": {
+                        "verification": {
+                            "method": "SCA_WHEN_REQUIRED"
+                        }
+                    }
+                }
+            }
         }
 
         response = requests.post(
