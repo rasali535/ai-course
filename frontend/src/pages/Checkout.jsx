@@ -108,7 +108,7 @@ const Checkout = () => {
     };
 
     // Shared: create order via backend
-    const createOrder = useCallback(async () => {
+    const createOrder = useCallback(async (isCard = false) => {
         let finalPrice = computePrice();
         let payCurrency = currency;
         if (currency === 'BWP') { finalPrice = Math.round(finalPrice / exchangeRate); payCurrency = 'USD'; }
@@ -118,6 +118,7 @@ const Checkout = () => {
             amount: finalPrice,
             currency: payCurrency,
             description: planId || `certificate_${courseId}`,
+            is_card: isCard
         }, { headers: { Authorization: `Bearer ${token}` } });
 
         return data.orderId;
@@ -162,7 +163,7 @@ const Checkout = () => {
         try {
             window.paypal.Buttons({
                 style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'paypal', height: 55 },
-                createOrder: async () => await createOrder(),
+                createOrder: async () => await createOrder(false),
                 onApprove: async (data) => await onApprove(data),
                 onError: (err) => { console.error('PayPal error:', err); alert('PayPal checkout error. Please try again.'); }
             }).render('#paypal-button-container').then(() => { paypalButtonsRendered.current = true; });
@@ -190,7 +191,7 @@ const Checkout = () => {
 
         try {
             const cardFields = window.paypal.CardFields({
-                createOrder: async () => await createOrder(),
+                createOrder: async () => await createOrder(true),
                 onApprove: async (data) => await onApprove(data),
                 onError: (err) => {
                     console.error('Card payment error:', err);

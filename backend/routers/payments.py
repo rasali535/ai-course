@@ -285,6 +285,7 @@ class PayPalSDKOrderRequest(BaseModel):
     amount: float
     currency: str = "USD"
     description: Optional[str] = None
+    is_card: Optional[bool] = False
 
 @router.get("/paypal/client-id")
 async def get_paypal_client_id():
@@ -318,8 +319,12 @@ async def create_paypal_order_sdk(request: Request, order_req: PayPalSDKOrderReq
                 },
                 "description": order_req.description or "LearnFlow Course",
                 "custom_id": custom_id
-            }],
-            "payment_source": {
+            }]
+        }
+
+        # Include payment_source for direct credit card field processing (satisfying SCA rules)
+        if order_req.is_card:
+            order_data["payment_source"] = {
                 "card": {
                     "attributes": {
                         "verification": {
@@ -328,7 +333,6 @@ async def create_paypal_order_sdk(request: Request, order_req: PayPalSDKOrderReq
                     }
                 }
             }
-        }
 
         response = requests.post(
             f"{PAYPAL_API_BASE}/v2/checkout/orders",
