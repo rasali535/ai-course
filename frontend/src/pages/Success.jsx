@@ -5,8 +5,9 @@ import { Link, useLocation } from 'react-router-dom';
 import { CheckCircle, ArrowRight, Play, Layout, Users, Loader2, AlertCircle } from 'lucide-react';
 import axios from 'axios';
 import { supabase } from '../supabase';
+import { API_BASE } from '../api_config';
 
-const BACKEND_URL = process.env.REACT_APP_API_URL || 'https://ai-course-e97p.onrender.com/api';
+const BACKEND_URL = `${API_BASE}/api`;
 
 const Success = () => {
     const location = useLocation();
