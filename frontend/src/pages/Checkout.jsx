@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { ShieldCheck, Lock, CreditCard, Loader2, ArrowRight, CheckCircle, Award, Sparkles, Globe } from 'lucide-react';
+import { ShieldCheck, Lock, CreditCard, Loader2, ArrowRight, CheckCircle, Award, Sparkles, Globe, AlertTriangle } from 'lucide-react';
 import { supabase } from '../supabase';
 import axios from 'axios';
 import { API_BASE } from '../api_config';
@@ -16,6 +16,13 @@ const Checkout = () => {
     const [fetching, setFetching] = useState(true);
     const [currency, setCurrency] = useState('BWP');
     const [courseData, setCourseData] = useState(null);
+    const [paymentMethod, setPaymentMethod] = useState('paypal_account');
+    const [sdkReady, setSdkReady] = useState(false);
+    const [cardFieldsReady, setCardFieldsReady] = useState(false);
+    const [sdkError, setSdkError] = useState(null);
+    const cardFieldsRef = useRef(null);
+    const paypalButtonsRendered = useRef(false);
+
     const [customerInfo, setCustomerInfo] = useState({
         firstName: localStorage.getItem('userName')?.split(' ')[0] || 'John',
         lastName: localStorage.getItem('userName')?.split(' ')[1] || 'Doe',
@@ -26,13 +33,20 @@ const Checkout = () => {
     const courseId = searchParams.get('course_id');
     const planId = searchParams.get('plan');
     const userId = searchParams.get('user_id');
-    const type = searchParams.get('type') || (planId ? 'subscription' : 'certificate'); 
+    const type = searchParams.get('type') || (planId ? 'subscription' : 'certificate');
 
     const planPrices = {
         standard: { title: "Standard Academy Plan", price: 499, description: "Full creator tools + 5 courses" },
         premium: { title: "Premium Academy Plan", price: 999, description: "Unlimited everything + AI scaling" }
     };
 
+    const exchangeRate = 13.5;
+    const computePrice = useCallback(() => {
+        const basePrice = courseData?.price || 1500;
+        return currency === 'USD' ? Math.round(basePrice / exchangeRate) : basePrice;
+    }, [courseData, currency]);
+
+    // Fetch course data
     useEffect(() => {
         const fetchOrderData = async () => {
             if (planId && planPrices[planId]) {
@@ -40,92 +54,169 @@ const Checkout = () => {
                 setFetching(false);
                 return;
             }
-
-            if (!courseId) {
-                setFetching(false);
-                return;
-            }
+            if (!courseId) { setFetching(false); return; }
             try {
-                const { data, error } = await supabase
-                    .from('courses')
-                    .select('*')
-                    .eq('id', courseId)
-                    .single();
-                
+                const { data, error } = await supabase.from('courses').select('*').eq('id', courseId).single();
                 if (error) throw error;
                 setCourseData(data);
             } catch (err) {
                 console.error("Fetch course error:", err);
                 setCourseData({ title: "AI Art Mastery", price: 1500 });
-            } finally {
-                setFetching(false);
-            }
+            } finally { setFetching(false); }
         };
         fetchOrderData();
 
-        // Cross-device sync: If user confirms email on mobile, auto-refresh session here
         if (userId) {
             const channel = supabase.channel(`signup-confirm-checkout:${userId}`);
-            channel.on('broadcast', { event: 'confirmed' }, () => {
-                console.log("Checkout: User confirmed email on other device. Polling session...");
-                window.location.reload(); // Simplest way to refresh auth state in current implementation
-            }).subscribe();
+            channel.on('broadcast', { event: 'confirmed' }, () => { window.location.reload(); }).subscribe();
             return () => supabase.removeChannel(channel);
         }
     }, [courseId, planId, userId]);
 
-    const exchangeRate = 13.5;
-    const computePrice = () => {
-        const basePrice = courseData?.price || 1500;
-        return currency === 'USD' ? Math.round(basePrice / exchangeRate) : basePrice;
+    // Load PayPal JS SDK
+    useEffect(() => {
+        const loadSDK = async () => {
+            try {
+                const { data } = await axios.get(`${BACKEND_URL}/payments/paypal/client-id`);
+                if (!data.clientId) { setSdkError('PayPal not configured'); return; }
+
+                const existing = document.querySelector('script[data-paypal-sdk]');
+                if (existing) { setSdkReady(true); return; }
+
+                const script = document.createElement('script');
+                script.src = `https://www.paypal.com/sdk/js?client-id=${data.clientId}&components=buttons,card-fields&currency=USD&intent=capture`;
+                script.setAttribute('data-paypal-sdk', 'true');
+                script.async = true;
+                script.onload = () => setSdkReady(true);
+                script.onerror = () => setSdkError('Failed to load PayPal SDK');
+                document.head.appendChild(script);
+            } catch (err) {
+                console.error('Failed to load PayPal SDK:', err);
+                setSdkError('Could not initialize payment system');
+            }
+        };
+        loadSDK();
+    }, []);
+
+    // Helper: get auth token
+    const getAuthToken = async () => {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const token = sessionData?.session?.access_token || localStorage.getItem('token');
+        if (sessionData?.session?.access_token) localStorage.setItem('token', sessionData.session.access_token);
+        return token;
     };
 
-    const [paymentMethod, setPaymentMethod] = useState('paypal_account');
+    // Shared: create order via backend
+    const createOrder = useCallback(async () => {
+        let finalPrice = computePrice();
+        let payCurrency = currency;
+        if (currency === 'BWP') { finalPrice = Math.round(finalPrice / exchangeRate); payCurrency = 'USD'; }
 
-    const handlePayPalPayment = async () => {
-        setLoading(true);
+        const token = await getAuthToken();
+        const { data } = await axios.post(`${BACKEND_URL}/payments/paypal/create-order-sdk`, {
+            amount: finalPrice,
+            currency: payCurrency,
+            description: planId || `certificate_${courseId}`,
+        }, { headers: { Authorization: `Bearer ${token}` } });
+
+        return data.orderId;
+    }, [computePrice, currency, courseId, planId]);
+
+    // Shared: capture order via backend
+    const onApprove = useCallback(async (data) => {
         try {
-            let finalPrice = computePrice();
-            let payCurrency = currency;
-            
-            // PayPal doesn't support BWP. Convert BWP to USD before creating order.
-            if (currency === 'BWP') {
-                finalPrice = Math.round(finalPrice / exchangeRate);
-                payCurrency = 'USD';
-            }
-
-            // Get fresh token from Supabase session
-            const { data: sessionData } = await supabase.auth.getSession();
-            const token = sessionData?.session?.access_token || localStorage.getItem('token');
-            if (sessionData?.session?.access_token) {
-                localStorage.setItem('token', sessionData.session.access_token);
-            }
-
-            const { data } = await axios.post(`${BACKEND_URL}/payments/paypal/create-order`, {
-                amount: finalPrice,
-                currency: payCurrency,
-                description: planId || `certificate_${courseId}`,
-                return_url: `${window.location.origin}/success`,
-                cancel_url: `${window.location.origin}/checkout`
-            }, {
+            const token = await getAuthToken();
+            await axios.post(`${BACKEND_URL}/payments/paypal/capture-order/${data.orderID}`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-
-            if (data.approvalUrl) {
-                window.location.href = data.approvalUrl;
-            } else {
-                throw new Error("PayPal order creation failed");
-            }
-        } catch (error) {
-            console.error("PayPal Error:", error);
-            alert("Failed to initiate PayPal checkout: " + (error.response?.data?.detail || error.message));
-        } finally {
-            setLoading(false);
+            navigate('/success');
+        } catch (err) {
+            console.error('Capture error:', err);
+            alert('Payment capture failed: ' + (err.response?.data?.detail || err.message));
         }
-    };
+    }, [navigate]);
 
-    const handleFinalPayment = () => {
-        handlePayPalPayment();
+    // Render PayPal Buttons when PayPal tab is active
+    useEffect(() => {
+        if (!sdkReady || paymentMethod !== 'paypal_account' || !window.paypal) return;
+
+        const container = document.getElementById('paypal-button-container');
+        if (!container) return;
+        container.innerHTML = '';
+        paypalButtonsRendered.current = false;
+
+        try {
+            window.paypal.Buttons({
+                style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'paypal', height: 55 },
+                createOrder: async () => await createOrder(),
+                onApprove: async (data) => await onApprove(data),
+                onError: (err) => { console.error('PayPal error:', err); alert('PayPal checkout error. Please try again.'); }
+            }).render('#paypal-button-container').then(() => { paypalButtonsRendered.current = true; });
+        } catch (err) { console.error('Failed to render PayPal buttons:', err); }
+    }, [sdkReady, paymentMethod, createOrder, onApprove]);
+
+    // Render Card Fields when Card tab is active
+    useEffect(() => {
+        if (!sdkReady || paymentMethod !== 'paypal_card' || !window.paypal) return;
+
+        // Clean up previous fields
+        ['card-number-field', 'card-expiry-field', 'card-cvv-field', 'card-name-field'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = '';
+        });
+        cardFieldsRef.current = null;
+        setCardFieldsReady(false);
+
+        // Check if CardFields is available
+        if (!window.paypal.CardFields) {
+            console.warn('PayPal CardFields not available');
+            setSdkError('Advanced card processing is not enabled on this PayPal account. Please use PayPal Account to pay.');
+            return;
+        }
+
+        try {
+            const cardFields = window.paypal.CardFields({
+                createOrder: async () => await createOrder(),
+                onApprove: async (data) => await onApprove(data),
+                onError: (err) => {
+                    console.error('Card payment error:', err);
+                    setLoading(false);
+                    alert('Card payment failed. Please check your details and try again.');
+                },
+                style: {
+                    input: { 'font-size': '16px', 'font-family': 'Inter, system-ui, sans-serif', color: '#111827' },
+                    '.invalid': { color: '#ef4444' }
+                }
+            });
+
+            if (cardFields.isEligible()) {
+                cardFields.NameField().render('#card-name-field');
+                cardFields.NumberField().render('#card-number-field');
+                cardFields.ExpiryField().render('#card-expiry-field');
+                cardFields.CVVField().render('#card-cvv-field');
+                cardFieldsRef.current = cardFields;
+                setCardFieldsReady(true);
+            } else {
+                setSdkError('Card payments are not available for this account. Please use PayPal Account.');
+            }
+        } catch (err) {
+            console.error('Failed to render card fields:', err);
+            setSdkError('Could not load card payment form. Please use PayPal Account.');
+        }
+
+        return () => { cardFieldsRef.current = null; setCardFieldsReady(false); };
+    }, [sdkReady, paymentMethod, createOrder, onApprove]);
+
+    // Handle card form submit
+    const handleCardSubmit = async () => {
+        if (!cardFieldsRef.current) return;
+        setLoading(true);
+        try {
+            await cardFieldsRef.current.submit();
+        } catch (err) {
+            console.error('Card submit error:', err);
+            alert('Card payment failed: ' + (err.message || 'Please check your card details.'));
+        } finally { setLoading(false); }
     };
 
     if (fetching) {
@@ -201,23 +292,25 @@ const Checkout = () => {
 
                     {/* Payment Interface */}
                     <div className="md:col-span-3 bg-white rounded-[3rem] p-12 border border-gray-100 shadow-xl shadow-gray-200/40">
+                        {/* Payment Method Tabs */}
                         <div className="mb-10 p-2 bg-gray-50 border border-gray-100 rounded-3xl flex gap-1">
                             <button 
-                                onClick={() => setPaymentMethod('paypal_account')}
+                                onClick={() => { setPaymentMethod('paypal_account'); setSdkError(null); }}
                                 className={`flex-1 py-4 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'paypal_account' ? 'bg-white shadow-lg text-blue-600 border border-blue-50' : 'text-gray-400 hover:text-gray-600'}`}
                             >
                                 💠 PayPal Account
                             </button>
                             <button 
-                                onClick={() => setPaymentMethod('paypal_card')}
+                                onClick={() => { setPaymentMethod('paypal_card'); setSdkError(null); }}
                                 className={`flex-1 py-4 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'paypal_card' ? 'bg-white shadow-lg text-indigo-600 border border-indigo-50' : 'text-gray-400 hover:text-gray-600'}`}
                             >
                                 💳 Visa / Debit Card
                             </button>
                         </div>
 
+                        {/* Header */}
                         <div className="flex items-center mb-10 gap-4">
-                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-inner bg-blue-50 text-blue-600`}>
+                            <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-inner bg-blue-50 text-blue-600">
                                 {paymentMethod === 'paypal_account' ? <ShieldCheck size={32} /> : <CreditCard size={32} />}
                             </div>
                             <div>
@@ -230,6 +323,7 @@ const Checkout = () => {
                             </div>
                         </div>
 
+                        {/* Currency Note */}
                         {currency === 'BWP' && (
                             <div className="mb-8 p-5 bg-amber-50 border border-amber-100 rounded-[1.5rem] flex items-start gap-4 text-amber-800">
                                 <span className="text-lg">💡</span>
@@ -242,6 +336,15 @@ const Checkout = () => {
                             </div>
                         )}
 
+                        {/* SDK Error */}
+                        {sdkError && (
+                            <div className="mb-8 p-5 bg-red-50 border border-red-100 rounded-[1.5rem] flex items-start gap-4 text-red-700">
+                                <AlertTriangle size={20} className="mt-0.5 flex-shrink-0" />
+                                <p className="text-xs font-bold leading-relaxed">{sdkError}</p>
+                            </div>
+                        )}
+
+                        {/* Customer Info - always visible */}
                         <div className="space-y-6 mb-10">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
@@ -274,21 +377,74 @@ const Checkout = () => {
                             </div>
                         </div>
 
-                        <button
-                            onClick={handleFinalPayment}
-                            disabled={loading}
-                            className={`w-full h-20 text-white rounded-[1.5rem] font-black text-xl shadow-2xl transition-all flex items-center justify-center gap-4 relative overflow-hidden italic group ${
-                                paymentMethod === 'paypal_account' ? 'bg-[#0070ba] hover:bg-[#003087] shadow-blue-200' : 'bg-gray-900 hover:bg-blue-600 shadow-gray-200'
-                            }`}
-                        >
-                            {loading && (
-                                <div className="absolute inset-0 bg-black/20 flex items-center justify-center z-10">
-                                    <Loader2 className="animate-spin" />
-                                </div>
-                            )}
-                            {paymentMethod === 'paypal_account' ? 'Pay with PayPal' : 'Pay with Visa / Card'}
-                            <ArrowRight className="group-hover:translate-x-2 transition-transform" />
-                        </button>
+                        {/* ====== PAYPAL ACCOUNT TAB ====== */}
+                        {paymentMethod === 'paypal_account' && (
+                            <div>
+                                {!sdkReady && !sdkError && (
+                                    <div className="flex items-center justify-center py-12">
+                                        <Loader2 className="animate-spin text-blue-600 mr-3" size={24} />
+                                        <span className="text-sm font-bold text-gray-400 italic">Loading PayPal...</span>
+                                    </div>
+                                )}
+                                <div id="paypal-button-container" className="min-h-[60px]"></div>
+                            </div>
+                        )}
+
+                        {/* ====== VISA / CARD TAB ====== */}
+                        {paymentMethod === 'paypal_card' && (
+                            <div>
+                                {!sdkReady && !sdkError && (
+                                    <div className="flex items-center justify-center py-12">
+                                        <Loader2 className="animate-spin text-indigo-600 mr-3" size={24} />
+                                        <span className="text-sm font-bold text-gray-400 italic">Loading card form...</span>
+                                    </div>
+                                )}
+
+                                {sdkReady && !sdkError && (
+                                    <div className="space-y-5 mb-8">
+                                        <div>
+                                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 italic">Cardholder Name</label>
+                                            <div id="card-name-field" className="h-14 bg-gray-50 border border-gray-100 rounded-2xl overflow-hidden transition-all focus-within:ring-4 focus-within:ring-blue-500/10 focus-within:border-blue-600"></div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 italic">Card Number</label>
+                                            <div id="card-number-field" className="h-14 bg-gray-50 border border-gray-100 rounded-2xl overflow-hidden transition-all focus-within:ring-4 focus-within:ring-blue-500/10 focus-within:border-blue-600"></div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 italic">Expiry Date</label>
+                                                <div id="card-expiry-field" className="h-14 bg-gray-50 border border-gray-100 rounded-2xl overflow-hidden transition-all focus-within:ring-4 focus-within:ring-blue-500/10 focus-within:border-blue-600"></div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 italic">CVV</label>
+                                                <div id="card-cvv-field" className="h-14 bg-gray-50 border border-gray-100 rounded-2xl overflow-hidden transition-all focus-within:ring-4 focus-within:ring-blue-500/10 focus-within:border-blue-600"></div>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            onClick={handleCardSubmit}
+                                            disabled={loading || !cardFieldsReady}
+                                            className="w-full h-20 text-white rounded-[1.5rem] font-black text-xl shadow-2xl transition-all flex items-center justify-center gap-4 relative overflow-hidden italic group bg-gray-900 hover:bg-blue-600 shadow-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            {loading && (
+                                                <div className="absolute inset-0 bg-black/20 flex items-center justify-center z-10">
+                                                    <Loader2 className="animate-spin" />
+                                                </div>
+                                            )}
+                                            <CreditCard size={24} />
+                                            Pay {currency === 'USD' ? '$' : 'P'}{computePrice()} with Card
+                                            <ArrowRight className="group-hover:translate-x-2 transition-transform" />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Security badges */}
+                        <div className="mt-8 flex items-center justify-center gap-3 text-gray-300">
+                            <Lock size={14} />
+                            <span className="text-[9px] font-black uppercase tracking-widest italic">256-Bit SSL • PCI Compliant • PayPal Protected</span>
+                        </div>
                     </div>
                 </div>
 

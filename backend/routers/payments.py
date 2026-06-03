@@ -281,6 +281,63 @@ async def get_prices():
 
 # ============= PAYPAL ENDPOINTS =============
 
+class PayPalSDKOrderRequest(BaseModel):
+    amount: float
+    currency: str = "USD"
+    description: Optional[str] = None
+
+@router.get("/paypal/client-id")
+async def get_paypal_client_id():
+    """Return PayPal client ID for frontend SDK initialization"""
+    if not PAYPAL_CLIENT_ID:
+        raise HTTPException(status_code=500, detail="PayPal client ID not configured")
+    return {"clientId": PAYPAL_CLIENT_ID}
+
+@router.post("/paypal/create-order-sdk")
+@limiter.limit("5/minute")
+async def create_paypal_order_sdk(request: Request, order_req: PayPalSDKOrderRequest, current_user: User = Depends(get_current_user)):
+    """
+    Create a PayPal order for JS SDK flow (no redirect URLs needed).
+    Used by both PayPal Buttons and Card Fields on the frontend.
+    """
+    try:
+        access_token = get_paypal_access_token()
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {access_token}"
+        }
+
+        custom_id = f"user_{current_user.id}_plan_{order_req.description or 'premium'}"
+
+        order_data = {
+            "intent": "CAPTURE",
+            "purchase_units": [{
+                "amount": {
+                    "currency_code": order_req.currency,
+                    "value": f"{order_req.amount:.2f}"
+                },
+                "description": order_req.description or "LearnFlow Course",
+                "custom_id": custom_id
+            }]
+        }
+
+        response = requests.post(
+            f"{PAYPAL_API_BASE}/v2/checkout/orders",
+            headers=headers,
+            json=order_data
+        )
+
+        if response.status_code == 201:
+            order = response.json()
+            return {"orderId": order["id"], "status": order["status"]}
+        else:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.post("/paypal/create-order")
 @limiter.limit("5/minute")
 async def create_paypal_order(request: Request, paypal_req: PayPalOrderRequest, current_user: User = Depends(get_current_user)):
