@@ -181,66 +181,80 @@ const SortableModule = ({ id, module, onDelete, onRemoveContent, onUpdateModule,
 const CourseBuilder = () => {
     const [activeId, setActiveId] = useState(null);
     const [activeItem, setActiveItem] = useState(null);
-    const [courseTitle, setCourseTitle] = useState("New Course Title");
+    const [courseTitle, setCourseTitle] = useState("New Course Topic");
     const [courseDescription, setCourseDescription] = useState("Enter course description here...");
     const [modules, setModules] = useState([]);
     const [finalExam, setFinalExam] = useState([]); // Added state for final exam
     const [isGenerating, setIsGenerating] = useState(false);
+    const [authLoading, setAuthLoading] = useState(true);
 
     const { id } = useParams();
     const navigate = useNavigate();
 
     useEffect(() => {
-        const checkAuth = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            const role = localStorage.getItem('userRole') || 'learner';
+        const initializeBuilder = async () => {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
 
-            if (!user) {
-                navigate('/login');
-                return;
-            }
+                if (!user) {
+                    navigate('/login');
+                    return;
+                }
 
-            if (role !== 'creator') {
-                navigate('/learner-dashboard');
-                return;
-            }
+                // Fetch database profile for the correct role and trial status
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
 
-            // Check trial status
-            const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-            if (profile?.plan === 'basic' && new Date() > new Date(profile.trial_ends_at)) {
+                const userRole = profile?.role || user.user_metadata?.role || 'learner';
+
+                if (userRole !== 'creator') {
+                    navigate('/learner-dashboard');
+                    return;
+                }
+
+                // Check trial status
+                if (profile?.plan === 'basic' && new Date() > new Date(profile.trial_ends_at)) {
+                    navigate('/dashboard');
+                    return;
+                }
+
+                // If editing an existing course, fetch it
+                if (id) {
+                    const { data, error } = await supabase
+                        .from('courses')
+                        .select('*')
+                        .eq('id', id)
+                        .single();
+                    
+                    if (data) {
+                        setCourseTitle(data.title);
+                        setCourseDescription(data.description);
+                        setModules(data.content?.modules || []);
+                        setFinalExam(data.content?.finalExam || []);
+                    } else {
+                        // Fallback to localStorage for migration period
+                        const localCourses = JSON.parse(localStorage.getItem('createdCourses') || '[]');
+                        const courseToEdit = localCourses.find(c => c.id === id);
+                        if (courseToEdit) {
+                            setCourseTitle(courseToEdit.title);
+                            setCourseDescription(courseToEdit.description);
+                            setModules(courseToEdit.modules);
+                            setFinalExam(courseToEdit.finalExam || []);
+                        }
+                    }
+                }
+
+                setAuthLoading(false);
+            } catch (error) {
+                console.error("Error initializing course builder:", error);
                 navigate('/dashboard');
             }
         };
-        checkAuth();
 
-        // If editing an existing course
-        if (id) {
-            const fetchCourse = async () => {
-                const { data, error } = await supabase
-                    .from('courses')
-                    .select('*')
-                    .eq('id', id)
-                    .single();
-                
-                if (data) {
-                    setCourseTitle(data.title);
-                    setCourseDescription(data.description);
-                    setModules(data.content?.modules || []);
-                    setFinalExam(data.content?.finalExam || []);
-                } else {
-                    // Fallback to localStorage for migration period
-                    const localCourses = JSON.parse(localStorage.getItem('createdCourses') || '[]');
-                    const courseToEdit = localCourses.find(c => c.id === id);
-                    if (courseToEdit) {
-                        setCourseTitle(courseToEdit.title);
-                        setCourseDescription(courseToEdit.description);
-                        setModules(courseToEdit.modules);
-                        setFinalExam(courseToEdit.finalExam || []);
-                    }
-                }
-            };
-            fetchCourse();
-        }
+        initializeBuilder();
     }, [id, navigate]);
 
     const sensors = useSensors(
@@ -440,6 +454,14 @@ const CourseBuilder = () => {
             setIsGenerating(false);
         }
     };
+
+    if (authLoading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <Loader2 className="animate-spin text-blue-600" size={48} />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 pt-24 pb-12">
