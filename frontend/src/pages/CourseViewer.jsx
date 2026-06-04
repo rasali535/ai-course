@@ -16,7 +16,9 @@ import {
   Clock,
   Sparkles,
   ArrowRight,
-  Film
+  Film,
+  Award,
+  XCircle
 } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -35,6 +37,16 @@ const CourseViewer = () => {
   const [isQuizMode, setIsQuizMode] = useState(false);
   const [showAIVideo, setShowAIVideo] = useState(false);
   const [quizState, setQuizState] = useState({
+    currentQuestion: 0,
+    selectedOption: null,
+    isCorrect: null,
+    score: 0,
+    isFinished: false,
+    results: []
+  });
+
+  const [isFinalExamMode, setIsFinalExamMode] = useState(false);
+  const [finalExamState, setFinalExamState] = useState({
     currentQuestion: 0,
     selectedOption: null,
     isCorrect: null,
@@ -135,9 +147,20 @@ const CourseViewer = () => {
             };
         });
 
+        const rawFinalExam = content.finalExam || content.final_exam || [];
+        const mappedFinalExam = rawFinalExam.map(q => {
+            let answerIdx = q.answer;
+            if (answerIdx === undefined && q.correct_answer !== undefined) {
+                const idx = q.options.indexOf(q.correct_answer);
+                answerIdx = idx !== -1 ? idx : 0;
+            }
+            return { ...q, answer: answerIdx };
+        });
+
         setCourse({
           ...data,
-          modules: mappedModules
+          modules: mappedModules,
+          finalExam: mappedFinalExam
         });
       } catch (err) {
         console.error('Error fetching course:', err);
@@ -151,6 +174,20 @@ const CourseViewer = () => {
 
   const activeModule = course?.modules[activeModuleIdx];
   const activeLesson = activeModule?.lessons[activeLessonIdx];
+
+  const getFinalExamQuestions = () => {
+    if (course?.finalExam && course.finalExam.length > 0) {
+      return course.finalExam;
+    }
+    // Fallback: gather all module quizzes into a single list
+    const fallbackQuestions = [];
+    course?.modules?.forEach(m => {
+      if (m.quiz && m.quiz.length > 0) {
+        fallbackQuestions.push(...m.quiz);
+      }
+    });
+    return fallbackQuestions;
+  };
 
   const handleNext = () => {
     if (activeLessonIdx < activeModule.lessons.length - 1) {
@@ -179,50 +216,99 @@ const CourseViewer = () => {
     if (quizState.isCorrect !== null) return;
 
     const question = activeModule.quiz[quizState.currentQuestion];
-    const isCorrect = optionIdx === question.answer;
+    
+    setQuizState(prev => {
+      const isCorrect = optionIdx === question.answer;
+      const nextScore = isCorrect ? prev.score + 1 : prev.score;
+      const nextResults = [...prev.results, { question: question.question, isCorrect, selectedOption: optionIdx }];
+      
+      setTimeout(() => {
+        setQuizState(q => {
+          if (q.currentQuestion < activeModule.quiz.length - 1) {
+            return {
+              ...q,
+              currentQuestion: q.currentQuestion + 1,
+              selectedOption: null,
+              isCorrect: null
+            };
+          } else {
+            const percentage = Math.round((q.score / activeModule.quiz.length) * 100);
+            
+            // Persist Score in Botswana Time
+            const bTime = getBotswanaTime();
+            const quizResult = {
+              courseId: id,
+              moduleTitle: activeModule.title || activeModule.moduleTitle,
+              score: percentage,
+              timestamp: bTime
+            };
 
-    setQuizState(prev => ({
-      ...prev,
-      selectedOption: optionIdx,
-      isCorrect: isCorrect,
-      score: isCorrect ? prev.score + 1 : prev.score
-    }));
+            const existingStats = JSON.parse(localStorage.getItem('learnflow_stats') || '[]');
+            localStorage.setItem('learnflow_stats', JSON.stringify([...existingStats, quizResult]));
+            
+            if (percentage >= 60) {
+              confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            }
 
-    // Reset for next question after delay
-    setTimeout(() => {
-      if (quizState.currentQuestion < activeModule.quiz.length - 1) {
-        setQuizState(prev => ({
-          ...prev,
-          currentQuestion: prev.currentQuestion + 1,
-          selectedOption: null,
-          isCorrect: null
-        }));
-      } else {
-        const finalScore = isCorrect ? quizState.score + 1 : quizState.score;
-        const percentage = Math.round((finalScore / activeModule.quiz.length) * 100);
-        
-        setQuizState(prev => ({
-          ...prev,
-          isFinished: true
-        }));
+            return {
+              ...q,
+              isFinished: true
+            };
+          }
+        });
+      }, 2000);
 
-        // Persist Score in Botswana Time
-        const bTime = getBotswanaTime();
-        const quizResult = {
-          courseId: id,
-          moduleTitle: activeModule.moduleTitle,
-          score: percentage,
-          timestamp: bTime
-        };
+      return {
+        ...prev,
+        selectedOption: optionIdx,
+        isCorrect: isCorrect,
+        score: nextScore,
+        results: nextResults
+      };
+    });
+  };
 
-        const existingStats = JSON.parse(localStorage.getItem('learnflow_stats') || '[]');
-        localStorage.setItem('learnflow_stats', JSON.stringify([...existingStats, quizResult]));
-        
-        if (percentage >= 80) {
-          confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-        }
-      }
-    }, 2000);
+  const handleFinalExamOptionSelect = (optionIdx) => {
+    if (finalExamState.isCorrect !== null) return;
+
+    const finalQuestions = getFinalExamQuestions();
+    const question = finalQuestions[finalExamState.currentQuestion];
+
+    setFinalExamState(prev => {
+      const isCorrect = optionIdx === question.answer;
+      const nextScore = isCorrect ? prev.score + 1 : prev.score;
+      const nextResults = [...prev.results, { question: question.question, isCorrect, selectedOption: optionIdx }];
+      
+      setTimeout(() => {
+        setFinalExamState(q => {
+          if (q.currentQuestion < finalQuestions.length - 1) {
+            return {
+              ...q,
+              currentQuestion: q.currentQuestion + 1,
+              selectedOption: null,
+              isCorrect: null
+            };
+          } else {
+            const percentage = Math.round((q.score / finalQuestions.length) * 100);
+            if (percentage >= 85) {
+              confetti({ particleCount: 200, spread: 90, origin: { y: 0.5 } });
+            }
+            return {
+              ...q,
+              isFinished: true
+            };
+          }
+        });
+      }, 2000);
+
+      return {
+        ...prev,
+        selectedOption: optionIdx,
+        isCorrect: isCorrect,
+        score: nextScore,
+        results: nextResults
+      };
+    });
   };
 
   if (loading) {
@@ -330,15 +416,16 @@ const CourseViewer = () => {
                       setActiveModuleIdx(mIdx);
                       setIsQuizMode(true);
                       setActiveLessonIdx(module.lessons.length - 1);
+                      setIsFinalExamMode(false);
                     }}
                     className={`w-full text-left p-3 rounded-2xl text-sm font-bold flex items-center gap-3 transition-all ${
-                      isQuizMode && activeModuleIdx === mIdx 
+                      isQuizMode && activeModuleIdx === mIdx && !isFinalExamMode
                         ? 'bg-purple-600 text-white shadow-lg shadow-purple-200' 
                         : 'text-gray-600 hover:bg-white hover:shadow-sm'
                     }`}
                   >
                     <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                      isQuizMode && activeModuleIdx === mIdx ? 'bg-white/20' : 'bg-gray-100'
+                      isQuizMode && activeModuleIdx === mIdx && !isFinalExamMode ? 'bg-white/20' : 'bg-gray-100'
                     }`}>
                       <HelpCircle className="w-3.5 h-3.5" />
                     </div>
@@ -347,6 +434,32 @@ const CourseViewer = () => {
                 </div>
               </div>
             ))}
+
+            {/* Final Exam Sidebar Link */}
+            <div className="mt-8 pt-6 border-t border-gray-100">
+              <button
+                onClick={() => {
+                  setIsFinalExamMode(true);
+                  setIsQuizMode(false);
+                }}
+                className={`w-full text-left p-4 rounded-2xl text-sm font-black flex items-center gap-3 transition-all ${
+                  isFinalExamMode 
+                    ? 'bg-gradient-to-r from-yellow-500 to-amber-600 text-white shadow-lg shadow-yellow-200' 
+                    : 'text-gray-700 hover:bg-white hover:shadow-sm border border-dashed border-gray-200'
+                }`}
+              >
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                  isFinalExamMode ? 'bg-white/20' : 'bg-yellow-50'
+                }`}>
+                  <Award className={`w-4 h-4 ${isFinalExamMode ? 'text-white' : 'text-yellow-600'}`} />
+                </div>
+                <div>
+                  <span className="block text-xs uppercase tracking-widest opacity-60">Certification</span>
+                  <span>Final Exam</span>
+                </div>
+              </button>
+            </div>
+
           </div>
         </aside>
 
@@ -354,7 +467,165 @@ const CourseViewer = () => {
         <main className="flex-1 overflow-y-auto bg-white flex flex-col">
           <div className="max-w-4xl mx-auto w-full px-6 py-12 md:py-20 flex-1">
             <AnimatePresence mode="wait">
-              {!isQuizMode ? (
+              {isFinalExamMode ? (
+                <motion.div
+                  key="final-exam"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.05 }}
+                  transition={{ duration: 0.4 }}
+                  className="max-w-2xl mx-auto w-full"
+                >
+                  {!finalExamState.isFinished ? (
+                    (() => {
+                      const finalQuestions = getFinalExamQuestions();
+                      if (finalQuestions.length === 0) {
+                        return (
+                          <div className="text-center bg-white rounded-[3rem] p-12 md:p-20 border-2 border-gray-100 shadow-2xl">
+                            <h3 className="text-2xl font-black text-gray-900 mb-4">No exam questions available.</h3>
+                            <button
+                              onClick={() => setIsFinalExamMode(false)}
+                              className="px-8 py-4 bg-gray-900 text-white rounded-2xl font-bold"
+                            >
+                              Go Back
+                            </button>
+                          </div>
+                        );
+                      }
+                      const currentQ = finalQuestions[finalExamState.currentQuestion];
+                      return (
+                        <div className="bg-white rounded-[2.5rem] border-2 border-gray-100 p-8 md:p-14 shadow-2xl shadow-gray-100 relative overflow-hidden">
+                          <div className="absolute top-0 left-0 w-full h-1.5 bg-gray-50">
+                            <div 
+                              className="h-full bg-amber-500 transition-all duration-500"
+                              style={{ width: `${((finalExamState.currentQuestion + 1) / finalQuestions.length) * 100}%` }}
+                            />
+                          </div>
+
+                          <div className="mb-12">
+                            <span className="inline-block px-3 py-1 bg-amber-50 text-amber-600 rounded-lg text-[10px] font-black uppercase tracking-widest mb-6">
+                              Final Certification Exam • Question {finalExamState.currentQuestion + 1} of {finalQuestions.length}
+                            </span>
+                            <h3 className="text-2xl md:text-3xl font-black text-gray-900 leading-tight tracking-tight">
+                              {currentQ.question}
+                            </h3>
+                          </div>
+
+                          <div className="space-y-4">
+                            {currentQ.options.map((option, idx) => {
+                              const isSelected = finalExamState.selectedOption === idx;
+                              const isCorrect = finalExamState.isCorrect;
+                              
+                              let borderClass = "border-gray-100 hover:border-gray-300";
+                              let bgClass = "bg-white";
+                              let textClass = "text-gray-700";
+
+                              if (isSelected) {
+                                if (isCorrect) {
+                                  borderClass = "border-green-500 ring-4 ring-green-50 shadow-lg";
+                                  bgClass = "bg-green-50";
+                                  textClass = "text-green-900";
+                                } else if (isCorrect === false) {
+                                  borderClass = "border-red-500 ring-4 ring-red-50";
+                                  bgClass = "bg-red-50";
+                                  textClass = "text-red-900";
+                                } else {
+                                  borderClass = "border-amber-500 shadow-xl shadow-amber-100";
+                                  bgClass = "bg-amber-50";
+                                  textClass = "text-amber-900";
+                                }
+                              }
+
+                              return (
+                                <motion.button
+                                  key={idx}
+                                  onClick={() => handleFinalExamOptionSelect(idx)}
+                                  whileTap={{ scale: 0.98 }}
+                                  animate={isSelected && isCorrect === false ? { x: [-10, 10, -10, 10, 0] } : {}}
+                                  className={`w-full p-6 text-left rounded-2xl border-2 font-bold text-lg transition-all flex items-center justify-between group ${borderClass} ${bgClass} ${textClass}`}
+                                >
+                                  {option}
+                                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                                    isSelected ? 'border-transparent bg-white/50' : 'border-gray-100 group-hover:border-amber-200'
+                                  }`}>
+                                    {isSelected && isCorrect && <CheckCircle className="w-4 h-4 text-green-600" />}
+                                    {isSelected && isCorrect === false && <RotateCcw className="w-4 h-4 text-red-600" />}
+                                  </div>
+                                </motion.button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })()
+                  ) : (
+                    (() => {
+                      const finalQuestions = getFinalExamQuestions();
+                      const scorePercentage = Math.round((finalExamState.score / finalQuestions.length) * 100);
+                      const isPass = scorePercentage >= 85;
+                      return (
+                        <div className="text-center bg-white rounded-[3rem] p-12 md:p-20 border-2 border-gray-100 shadow-2xl">
+                          <div className="w-32 h-32 bg-amber-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10">
+                            {isPass ? (
+                              <Trophy className="w-16 h-16 text-amber-600 animate-bounce" />
+                            ) : (
+                              <XCircle className="w-16 h-16 text-red-500" />
+                            )}
+                          </div>
+                          <h3 className="text-4xl font-black text-gray-900 tracking-tighter mb-4">
+                            {isPass ? "Certification Passed!" : "Exam Failed"}
+                          </h3>
+                          <p className="text-gray-500 mb-6 text-lg font-medium leading-relaxed">
+                            You scored <span className={isPass ? "text-green-600 font-black" : "text-red-500 font-black"}>{scorePercentage}%</span> in the final exam.
+                          </p>
+                          
+                          {isPass ? (
+                            <div className="mb-10 px-6 py-4 bg-green-50 rounded-2xl border border-green-100 inline-block">
+                              <p className="text-green-800 text-sm font-bold">
+                                🎓 Congratulations! You passed the academic certification threshold of 85%. Your certificate is ready.
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="mb-10 px-6 py-4 bg-red-50 rounded-2xl border border-red-100 inline-block">
+                              <p className="text-red-800 text-sm font-bold">
+                                ⚠️ You scored below the required passing threshold of 85%. You must retake the exam to graduate.
+                              </p>
+                            </div>
+                          )}
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <button
+                              onClick={() => setFinalExamState({
+                                currentQuestion: 0,
+                                selectedOption: null,
+                                isCorrect: null,
+                                score: 0,
+                                isFinished: false,
+                                results: []
+                              })}
+                              className={`h-16 rounded-2xl border-2 font-bold transition-all flex items-center justify-center gap-2 ${
+                                !isPass 
+                                  ? 'col-span-2 border-red-500 text-red-600 bg-red-50 hover:bg-red-100'
+                                  : 'border-gray-100 hover:bg-gray-50'
+                              }`}
+                            >
+                              <RotateCcw className="w-4 h-4" /> Retake Exam
+                            </button>
+                            {isPass && (
+                              <button
+                                onClick={() => navigate('/dashboard')}
+                                className="h-16 bg-amber-500 text-white rounded-2xl font-bold hover:bg-amber-600 transition-all shadow-xl shadow-amber-200 flex items-center justify-center gap-2"
+                              >
+                                Finish Course <ArrowRight className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })()
+                  )}
+                </motion.div>
+              ) : !isQuizMode ? (
                 <motion.div
                   key={`lesson-${activeModuleIdx}-${activeLessonIdx}`}
                   initial={{ opacity: 0, y: 20 }}
@@ -383,7 +654,7 @@ const CourseViewer = () => {
 
                   <div className="prose prose-lg max-w-none prose-slate">
                     <div className="whitespace-pre-wrap text-gray-700 leading-relaxed text-lg bg-gray-50/50 p-8 md:p-12 rounded-[2rem] border border-gray-100/50 font-medium whitespace-pre-line">
-                      {typeof activeLesson === 'string' ? "Loading lesson content..." : activeLesson.content}
+                      {typeof activeLesson === 'string' ? "Loading lesson content..." : activeLesson.content || activeLesson.text}
                     </div>
                   </div>
 
@@ -501,58 +772,83 @@ const CourseViewer = () => {
                       </AnimatePresence>
                     </div>
                   ) : (
-                    <div className="text-center bg-white rounded-[3rem] p-12 md:p-20 border-2 border-gray-100 shadow-2xl">
-                      <div className="w-32 h-32 bg-blue-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10">
-                        <Trophy className="w-16 h-16 text-blue-600" />
-                      </div>
-                      <h3 className="text-4xl font-black text-gray-900 tracking-tighter mb-4">Module {activeModuleIdx + 1} Complete!</h3>
-                      <p className="text-gray-500 mb-10 text-lg font-medium leading-relaxed">
-                        You scored <span className="text-blue-600 font-black">{Math.round((quizState.score / activeModule.quiz.length) * 100)}%</span> in this assessment.
-                      </p>
-                      
-                      <div className="flex items-center justify-center gap-3 text-xs font-bold text-gray-400 mb-12 bg-gray-50 py-3 px-6 rounded-full inline-flex">
-                        <Clock className="w-4 h-4" />
-                        <span>Saved at {getBotswanaTime()} (CAT)</span>
-                      </div>
+                    (() => {
+                      const scorePercentage = Math.round((quizState.score / activeModule.quiz.length) * 100);
+                      const passedModule = scorePercentage >= 60;
+                      return (
+                        <div className="text-center bg-white rounded-[3rem] p-12 md:p-20 border-2 border-gray-100 shadow-2xl">
+                          <div className="w-32 h-32 bg-blue-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10">
+                            {passedModule ? (
+                              <Trophy className="w-16 h-16 text-blue-600" />
+                            ) : (
+                              <XCircle className="w-16 h-16 text-red-500 animate-pulse" />
+                            )}
+                          </div>
+                          <h3 className="text-4xl font-black text-gray-900 tracking-tighter mb-4">
+                            {passedModule ? `Module ${activeModuleIdx + 1} Complete!` : "Assessment Failed"}
+                          </h3>
+                          <p className="text-gray-500 mb-6 text-lg font-medium leading-relaxed">
+                            You scored <span className={passedModule ? "text-blue-600 font-black" : "text-red-500 font-black"}>{scorePercentage}%</span> in this assessment.
+                          </p>
+                          
+                          {!passedModule && (
+                            <div className="mb-10 px-6 py-4 bg-red-50 rounded-2xl border border-red-100 inline-block">
+                              <p className="text-red-800 text-sm font-bold">
+                                ⚠️ You scored below the required passing threshold of 60%. You must retake the assessment to proceed.
+                              </p>
+                            </div>
+                          )}
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <button
-                          onClick={() => setQuizState({
-                            currentQuestion: 0,
-                            selectedOption: null,
-                            isCorrect: null,
-                            score: 0,
-                            isFinished: false,
-                            results: []
-                          })}
-                          className="h-16 rounded-2xl border-2 border-gray-100 font-bold hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
-                        >
-                          <RotateCcw className="w-4 h-4" /> Retake
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (activeModuleIdx < course.modules.length - 1) {
-                              setActiveModuleIdx(prev => prev + 1);
-                              setActiveLessonIdx(0);
-                              setIsQuizMode(false);
-                              setQuizState({
+                          <div className="grid grid-cols-2 gap-4">
+                            <button
+                              onClick={() => setQuizState({
                                 currentQuestion: 0,
                                 selectedOption: null,
                                 isCorrect: null,
                                 score: 0,
                                 isFinished: false,
                                 results: []
-                              });
-                            } else {
-                              navigate('/dashboard');
-                            }
-                          }}
-                          className="h-16 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 flex items-center justify-center gap-2"
-                        >
-                          Next Module <ChevronRight className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
+                              })}
+                              className={`h-16 rounded-2xl border-2 font-bold transition-all flex items-center justify-center gap-2 ${
+                                !passedModule 
+                                  ? 'col-span-2 border-red-500 text-red-600 bg-red-50 hover:bg-red-100'
+                                  : 'border-gray-100 hover:bg-gray-50'
+                              }`}
+                            >
+                              <RotateCcw className="w-4 h-4" /> Retake Quiz
+                            </button>
+                            {passedModule && (
+                              <button
+                                onClick={() => {
+                                  if (activeModuleIdx < course.modules.length - 1) {
+                                    setActiveModuleIdx(prev => prev + 1);
+                                    setActiveLessonIdx(0);
+                                    setIsQuizMode(false);
+                                    setQuizState({
+                                      currentQuestion: 0,
+                                      selectedOption: null,
+                                      isCorrect: null,
+                                      score: 0,
+                                      isFinished: false,
+                                      results: []
+                                    });
+                                  } else {
+                                    setIsFinalExamMode(true);
+                                  }
+                                }}
+                                className="h-16 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 flex items-center justify-center gap-2"
+                              >
+                                {activeModuleIdx < course.modules.length - 1 ? (
+                                  <>Next Module <ChevronRight className="w-4 h-4" /></>
+                                ) : (
+                                  <>Proceed to Final Exam <Award className="w-4 h-4" /></>
+                                )}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })()
                   )}
                 </motion.div>
               )}

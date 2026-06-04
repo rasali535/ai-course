@@ -138,8 +138,8 @@ async def generate_course(request: GenerateCourseRequest):
         
         CRITICAL REQUIREMENTS:
         1. Create exactly 4-6 high-quality modules.
-        2. Each module MUST have 3-5 content items (text/info) AND a quiz with 2-3 questions.
-        3. For "text" type items, provide ACTUAL educational content, not placeholders.
+        2. Each module MUST have 3-5 content items (including at least one 'video' type content where the 'text' field is a full, detailed, multi-paragraph educational lecture script to be read out loud, and 2-3 'text' type items) AND a quiz with 2-3 questions.
+        3. For all content items (both 'text' and 'video' types), provide actual comprehensive educational content/scripts in the 'text' field.
         4. Include a "final_exam" with 5-10 questions covering all modules.
         5. Ensure the JSON is valid and does not contain any Markdown code blocks or extra text.
         """

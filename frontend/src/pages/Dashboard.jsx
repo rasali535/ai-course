@@ -98,22 +98,22 @@ const Dashboard = () => {
                 return;
             }
             setIsLoading(false);
+            fetchCourses(user.id);
         };
 
-        checkAccess();
-
-        const fetchCourses = async () => {
+        const fetchCourses = async (userId) => {
             try {
                 // 1. Fetch from Supabase
                 const { data: sbCourses, error: sbError } = await supabase
                     .from('courses')
                     .select('*')
+                    .eq('user_id', userId)
                     .order('created_at', { ascending: false });
 
                 if (sbError) throw sbError;
 
                 // 2. Local fallback for older sessions
-                const localCourses = JSON.parse(localStorage.getItem('createdCourses') || '[]');
+                const localCourses = JSON.parse(localStorage.getItem('createdCourses') || '[]').filter(c => !c.user_id || c.user_id === userId);
                 
                 const allData = [...sbCourses, ...localCourses];
 
@@ -140,7 +140,7 @@ const Dashboard = () => {
             }
         };
 
-        fetchCourses();
+        checkAccess();
     }, [navigate]);
 
     if (isLoading) {
