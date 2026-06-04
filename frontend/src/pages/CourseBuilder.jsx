@@ -27,7 +27,8 @@ import {
     Trash2, GripVertical, Plus, X, Loader2, 
     Eye, EyeOff, Film, ArrowLeft, ArrowRight, 
     CheckCircle, FileText, HelpCircle, Trophy, 
-    Clock, Sparkles, BookOpen, RotateCcw 
+    Clock, Sparkles, BookOpen, RotateCcw,
+    ChevronLeft, ChevronRight 
 } from 'lucide-react';
 import AIVideoPlayer from '../components/AIVideoPlayer';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -895,55 +896,76 @@ const CourseBuilder = () => {
                                                             </div>
                                                         )}
                                                     </div>
-                                                ) : (
-                                                    <div className="text-center bg-white rounded-[2.5rem] p-10 border-2 border-gray-100 shadow-xl">
+                                                ) : (                                                    <div className="text-center bg-white rounded-[2.5rem] p-10 border-2 border-gray-100 shadow-xl">
                                                         <div className="w-24 h-24 bg-blue-50 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
                                                             <Trophy className="w-12 h-12 text-blue-600" />
                                                         </div>
-                                                        <h3 className="text-3xl font-black text-gray-900 tracking-tighter mb-2">Module {previewModuleIdx + 1} Assessment Complete!</h3>
-                                                        <p className="text-gray-500 mb-8 text-base font-medium">
-                                                            You scored <span className="text-blue-600 font-black">{Math.round((previewQuizState.score / activePreviewModule.quiz.length) * 100)}%</span> in this preview assessment.
-                                                        </p>
+                                                        {(() => {
+                                                            const scorePercentage = Math.round((previewQuizState.score / activePreviewModule.quiz.length) * 100);
+                                                            const passedModule = scorePercentage >= 60;
+                                                            return (
+                                                                <>
+                                                                    <h3 className="text-3xl font-black text-gray-900 tracking-tighter mb-2">
+                                                                        {passedModule ? `Module ${previewModuleIdx + 1} Complete!` : "Assessment Failed"}
+                                                                    </h3>
+                                                                    <p className="text-gray-500 mb-6 text-base font-medium">
+                                                                        You scored <span className={passedModule ? "text-blue-600 font-black" : "text-red-500 font-black"}>{scorePercentage}%</span> in this preview assessment.
+                                                                    </p>
+                                                                    
+                                                                    {!passedModule && (
+                                                                        <div className="mb-8 px-6 py-3 bg-red-50 rounded-2xl border border-red-100 inline-block">
+                                                                            <p className="text-red-800 text-sm font-bold">
+                                                                                ⚠️ Learner requires 60% or above to unlock next steps.
+                                                                            </p>
+                                                                        </div>
+                                                                    )}
 
-                                                        <div className="grid grid-cols-2 gap-4">
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => setPreviewQuizState({
-                                                                    currentQuestion: 0,
-                                                                    selectedOption: null,
-                                                                    isCorrect: null,
-                                                                    score: 0,
-                                                                    isFinished: false,
-                                                                    results: []
-                                                                })}
-                                                                className="h-14 rounded-xl border-2 border-gray-100 font-bold hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
-                                                            >
-                                                                <RotateCcw className="w-4 h-4" /> Retake
-                                                            </button>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => {
-                                                                    if (previewModuleIdx < previewModules.length - 1) {
-                                                                        setPreviewModuleIdx(prev => prev + 1);
-                                                                        setPreviewLessonIdx(0);
-                                                                        setPreviewQuizMode(false);
-                                                                        setPreviewQuizState({
-                                                                            currentQuestion: 0,
-                                                                            selectedOption: null,
-                                                                            isCorrect: null,
-                                                                            score: 0,
-                                                                            isFinished: false,
-                                                                            results: []
-                                                                        });
-                                                                    } else {
-                                                                        setPreviewMode(false);
-                                                                    }
-                                                                }}
-                                                                className="h-14 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg flex items-center justify-center gap-2"
-                                                            >
-                                                                {previewModuleIdx < previewModules.length - 1 ? "Next Module" : "Exit Preview"} <ChevronRight className="w-4 h-4" />
-                                                            </button>
-                                                        </div>
+                                                                    <div className="grid grid-cols-2 gap-4">
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => setPreviewQuizState({
+                                                                                currentQuestion: 0,
+                                                                                selectedOption: null,
+                                                                                isCorrect: null,
+                                                                                score: 0,
+                                                                                isFinished: false,
+                                                                                results: []
+                                                                            })}
+                                                                            className={`h-14 rounded-xl border-2 font-bold transition-all flex items-center justify-center gap-2 ${
+                                                                                !passedModule ? 'col-span-2 border-red-500 text-red-600 bg-red-50 hover:bg-red-100' : 'border-gray-100 hover:bg-gray-50'
+                                                                            }`}
+                                                                        >
+                                                                            <RotateCcw className="w-4 h-4" /> Retake
+                                                                        </button>
+                                                                        {passedModule && (
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => {
+                                                                                    if (previewModuleIdx < previewModules.length - 1) {
+                                                                                        setPreviewModuleIdx(prev => prev + 1);
+                                                                                        setPreviewLessonIdx(0);
+                                                                                        setPreviewQuizMode(false);
+                                                                                        setPreviewQuizState({
+                                                                                            currentQuestion: 0,
+                                                                                            selectedOption: null,
+                                                                                            isCorrect: null,
+                                                                                            score: 0,
+                                                                                            isFinished: false,
+                                                                                            results: []
+                                                                                        });
+                                                                                    } else {
+                                                                                        setPreviewMode(false);
+                                                                                    }
+                                                                                }}
+                                                                                className="h-14 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg flex items-center justify-center gap-2"
+                                                                            >
+                                                                                {previewModuleIdx < previewModules.length - 1 ? "Next Module" : "Exit Preview"} <ChevronRight className="w-4 h-4" />
+                                                                            </button>
+                                                                        )}
+                                                                    </div>
+                                                                </>
+                                                            );
+                                                        })()}
                                                     </div>
                                                 )}
                                             </motion.div>
