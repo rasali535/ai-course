@@ -451,28 +451,37 @@ const Dashboard = () => {
                                             </div>
                                             <div className="flex gap-3 mt-6">
                                                 {course.status === 'published' ? (
-                                                    <Link to={`/course/${course.id}`} className="flex-1 py-2.5 text-center bg-gray-900 text-white rounded-lg text-xs font-bold hover:bg-black transition-colors">Course Center</Link>
-                                                ) : (
-                                                    <button 
-                                                        onClick={() => handlePublishCourse(course)}
-                                                        className="flex-1 py-2.5 text-center bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors"
+                                                    <button
+                                                        onClick={() => handleDeleteCourse(course.id)}
+                                                        className="flex-1 py-2.5 text-red-500 bg-red-50 hover:bg-red-100 rounded-lg text-xs font-bold transition-colors border border-red-100 flex items-center justify-center gap-2"
+                                                        title="Delete Published Course"
                                                     >
-                                                        Publish to Center
+                                                        <Trash2 size={16} />
+                                                        Delete Published Course
                                                     </button>
+                                                ) : (
+                                                    <>
+                                                        <button 
+                                                            onClick={() => handlePublishCourse(course)}
+                                                            className="flex-1 py-2.5 text-center bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors"
+                                                        >
+                                                            Publish to Center
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleEditCourse(course)}
+                                                            className="flex-1 py-2.5 text-center bg-gray-50 text-gray-700 rounded-lg text-xs font-bold hover:bg-gray-100 transition-colors border border-gray-100"
+                                                        >
+                                                            Review & Edit
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDeleteCourse(course.id)}
+                                                            className="px-3.5 py-2.5 text-red-500 bg-red-50 hover:bg-red-100 rounded-lg text-xs font-bold transition-colors border border-red-100 flex items-center justify-center"
+                                                            title="Delete Course"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </>
                                                 )}
-                                                <button 
-                                                    onClick={() => handleEditCourse(course)}
-                                                    className="flex-1 py-2.5 text-center bg-gray-50 text-gray-700 rounded-lg text-xs font-bold hover:bg-gray-100 transition-colors border border-gray-100"
-                                                >
-                                                    Review & Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDeleteCourse(course.id)}
-                                                    className="px-3.5 py-2.5 text-red-500 bg-red-50 hover:bg-red-100 rounded-lg text-xs font-bold transition-colors border border-red-100 flex items-center justify-center"
-                                                    title="Delete Course"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
                                             </div>
                                         </div>
                                     </div>

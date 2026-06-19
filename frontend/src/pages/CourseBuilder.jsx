@@ -309,6 +309,11 @@ const CourseBuilder = () => {
                         .single();
                     
                     if (data) {
+                        if (data.status === 'published') {
+                            alert("Published courses cannot be edited directly. Please edit the draft version from the Draft Courses tab.");
+                            navigate('/dashboard');
+                            return;
+                        }
                         setCourseTitle(data.title);
                         setCourseDescription(data.description);
                         setCoursePrice(data.price || 1200);
@@ -321,6 +326,11 @@ const CourseBuilder = () => {
                         const localCourses = JSON.parse(localStorage.getItem('createdCourses') || '[]');
                         const courseToEdit = localCourses.find(c => c.id === id);
                         if (courseToEdit) {
+                            if (courseToEdit.status === 'published') {
+                                alert("Published courses cannot be edited directly. Please edit the draft version from the Draft Courses tab.");
+                                navigate('/dashboard');
+                                return;
+                            }
                             setCourseTitle(courseToEdit.title);
                             setCourseDescription(courseToEdit.description);
                             setCoursePrice(courseToEdit.price || 1200);
