@@ -119,21 +119,31 @@ const Dashboard = () => {
                 
                 const allData = [...sbCourses, ...localCourses];
 
-                setCourses(allData.map((course, index) => ({
+                // Deduplicate by course ID to prevent any duplicate course cards
+                const uniqueCourses = [];
+                const seenIds = new Set();
+                for (const c of allData) {
+                    if (c.id && !seenIds.has(c.id)) {
+                        seenIds.add(c.id);
+                        uniqueCourses.push(c);
+                    }
+                }
+
+                setCourses(uniqueCourses.map((course, index) => ({
                     ...course,
                     id: course.id || `local-${index}`,
                     students: course.students || 0,
                     progress: 65, // Mocked progress for active engagement
-                    image: `https://images.unsplash.com/photo-${index % 2 === 0 ? '1633356122544-f134224a6cee' : '1677442136019-21780ecad995'}?w=400`,
+                    image: course.image || `https://images.unsplash.com/photo-${index % 2 === 0 ? '1633356122544-f134224a6cee' : '1677442136019-21780ecad995'}?w=400`,
                 })));
 
                 // Calculate real stats
-                const totalStuds = allData.reduce((sum, c) => sum + (c.students || 0), 0);
+                const totalStuds = uniqueCourses.reduce((sum, c) => sum + (c.students || 0), 0);
                 setRealStats({
                     totalStudents: totalStuds,
-                    activeCourses: allData.length,
+                    activeCourses: uniqueCourses.length,
                     totalRevenue: totalStuds * 49.99,
-                    siteVisits: (allData.length * 154 + 42).toLocaleString()
+                    siteVisits: (uniqueCourses.length * 154 + 42).toLocaleString()
                 });
 
             } catch (error) {

@@ -25,7 +25,17 @@ const Courses = () => {
                     .eq('is_public', true);
                 
                 if (error) throw error;
-                setCourses(data || []);
+
+                // Deduplicate by course ID to prevent any duplicate course cards
+                const uniqueCourses = [];
+                const seenIds = new Set();
+                for (const c of (data || [])) {
+                    if (c.id && !seenIds.has(c.id)) {
+                        seenIds.add(c.id);
+                        uniqueCourses.push(c);
+                    }
+                }
+                setCourses(uniqueCourses);
 
                 // Fetch enrollments if logged in
                 const { data: { user } } = await supabase.auth.getUser();
@@ -60,6 +70,12 @@ const Courses = () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
                 navigate('/signup');
+                return;
+            }
+
+            if (enrollments.includes(courseId)) {
+                alert('You are already enrolled in this course.');
+                navigate('/learner-dashboard');
                 return;
             }
 

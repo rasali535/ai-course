@@ -82,15 +82,25 @@ const LearnerDashboard = () => {
                 
                 if (enrollError) throw enrollError;
                 
-                // Map the data to match expected format
-                const mappedEnrollments = (enrollRes || []).map(enr => ({
-                    ...enr,
-                    title: enr.courses?.title || 'Untitled Course',
-                    course_id: enr.courses?.id,
-                    price: enr.courses?.price
-                }));
+                // Map the data to match expected format and deduplicate by course_id
+                const uniqueEnrollments = [];
+                const seenCourseIds = new Set();
+                for (const enr of (enrollRes || [])) {
+                    const courseId = enr.courses?.id;
+                    if (courseId) {
+                        if (!seenCourseIds.has(courseId)) {
+                            seenCourseIds.add(courseId);
+                            uniqueEnrollments.push({
+                                ...enr,
+                                title: enr.courses?.title || 'Untitled Course',
+                                course_id: courseId,
+                                price: enr.courses?.price
+                            });
+                        }
+                    }
+                }
                 
-                setEnrollments(mappedEnrollments);
+                setEnrollments(uniqueEnrollments);
 
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
