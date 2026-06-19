@@ -149,11 +149,20 @@ const Courses = () => {
                                 className="group bg-white rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-3 transition-all duration-700 overflow-hidden flex flex-col h-full"
                             >
                                 <div className="aspect-[4/3] relative overflow-hidden">
-                                    <img 
-                                        src={course.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3"} 
-                                        alt={course.title}
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                    />
+                                    {course.image && course.image.startsWith('linear-gradient') ? (
+                                        <div 
+                                            style={{ background: course.image }} 
+                                            className="w-full h-full flex items-center justify-center text-white font-black text-center p-6 italic text-xl select-none"
+                                        >
+                                            {course.title}
+                                        </div>
+                                    ) : (
+                                        <img 
+                                            src={course.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3"} 
+                                            alt={course.title}
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                        />
+                                    )}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                         <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white border border-white/30">
                                             <PlayCircle size={32} />

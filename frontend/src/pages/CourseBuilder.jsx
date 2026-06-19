@@ -28,7 +28,7 @@ import {
     Eye, EyeOff, Film, ArrowLeft, ArrowRight, 
     CheckCircle, FileText, HelpCircle, Trophy, 
     Clock, Sparkles, BookOpen, RotateCcw,
-    ChevronLeft, ChevronRight 
+    ChevronLeft, ChevronRight, Edit
 } from 'lucide-react';
 import AIVideoPlayer from '../components/AIVideoPlayer';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -65,7 +65,7 @@ const SidebarItem = ({ type, icon, label }) => {
 };
 
 // Sortable Module Item Component
-const SortableModule = ({ id, module, onDelete, onRemoveContent, onUpdateModule, onUpdateContent }) => {
+const SortableModule = ({ id, module, onDelete, onRemoveContent, onUpdateModule, onUpdateContent, onEditContent, onEditQuiz }) => {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: module.id,
         data: {
@@ -99,9 +99,19 @@ const SortableModule = ({ id, module, onDelete, onRemoveContent, onUpdateModule,
                         placeholder="Module Title"
                     />
                 </div>
-                <button onClick={() => onDelete(id)} className="text-gray-300 hover:text-red-500 transition-colors">
-                    <Trash2 size={18} />
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={() => onEditQuiz(module.id)}
+                        className="text-xs bg-purple-50 hover:bg-purple-100 text-purple-600 font-bold px-3 py-1.5 rounded-xl border border-purple-100 transition-colors flex items-center gap-1.5"
+                    >
+                        <HelpCircle size={14} />
+                        {module.quiz && module.quiz.length > 0 ? `Edit Quiz (${module.quiz.length})` : "Add Quiz"}
+                    </button>
+                    <button onClick={() => onDelete(id)} className="text-gray-300 hover:text-red-500 transition-colors ml-2">
+                        <Trash2 size={18} />
+                    </button>
+                </div>
             </div>
 
             {/* Content List */}
@@ -118,10 +128,10 @@ const SortableModule = ({ id, module, onDelete, onRemoveContent, onUpdateModule,
                             <div className="flex-1">
                                 <input
                                     type="text"
-                                    value={item.text}
-                                    onChange={(e) => onUpdateContent(module.id, idx, e.target.value)}
+                                    value={item.title || item.text}
+                                    onChange={(e) => onUpdateContent(module.id, idx, e.target.value, "title")}
                                     className="bg-transparent border-b border-transparent hover:border-gray-200 focus:border-blue-500 outline-none w-full font-medium"
-                                    placeholder={item.type === 'video' ? "Video Title" : "Topic Content"}
+                                    placeholder={item.type === 'video' ? "Video Title" : "Topic Title"}
                                 />
                                 {(item.type === 'video' || item.type === 'file') && (
                                     <div className="mt-2">
@@ -174,12 +184,23 @@ const SortableModule = ({ id, module, onDelete, onRemoveContent, onUpdateModule,
                                 )}
                             </div>
                         </div>
-                        <button
-                            onClick={() => onRemoveContent(module.id, idx)}
-                            className="text-gray-300 hover:text-red-500 opacity-0 group-hover/item:opacity-100 transition-all ml-2"
-                        >
-                            <X size={14} />
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={() => onEditContent(module.id, idx)}
+                                className="text-gray-400 hover:text-blue-500 transition-colors p-1"
+                                title="Edit Details"
+                            >
+                                <Edit size={14} />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => onRemoveContent(module.id, idx)}
+                                className="text-gray-300 hover:text-red-500 opacity-0 group-hover/item:opacity-100 transition-all p-1"
+                            >
+                                <X size={14} />
+                            </button>
+                        </div>
                     </div>
                 ))}
             </div>
@@ -192,10 +213,21 @@ const CourseBuilder = () => {
     const [activeItem, setActiveItem] = useState(null);
     const [courseTitle, setCourseTitle] = useState("New Course Topic");
     const [courseDescription, setCourseDescription] = useState("Enter course description here...");
+    const [coursePrice, setCoursePrice] = useState(1200);
+    const [courseImage, setCourseImage] = useState("https://images.unsplash.com/photo-1516321318423-f06f85e504b3");
     const [modules, setModules] = useState([]);
     const [finalExam, setFinalExam] = useState([]); // Added state for final exam
     const [isGenerating, setIsGenerating] = useState(false);
     const [authLoading, setAuthLoading] = useState(true);
+
+    // Modal state for manually editing content items (lessons)
+    const [editingItem, setEditingItem] = useState(null); // { moduleId, contentIndex }
+    
+    // Modal state for editing module assessment (quiz)
+    const [editingQuizModuleId, setEditingQuizModuleId] = useState(null); // moduleId string
+    
+    // Modal state for cover image customization
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
     
     // Preview Mode states
     const [previewMode, setPreviewMode] = useState(false);
@@ -278,6 +310,8 @@ const CourseBuilder = () => {
                     if (data) {
                         setCourseTitle(data.title);
                         setCourseDescription(data.description);
+                        setCoursePrice(data.price || 1200);
+                        setCourseImage(data.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3");
                         setModules(data.content?.modules || []);
                         setFinalExam(data.content?.finalExam || []);
                     } else {
@@ -287,6 +321,8 @@ const CourseBuilder = () => {
                         if (courseToEdit) {
                             setCourseTitle(courseToEdit.title);
                             setCourseDescription(courseToEdit.description);
+                            setCoursePrice(courseToEdit.price || 1200);
+                            setCourseImage(courseToEdit.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3");
                             setModules(courseToEdit.modules);
                             setFinalExam(courseToEdit.finalExam || []);
                         }
@@ -399,6 +435,8 @@ const CourseBuilder = () => {
                 const newContent = [...m.content];
                 if (field === "text") {
                     newContent[contentIndex] = { ...newContent[contentIndex], text: newValue };
+                } else if (field === "title") {
+                    newContent[contentIndex] = { ...newContent[contentIndex], title: newValue };
                 } else if (field === "url") {
                     newContent[contentIndex] = { ...newContent[contentIndex], url: newValue };
                 } else if (field === "remove_url") {
@@ -421,6 +459,8 @@ const CourseBuilder = () => {
                 user_id: user.id,
                 title: courseTitle,
                 description: courseDescription,
+                price: coursePrice,
+                image: courseImage,
                 content: {
                     modules: modules,
                     finalExam: finalExam
@@ -489,6 +529,9 @@ const CourseBuilder = () => {
             setModules(prev => [...prev, ...newModules]);
             if (generatedData.description) {
                 setCourseDescription(generatedData.description);
+            }
+            if (generatedData.image) {
+                setCourseImage(generatedData.image);
             }
             if (generatedData.final_exam) {
                 setFinalExam(generatedData.final_exam);
@@ -588,23 +631,63 @@ const CourseBuilder = () => {
             <div className="max-w-7xl mx-auto px-6">
 
                 {/* Header & Controls */}
-                <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
-                    <div className="flex-1">
-                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1 block">Course Title</label>
-                        <input
-                            type="text"
-                            value={courseTitle}
-                            onChange={(e) => setCourseTitle(e.target.value)}
-                            className="text-3xl font-bold bg-transparent border-b-2 border-transparent hover:border-gray-200 focus:border-blue-600 outline-none w-full transition-all"
-                        />
-                        <input
-                            type="text"
-                            value={courseDescription}
-                            onChange={(e) => setCourseDescription(e.target.value)}
-                            className="text-gray-500 mt-2 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-blue-600 outline-none w-full"
-                        />
+                <div className="mb-8 bg-white rounded-[2rem] border border-gray-100 p-8 shadow-sm flex flex-col lg:flex-row gap-8 items-start lg:items-center">
+                    {/* Cover Image Preview & Action */}
+                    <div className="relative group w-full lg:w-48 h-32 rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200">
+                        {courseImage.startsWith('linear-gradient') ? (
+                            <div style={{ background: courseImage }} className="w-full h-full flex items-center justify-center text-white font-bold text-sm p-4 text-center">
+                                {courseTitle}
+                            </div>
+                        ) : (
+                            <img src={courseImage} alt="Cover" className="w-full h-full object-cover" />
+                        )}
+                        <button
+                            type="button"
+                            onClick={() => setIsImageModalOpen(true)}
+                            className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-xs font-bold gap-2 cursor-pointer"
+                        >
+                            <span>✨ Customize Cover</span>
+                        </button>
                     </div>
-                    <div className="flex gap-3 flex-shrink-0">
+
+                    <div className="flex-1 space-y-4 w-full">
+                        <div>
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Course Title</label>
+                            <input
+                                type="text"
+                                value={courseTitle}
+                                onChange={(e) => setCourseTitle(e.target.value)}
+                                className="text-2xl font-black bg-transparent border-b-2 border-transparent hover:border-gray-200 focus:border-blue-600 outline-none w-full transition-all text-gray-900 tracking-tight"
+                            />
+                        </div>
+                        <div>
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Course Description</label>
+                            <input
+                                type="text"
+                                value={courseDescription}
+                                onChange={(e) => setCourseDescription(e.target.value)}
+                                className="text-gray-600 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-blue-600 outline-none w-full text-sm font-medium"
+                                placeholder="Enter course description..."
+                            />
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div>
+                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Course Price (BWP)</label>
+                                <div className="flex items-center bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all w-36">
+                                    <span className="text-gray-400 font-bold text-sm mr-1">BWP</span>
+                                    <input
+                                        type="number"
+                                        value={coursePrice}
+                                        onChange={(e) => setCoursePrice(Number(e.target.value))}
+                                        className="bg-transparent border-none outline-none w-full font-bold text-gray-800 text-sm focus:ring-0 p-0"
+                                        min="0"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-row lg:flex-col gap-3 w-full lg:w-auto">
                         <button
                             type="button"
                             onClick={() => {
@@ -621,7 +704,7 @@ const CourseBuilder = () => {
                                 setPreviewQuizMode(false);
                                 setPreviewMode(!previewMode);
                             }}
-                            className={`px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 border-2 ${
+                            className={`px-6 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 border-2 text-sm flex-1 lg:flex-initial ${
                                 previewMode 
                                     ? 'bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 shadow-lg shadow-blue-100' 
                                     : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
@@ -632,7 +715,7 @@ const CourseBuilder = () => {
                         </button>
                         <button
                             onClick={handleSaveCourse}
-                            className="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg shadow-gray-900/20 flex items-center"
+                            className="bg-gray-900 text-white px-8 py-3.5 rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg shadow-gray-900/20 flex items-center justify-center text-sm flex-1 lg:flex-initial"
                         >
                             Save Course
                         </button>
@@ -1032,6 +1115,8 @@ const CourseBuilder = () => {
                                                 onRemoveContent={handleRemoveContent}
                                                 onUpdateModule={handleUpdateModule}
                                                 onUpdateContent={handleUpdateContent}
+                                                onEditContent={(modId, idx) => setEditingItem({ moduleId: modId, contentIndex: idx })}
+                                                onEditQuiz={(modId) => setEditingQuizModuleId(modId)}
                                             />
                                         ))}
                                     </SortableContext>
@@ -1078,6 +1163,375 @@ const CourseBuilder = () => {
                     lessonContent={activePreviewLesson.content}
                     onClose={() => setShowPreviewVideo(false)}
                 />
+            )}
+
+            {/* Lesson Editor Modal */}
+            {editingItem && (() => {
+                const module = modules.find(m => m.id === editingItem.moduleId);
+                const item = module?.content?.[editingItem.contentIndex];
+                if (!item) return null;
+                return (
+                    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+                        <div className="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 max-w-2xl w-full p-8 md:p-10 animate-in zoom-in duration-300">
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+                                    <span>✏️</span> Edit Lesson Details ({item.type.toUpperCase()})
+                                </h3>
+                                <button onClick={() => setEditingItem(null)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5 block">Lesson Title</label>
+                                    <input
+                                        type="text"
+                                        value={item.title || item.text || ""}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            setModules(prev => prev.map(m => m.id === editingItem.moduleId ? {
+                                                ...m,
+                                                content: m.content.map((c, i) => i === editingItem.contentIndex ? { ...c, title: val } : c)
+                                            } : m));
+                                        }}
+                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-bold text-gray-800 text-sm"
+                                        placeholder="Lesson Title"
+                                    />
+                                </div>
+                                
+                                {item.type === 'text' && (
+                                    <div>
+                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5 block">Detailed Lesson Text</label>
+                                        <textarea
+                                            value={item.text || ""}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setModules(prev => prev.map(m => m.id === editingItem.moduleId ? {
+                                                    ...m,
+                                                    content: m.content.map((c, i) => i === editingItem.contentIndex ? { ...c, text: val } : c)
+                                                } : m));
+                                            }}
+                                            className="w-full h-64 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium text-gray-700 text-sm resize-none custom-scrollbar"
+                                            placeholder="Write your comprehensive lesson contents here..."
+                                        />
+                                    </div>
+                                )}
+
+                                {(item.type === 'video' || item.type === 'file') && (
+                                    <>
+                                        <div>
+                                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5 block">Description / Transcript</label>
+                                            <textarea
+                                                value={item.text || ""}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    setModules(prev => prev.map(m => m.id === editingItem.moduleId ? {
+                                                        ...m,
+                                                        content: m.content.map((c, i) => i === editingItem.contentIndex ? { ...c, text: val } : c)
+                                                    } : m));
+                                                }}
+                                                className="w-full h-32 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium text-gray-700 text-sm resize-none"
+                                                placeholder="Provide a brief description or transcript for this media..."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5 block">URL Path</label>
+                                            <input
+                                                type="text"
+                                                value={item.url || ""}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    setModules(prev => prev.map(m => m.id === editingItem.moduleId ? {
+                                                        ...m,
+                                                        content: m.content.map((c, i) => i === editingItem.contentIndex ? { ...c, url: val } : c)
+                                                    } : m));
+                                                }}
+                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium text-gray-700 text-sm"
+                                                placeholder="Paste media URL or use the upload button on the builder page"
+                                            />
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                            <div className="mt-8 flex justify-end">
+                                <button
+                                    onClick={() => setEditingItem(null)}
+                                    className="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg"
+                                >
+                                    Save & Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            })()}
+
+            {/* Quiz Editor Modal */}
+            {editingQuizModuleId && (() => {
+                const module = modules.find(m => m.id === editingQuizModuleId);
+                if (!module) return null;
+                const quiz = module.quiz || [];
+                
+                const addQuizQuestion = () => {
+                    const newQuestion = {
+                        question: "New Question Topic?",
+                        options: ["Option A", "Option B", "Option C", "Option D"],
+                        correct_answer: "Option A"
+                    };
+                    setModules(prev => prev.map(m => m.id === editingQuizModuleId ? {
+                        ...m,
+                        quiz: [...(m.quiz || []), newQuestion]
+                    } : m));
+                };
+
+                const deleteQuizQuestion = (qIdx) => {
+                    setModules(prev => prev.map(m => m.id === editingQuizModuleId ? {
+                        ...m,
+                        quiz: (m.quiz || []).filter((_, i) => i !== qIdx)
+                    } : m));
+                };
+
+                const updateQuestion = (qIdx, field, val, optIdx = null) => {
+                    setModules(prev => prev.map(m => {
+                        if (m.id === editingQuizModuleId) {
+                            const updatedQuiz = [...(m.quiz || [])];
+                            if (field === "question") {
+                                updatedQuiz[qIdx] = { ...updatedQuiz[qIdx], question: val };
+                            } else if (field === "correct_answer") {
+                                updatedQuiz[qIdx] = { ...updatedQuiz[qIdx], correct_answer: val };
+                            } else if (field === "option") {
+                                const updatedOptions = [...updatedQuiz[qIdx].options];
+                                updatedOptions[optIdx] = val;
+                                updatedQuiz[qIdx] = { ...updatedQuiz[qIdx], options: updatedOptions };
+                            }
+                            return { ...m, quiz: updatedQuiz };
+                        }
+                        return m;
+                    }));
+                };
+
+                return (
+                    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+                        <div className="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 max-w-3xl w-full p-8 md:p-10 max-h-[85vh] flex flex-col animate-in zoom-in duration-300">
+                            <div className="flex justify-between items-center mb-6 flex-shrink-0">
+                                <h3 className="text-xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+                                    <span>❓</span> Edit Module Assessment Quiz
+                                </h3>
+                                <button onClick={() => setEditingQuizModuleId(null)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            
+                            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-8 mb-6">
+                                {quiz.length === 0 ? (
+                                    <div className="text-center py-10 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                                        <p className="text-gray-400 font-bold text-sm">No quiz questions added yet.</p>
+                                        <p className="text-xs text-gray-400 mt-1">Click the button below to add your first question.</p>
+                                    </div>
+                                ) : (
+                                    quiz.map((q, qIdx) => (
+                                        <div key={qIdx} className="bg-gray-50 p-6 rounded-2xl border border-gray-100 relative group/question">
+                                            <button
+                                                onClick={() => deleteQuizQuestion(qIdx)}
+                                                className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"
+                                                title="Remove Question"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                            
+                                            <div className="space-y-4">
+                                                <div>
+                                                    <label className="text-[10px] font-bold text-purple-600 uppercase tracking-widest mb-1 block">Question {qIdx + 1}</label>
+                                                    <input
+                                                        type="text"
+                                                        value={q.question}
+                                                        onChange={(e) => updateQuestion(qIdx, "question", e.target.value)}
+                                                        className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition-all font-bold text-gray-800 text-sm"
+                                                        placeholder="Question Text"
+                                                    />
+                                                </div>
+                                                
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    {q.options.map((opt, oIdx) => (
+                                                        <div key={oIdx} className="flex items-center gap-2">
+                                                            <span className="text-xs font-black text-gray-400 w-4">{String.fromCharCode(65 + oIdx)}</span>
+                                                            <input
+                                                                type="text"
+                                                                value={opt}
+                                                                onChange={(e) => updateQuestion(qIdx, "option", e.target.value, oIdx)}
+                                                                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition-all text-xs font-bold text-gray-700"
+                                                                placeholder={`Option ${oIdx + 1}`}
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                
+                                                <div className="pt-2">
+                                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 block">Correct Answer</label>
+                                                    <select
+                                                        value={q.correct_answer}
+                                                        onChange={(e) => updateQuestion(qIdx, "correct_answer", e.target.value)}
+                                                        className="bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-gray-700 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition-all"
+                                                    >
+                                                        {q.options.map((opt, oIdx) => (
+                                                            <option key={oIdx} value={opt}>{opt}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                            
+                            <div className="flex justify-between items-center flex-shrink-0 pt-4 border-t border-gray-100">
+                                <button
+                                    onClick={addQuizQuestion}
+                                    className="bg-purple-50 hover:bg-purple-100 text-purple-600 font-bold px-5 py-3 rounded-xl border border-purple-100 transition-colors flex items-center gap-2 text-sm"
+                                >
+                                    <Plus size={16} /> Add Question
+                                </button>
+                                <button
+                                    onClick={() => setEditingQuizModuleId(null)}
+                                    className="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg text-sm"
+                                >
+                                    Save & Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            })()}
+
+            {/* Cover Image Customizer Modal */}
+            {isImageModalOpen && (
+                <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 max-w-3xl w-full p-8 md:p-10 max-h-[85vh] flex flex-col animate-in zoom-in duration-300">
+                        <div className="flex justify-between items-center mb-6 flex-shrink-0">
+                            <h3 className="text-xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+                                <span>🖼️</span> Customize Cover Image
+                            </h3>
+                            <button onClick={() => setIsImageModalOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        
+                        <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-6 mb-6">
+                            {/* Custom URL Input */}
+                            <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">Or paste any image URL directly</label>
+                                <div className="flex gap-3">
+                                    <input
+                                        type="text"
+                                        value={courseImage.startsWith('linear-gradient') ? "" : courseImage}
+                                        onChange={(e) => setCourseImage(e.target.value)}
+                                        className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-sm font-semibold text-gray-700"
+                                        placeholder="https://example.com/image.jpg"
+                                    />
+                                    {courseImage && !courseImage.startsWith('linear-gradient') && (
+                                        <button 
+                                            onClick={() => setCourseImage("")}
+                                            className="px-4 py-2 border border-gray-200 rounded-xl text-gray-400 hover:text-red-500 transition-colors text-xs font-bold"
+                                        >
+                                            Clear
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Dynamic Gradients */}
+                            <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 block">Dynamic CSS Gradients</label>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    {[
+                                        { name: "Ocean Breeze", css: "linear-gradient(135deg, #00c6ff 0%, #0072ff 100%)" },
+                                        { name: "Sunset Glow", css: "linear-gradient(135deg, #f12711 0%, #f5af19 100%)" },
+                                        { name: "Royal Purple", css: "linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%)" },
+                                        { name: "Cyber Punk", css: "linear-gradient(135deg, #f72585 0%, #7209b7 50%, #4cc9f0 100%)" },
+                                        { name: "Forest Mist", css: "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)" },
+                                        { name: "Midnight City", css: "linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)" },
+                                        { name: "Rose Water", css: "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)" },
+                                        { name: "Auto Gradient", css: "auto" }
+                                    ].map((grad, gIdx) => {
+                                        const actualCss = grad.css === "auto" 
+                                            ? (() => {
+                                                let hash = 0;
+                                                for (let i = 0; i < courseTitle.length; i++) {
+                                                    hash = courseTitle.charCodeAt(i) + ((hash << 5) - hash);
+                                                }
+                                                const c1 = Math.abs(hash % 360);
+                                                const c2 = (c1 + 60) % 360;
+                                                return `linear-gradient(135deg, hsl(${c1}, 80%, 60%) 0%, hsl(${c2}, 70%, 40%) 100%)`;
+                                              })()
+                                            : grad.css;
+
+                                        const isSelected = courseImage === actualCss;
+                                        return (
+                                            <button
+                                                key={gIdx}
+                                                type="button"
+                                                onClick={() => setCourseImage(actualCss)}
+                                                style={{ background: actualCss }}
+                                                className={`h-16 rounded-xl relative transition-all border-2 ${
+                                                    isSelected ? 'border-blue-600 scale-95 shadow-lg shadow-blue-200' : 'border-transparent hover:scale-105'
+                                                } flex items-center justify-center p-2 text-center text-white font-black text-[10px] uppercase tracking-wider drop-shadow-md`}
+                                            >
+                                                {grad.name}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Handpicked Premium Stock Covers */}
+                            <div>
+                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 block">Curated Stock Cover Images</label>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    {[
+                                        { title: "Programming (Code screen)", url: "https://images.unsplash.com/photo-1555066931-4365d14bab8c" },
+                                        { title: "Web Development", url: "https://images.unsplash.com/photo-1547082299-de196ea013d6" },
+                                        { title: "Python Workspace", url: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5" },
+                                        { title: "Artificial Intelligence", url: "https://images.unsplash.com/photo-1677442136019-21780ecad995" },
+                                        { title: "Cybersecurity", url: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b" },
+                                        { title: "Database / Analytics", url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71" },
+                                        { title: "Design / UX / UI", url: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8" },
+                                        { title: "Business Strategy", url: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40" },
+                                        { title: "Finance / Charts", url: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44" },
+                                        { title: "Photography & Video", url: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32" },
+                                        { title: "Science & Research", url: "https://images.unsplash.com/photo-1507668077129-56e32842fceb" },
+                                        { title: "Creative Workspace", url: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3" }
+                                    ].map((item, idx) => {
+                                        const isSelected = courseImage === item.url;
+                                        return (
+                                            <button
+                                                key={idx}
+                                                type="button"
+                                                onClick={() => setCourseImage(item.url)}
+                                                className={`aspect-[4/3] rounded-2xl relative overflow-hidden transition-all border-4 ${
+                                                    isSelected ? 'border-blue-600 scale-95 shadow-lg shadow-blue-200' : 'border-transparent hover:scale-105'
+                                                }`}
+                                            >
+                                                <img src={item.url} alt={item.title} className="w-full h-full object-cover" />
+                                                <div className="absolute bottom-0 left-0 w-full bg-black/60 px-3 py-1.5 text-left text-white text-[9px] font-black uppercase tracking-wider">
+                                                    {item.title}
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="flex justify-end flex-shrink-0 pt-4 border-t border-gray-100">
+                            <button
+                                onClick={() => setIsImageModalOpen(false)}
+                                className="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg text-sm"
+                            >
+                                Apply & Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
 
             <Footer />

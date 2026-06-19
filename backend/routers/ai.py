@@ -44,6 +44,35 @@ class CourseStructure(BaseModel):
     modules: List[Module]
     final_exam: Optional[List[QuizQuestion]] = []
 
+def get_suggested_image(topic: str) -> str:
+    topic_lower = topic.lower()
+    
+    # Curated high-quality educational cover images from Unsplash
+    mappings = {
+        ("python", "django", "flask"): "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5", # Python code on screen
+        ("javascript", "react", "node", "html", "css", "web", "frontend", "backend"): "https://images.unsplash.com/photo-1547082299-de196ea013d6", # Web development
+        ("code", "programming", "developer", "software", "git"): "https://images.unsplash.com/photo-1555066931-4365d14bab8c", # IDE screen
+        ("ai", "artificial", "intelligence", "machine", "neural", "deep learning", "robot"): "https://images.unsplash.com/photo-1677442136019-21780ecad995", # AI art abstract
+        ("data", "sql", "excel", "analysis", "pandas", "numpy"): "https://images.unsplash.com/photo-1551288049-bebda4e38f71", # Data chart
+        ("cyber", "security", "hack", "network"): "https://images.unsplash.com/photo-1550751827-4bd374c3f58b", # Cybersecurity microchip
+        ("cloud", "aws", "azure", "docker", "kubernetes"): "https://images.unsplash.com/photo-1544197150-b99a580bb7a8", # Server room
+        ("design", "ui", "ux", "figma", "graphic", "art", "creative"): "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8", # Designer desk
+        ("finance", "crypto", "bitcoin", "money", "stock", "trade", "business", "market"): "https://images.unsplash.com/photo-1559526324-4b87b5e36e44", # Financial charts
+        ("music", "song", "audio", "sound", "guitar", "piano"): "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4", # Studio microphone
+        ("photo", "camera", "video", "film", "editor"): "https://images.unsplash.com/photo-1516035069371-29a1b244cc32", # Camera lens
+        ("science", "physics", "chemistry", "biology", "math", "space", "astronomy"): "https://images.unsplash.com/photo-1507668077129-56e32842fceb", # Abstract space/science
+        ("health", "fitness", "yoga", "diet", "doctor", "medical"): "https://images.unsplash.com/photo-1506126613408-eca07ce68773", # Yoga / wellness
+        ("cook", "recipe", "food", "chef", "bake"): "https://images.unsplash.com/photo-1556910103-1c02745aae4d", # Cooking kitchen
+    }
+    
+    for keywords, url in mappings.items():
+        if any(keyword in topic_lower for keyword in keywords):
+            return url
+            
+    # Default high-quality abstract image
+    return "https://images.unsplash.com/photo-1516321318423-f06f85e504b3"
+
+
 @router.post("/generate-course")
 async def generate_course(request: GenerateCourseRequest):
     """
@@ -227,6 +256,7 @@ async def generate_course(request: GenerateCourseRequest):
         return {
             "title": course_data.get("title", request.topic),
             "description": course_data.get("description", f"Course about {request.topic}"),
+            "image": get_suggested_image(course_data.get("title", request.topic)),
             "modules": final_modules,
             "final_exam": course_data.get("final_exam", [])
         }

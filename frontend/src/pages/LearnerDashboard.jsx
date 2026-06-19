@@ -86,7 +86,8 @@ const LearnerDashboard = () => {
                 const mappedEnrollments = (enrollRes || []).map(enr => ({
                     ...enr,
                     title: enr.courses?.title || 'Untitled Course',
-                    course_id: enr.courses?.id
+                    course_id: enr.courses?.id,
+                    price: enr.courses?.price
                 }));
                 
                 setEnrollments(mappedEnrollments);
