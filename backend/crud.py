@@ -24,6 +24,7 @@ async def create_course(db: AsyncSession, course: CourseCreate) -> CourseModel:
         description=course.description,
         price=course.price,
         image=course.image,
+        duration=course.duration,
         modules=course.modules
     )
     db.add(db_course)
@@ -49,6 +50,8 @@ async def update_course(db: AsyncSession, course_id: int, course: CourseUpdate) 
         db_course.price = course.price
     if course.image is not None:
         db_course.image = course.image
+    if course.duration is not None:
+        db_course.duration = course.duration
     if course.modules is not None:
         db_course.modules = course.modules
     

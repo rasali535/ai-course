@@ -257,6 +257,7 @@ async def generate_course(request: GenerateCourseRequest):
             "title": course_data.get("title", request.topic),
             "description": course_data.get("description", f"Course about {request.topic}"),
             "image": get_suggested_image(course_data.get("title", request.topic)),
+            "duration": f"{max(3, len(final_modules)) * 3}h",
             "modules": final_modules,
             "final_exam": course_data.get("final_exam", [])
         }

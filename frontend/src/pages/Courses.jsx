@@ -186,7 +186,7 @@ const Courses = () => {
                                         </div>
                                         <div className="flex items-center text-gray-400 gap-2 font-bold tracking-tight text-xs uppercase">
                                             <Clock size={14} />
-                                            <span>{course.duration || '12h'} Content</span>
+                                            <span>{course.duration ? (course.duration.toLowerCase().includes('content') || course.duration.toLowerCase().includes('weeks') || course.duration.toLowerCase().includes('days') ? course.duration : `${course.duration} Content`) : '12h Content'}</span>
                                         </div>
                                     </div>
 

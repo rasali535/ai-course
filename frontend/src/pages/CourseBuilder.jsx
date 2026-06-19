@@ -215,6 +215,7 @@ const CourseBuilder = () => {
     const [courseDescription, setCourseDescription] = useState("Enter course description here...");
     const [coursePrice, setCoursePrice] = useState(1200);
     const [courseImage, setCourseImage] = useState("https://images.unsplash.com/photo-1516321318423-f06f85e504b3");
+    const [courseDuration, setCourseDuration] = useState("12h");
     const [modules, setModules] = useState([]);
     const [finalExam, setFinalExam] = useState([]); // Added state for final exam
     const [isGenerating, setIsGenerating] = useState(false);
@@ -312,6 +313,7 @@ const CourseBuilder = () => {
                         setCourseDescription(data.description);
                         setCoursePrice(data.price || 1200);
                         setCourseImage(data.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3");
+                        setCourseDuration(data.duration || "12h");
                         setModules(data.content?.modules || []);
                         setFinalExam(data.content?.finalExam || []);
                     } else {
@@ -323,6 +325,7 @@ const CourseBuilder = () => {
                             setCourseDescription(courseToEdit.description);
                             setCoursePrice(courseToEdit.price || 1200);
                             setCourseImage(courseToEdit.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3");
+                            setCourseDuration(courseToEdit.duration || "12h");
                             setModules(courseToEdit.modules);
                             setFinalExam(courseToEdit.finalExam || []);
                         }
@@ -461,6 +464,7 @@ const CourseBuilder = () => {
                 description: courseDescription,
                 price: coursePrice,
                 image: courseImage,
+                duration: courseDuration,
                 content: {
                     modules: modules,
                     finalExam: finalExam
@@ -532,6 +536,9 @@ const CourseBuilder = () => {
             }
             if (generatedData.image) {
                 setCourseImage(generatedData.image);
+            }
+            if (generatedData.duration) {
+                setCourseDuration(generatedData.duration);
             }
             if (generatedData.final_exam) {
                 setFinalExam(generatedData.final_exam);
@@ -681,6 +688,18 @@ const CourseBuilder = () => {
                                         onChange={(e) => setCoursePrice(Number(e.target.value))}
                                         className="bg-transparent border-none outline-none w-full font-bold text-gray-800 text-sm focus:ring-0 p-0"
                                         min="0"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Course Duration</label>
+                                <div className="flex items-center bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all w-40">
+                                    <input
+                                        type="text"
+                                        value={courseDuration}
+                                        onChange={(e) => setCourseDuration(e.target.value)}
+                                        className="bg-transparent border-none outline-none w-full font-bold text-gray-800 text-sm focus:ring-0 p-0"
+                                        placeholder="e.g. 12h or 6 weeks"
                                     />
                                 </div>
                             </div>

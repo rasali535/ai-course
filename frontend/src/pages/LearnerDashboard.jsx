@@ -264,7 +264,9 @@ const LearnerDashboard = () => {
                                                     {enr.is_completed && <CheckCircle size={20} className="text-green-500 fill-green-50" />}
                                                 </div>
                                                 <div className="flex items-center justify-center md:justify-start gap-4 text-[10px] font-black text-gray-400 uppercase tracking-widest italic leading-none">
-                                                    <span className="flex items-center gap-1.5"><Clock size={12} /> {enr.is_completed ? 'Finished' : 'In Progress'}</span>
+                                                    <span className="flex items-center gap-1.5"><Clock size={12} /> {enr.courses?.duration || '12h'}</span>
+                                                    <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
+                                                    <span>{enr.is_completed ? 'Finished' : 'In Progress'}</span>
                                                     <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
                                                     <span>{enr.is_paid ? 'Certified' : 'Draft Access'}</span>
                                                 </div>

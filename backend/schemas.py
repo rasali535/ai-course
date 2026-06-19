@@ -17,6 +17,7 @@ class CourseBase(BaseModel):
     description: Optional[str] = None
     price: Optional[int] = 0
     image: Optional[str] = None
+    duration: Optional[str] = "12h"
     modules: List[Dict[str, Any]] = []
 
 
@@ -31,6 +32,7 @@ class CourseUpdate(BaseModel):
     description: Optional[str] = None
     price: Optional[int] = None
     image: Optional[str] = None
+    duration: Optional[str] = None
     modules: Optional[List[Dict[str, Any]]] = None
 
 
