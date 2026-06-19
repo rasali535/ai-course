@@ -1,0 +1,10 @@
+Columns in 'courses' table:
+ - id: uuid
+ - user_id: uuid
+ - title: text
+ - description: text
+ - content: jsonb
+ - created_at: timestamp with time zone
+ - updated_at: timestamp with time zone
+ - status: text
+ - is_public: boolean
