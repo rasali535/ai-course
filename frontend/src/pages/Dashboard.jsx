@@ -4,7 +4,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SupportChat from '../components/SupportChat';
 import { Link, useNavigate } from 'react-router-dom';
-import { BarChart3, BookOpen, Globe, Users, Plus, ArrowRight, Sparkles, Loader2, Clock } from 'lucide-react';
+import { BarChart3, BookOpen, Globe, Users, Plus, ArrowRight, Sparkles, Loader2, Clock, Trash2 } from 'lucide-react';
 
 import API_BASE from '../api_config';
 import { supabase } from '../supabase';
@@ -143,6 +143,47 @@ const Dashboard = () => {
         checkAccess();
     }, [navigate]);
 
+    const handleDeleteCourse = async (courseId) => {
+        if (!window.confirm("Are you sure you want to delete this course? This action cannot be undone.")) {
+            return;
+        }
+
+        try {
+            // 1. Delete from Supabase if not local-only
+            if (typeof courseId === 'number' || (typeof courseId === 'string' && !courseId.startsWith('local-'))) {
+                const { error } = await supabase
+                    .from('courses')
+                    .delete()
+                    .eq('id', courseId);
+                if (error) throw error;
+            }
+
+            // 2. Delete from LocalStorage
+            let localCourses = JSON.parse(localStorage.getItem('createdCourses') || '[]');
+            localCourses = localCourses.filter(c => c.id !== courseId);
+            localStorage.setItem('createdCourses', JSON.stringify(localCourses));
+
+            // 3. Update state
+            setCourses(prev => {
+                const updated = prev.filter(c => c.id !== courseId);
+                // Recalculate stats dynamically based on remaining courses
+                const totalStuds = updated.reduce((sum, c) => sum + (c.students || 0), 0);
+                setRealStats({
+                    totalStudents: totalStuds,
+                    activeCourses: updated.length,
+                    totalRevenue: totalStuds * 49.99,
+                    siteVisits: (updated.length * 154 + 42).toLocaleString()
+                });
+                return updated;
+            });
+
+            alert("Course deleted successfully.");
+        } catch (error) {
+            console.error("Error deleting course:", error);
+            alert("Failed to delete course: " + error.message);
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -278,6 +319,13 @@ const Dashboard = () => {
                                                 </button>
                                             )}
                                             <Link to={`/course-builder/${course.id}`} className="flex-1 py-2.5 text-center bg-gray-50 text-gray-700 rounded-lg text-xs font-bold hover:bg-gray-100 transition-colors border border-gray-100">Review & Edit</Link>
+                                            <button
+                                                onClick={() => handleDeleteCourse(course.id)}
+                                                className="px-3.5 py-2.5 text-red-500 bg-red-50 hover:bg-red-100 rounded-lg text-xs font-bold transition-colors border border-red-100 flex items-center justify-center"
+                                                title="Delete Course"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
