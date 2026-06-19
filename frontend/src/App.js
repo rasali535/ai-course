@@ -22,6 +22,8 @@ import VerifyEmail from "./pages/VerifyEmail";
 import Courses from "./pages/Courses";
 import LearnerDashboard from "./pages/LearnerDashboard";
 import CaseStudies from "./pages/CaseStudies";
+import MentorshipDashboard from "./pages/MentorshipDashboard";
+import ClientMentorship from "./pages/ClientMentorship";
 import Updates from "./pages/Updates";
 import Careers from "./pages/Careers";
 import HelpCenter from "./pages/HelpCenter";
@@ -56,6 +58,8 @@ function App() {
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/learner-dashboard" element={<LearnerDashboard />} />
+          <Route path="/creator/mentorship" element={<MentorshipDashboard />} />
+          <Route path="/mentorship" element={<ClientMentorship />} />
           <Route path="/case-studies" element={<CaseStudies />} />
           <Route path="/updates" element={<Updates />} />
           <Route path="/careers" element={<Careers />} />
