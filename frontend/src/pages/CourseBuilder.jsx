@@ -484,9 +484,52 @@ const CourseBuilder = () => {
 
             if (error) throw error;
 
+            const savedCourse = data[0];
+
+            // If this is a draft and there is a corresponding published version, prompt to update it
+            if (id && !id.startsWith('course-')) {
+                const { data: pubData, error: pubCheckError } = await supabase
+                    .from('courses')
+                    .select('id')
+                    .eq('parent_id', id)
+                    .eq('status', 'published')
+                    .maybeSingle();
+
+                if (pubData && !pubCheckError) {
+                    const shouldUpdatePub = window.confirm("You have a live published version of this course. Would you like to update the live published version with these changes as well?");
+                    if (shouldUpdatePub) {
+                        const publishedData = {
+                            id: pubData.id,
+                            user_id: user.id,
+                            title: courseTitle,
+                            description: courseDescription,
+                            price: coursePrice,
+                            image: courseImage,
+                            duration: courseDuration,
+                            content: {
+                                modules: modules,
+                                finalExam: finalExam
+                            },
+                            status: 'published',
+                            is_public: true,
+                            parent_id: id,
+                            updated_at: new Date().toISOString()
+                        };
+
+                        const { error: updatePubError } = await supabase
+                            .from('courses')
+                            .upsert(publishedData);
+                        
+                        if (updatePubError) {
+                            console.error("Error updating published version:", updatePubError);
+                            alert("Draft saved, but failed to update published version: " + updatePubError.message);
+                        }
+                    }
+                }
+            }
+
             // 2. Save to LocalStorage (as backup/sync)
             let localCourses = JSON.parse(localStorage.getItem('createdCourses') || '[]');
-            const savedCourse = data[0];
 
             if (id) {
                 localCourses = localCourses.map(c => c.id === id ? savedCourse : c);

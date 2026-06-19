@@ -11,6 +11,7 @@ import { supabase } from '../supabase';
 
 const Dashboard = () => {
     const [courses, setCourses] = useState([]);
+    const [activeFolder, setActiveFolder] = useState('published'); // 'published' or 'drafts'
     const [realStats, setRealStats] = useState({
         totalStudents: 0,
         activeCourses: 0,
@@ -113,7 +114,8 @@ const Dashboard = () => {
                 if (sbError) throw sbError;
 
                 // 2. Local fallback for older sessions
-                const localCourses = JSON.parse(localStorage.getItem('createdCourses') || '[]').filter(c => !c.user_id || c.user_id === userId);
+                const localCourses = JSON.parse(localStorage.getItem('createdCourses') || '[]')
+                    .filter(c => (!c.user_id || c.user_id === userId) && !sbCourses.some(sc => sc.id === c.id));
                 
                 const allData = [...sbCourses, ...localCourses];
 
@@ -142,6 +144,115 @@ const Dashboard = () => {
 
         checkAccess();
     }, [navigate]);
+
+    const handlePublishCourse = async (draftCourse) => {
+        try {
+            // Check if there is already a published version with parent_id = draftCourse.id
+            const { data: existingPub, error: checkError } = await supabase
+                .from('courses')
+                .select('id')
+                .eq('parent_id', draftCourse.id)
+                .eq('status', 'published')
+                .maybeSingle();
+
+            if (checkError) throw checkError;
+
+            const publishedData = {
+                user_id: draftCourse.user_id,
+                title: draftCourse.title,
+                description: draftCourse.description,
+                price: draftCourse.price,
+                image: draftCourse.image,
+                duration: draftCourse.duration,
+                content: draftCourse.content || { modules: draftCourse.modules || [], finalExam: draftCourse.finalExam || [] },
+                status: 'published',
+                is_public: true,
+                parent_id: draftCourse.id,
+                updated_at: new Date().toISOString()
+            };
+
+            if (existingPub) {
+                publishedData.id = existingPub.id;
+            }
+
+            const { data, error } = await supabase
+                .from('courses')
+                .upsert(publishedData)
+                .select();
+
+            if (error) throw error;
+
+            alert("Course published successfully to Center!");
+            window.location.reload();
+        } catch (error) {
+            console.error("Error publishing course:", error);
+            alert("Failed to publish course: " + error.message);
+        }
+    };
+
+    const handleEditCourse = async (course) => {
+        if (course.status === 'draft' || !course.status) {
+            navigate(`/course-builder/${course.id}`);
+            return;
+        }
+
+        // It is a published course. Look for its draft version.
+        try {
+            let draftId = course.parent_id;
+            let draftExists = false;
+
+            if (draftId) {
+                const { data: draftCourse, error } = await supabase
+                    .from('courses')
+                    .select('id')
+                    .eq('id', draftId)
+                    .eq('status', 'draft')
+                    .maybeSingle();
+                if (draftCourse) {
+                    draftExists = true;
+                }
+            }
+
+            if (draftExists) {
+                navigate(`/course-builder/${draftId}`);
+            } else {
+                // Draft doesn't exist. Create a new draft cloned from this published course.
+                const newDraftData = {
+                    user_id: course.user_id,
+                    title: course.title,
+                    description: course.description,
+                    price: course.price,
+                    image: course.image,
+                    duration: course.duration,
+                    content: course.content,
+                    status: 'draft',
+                    is_public: false,
+                    updated_at: new Date().toISOString()
+                };
+
+                const { data: createdDraft, error: createError } = await supabase
+                    .from('courses')
+                    .insert(newDraftData)
+                    .select()
+                    .single();
+
+                if (createError) throw createError;
+
+                // Update the published course's parent_id to point to this new draft ID
+                const { error: updateError } = await supabase
+                    .from('courses')
+                    .update({ parent_id: createdDraft.id })
+                    .eq('id', course.id);
+
+                if (updateError) throw updateError;
+
+                navigate(`/course-builder/${createdDraft.id}`);
+            }
+        } catch (err) {
+            console.error("Error editing course:", err);
+            alert("Error preparing draft for editing: " + err.message);
+        }
+    };
 
     const handleDeleteCourse = async (courseId) => {
         if (!window.confirm("Are you sure you want to delete this course? This action cannot be undone.")) {
@@ -269,69 +380,96 @@ const Dashboard = () => {
 
                 <div className="grid lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-6">
-                        <div className="flex items-center justify-between px-2">
-                            <h2 className="text-xl font-black text-gray-900 tracking-tighter uppercase">Your Recent Courses</h2>
-                            <Link to="#" className="text-xs font-bold text-blue-600 hover:underline uppercase tracking-widest">View All</Link>
+                        {/* Dynamic Folders / Tabs Headers */}
+                        <div className="flex items-center gap-6 border-b border-gray-150 px-2 pb-2">
+                            <button
+                                onClick={() => setActiveFolder('published')}
+                                className={`pb-3 text-xs font-black uppercase tracking-wider transition-all relative ${
+                                    activeFolder === 'published' 
+                                    ? 'text-blue-600' 
+                                    : 'text-gray-400 hover:text-gray-600'
+                                }`}
+                            >
+                                Published Courses ({courses.filter(c => c.status === 'published').length})
+                                {activeFolder === 'published' && (
+                                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full"></div>
+                                )}
+                            </button>
+                            <button
+                                onClick={() => setActiveFolder('drafts')}
+                                className={`pb-3 text-xs font-black uppercase tracking-wider transition-all relative ${
+                                    activeFolder === 'drafts' 
+                                    ? 'text-blue-600' 
+                                    : 'text-gray-400 hover:text-gray-600'
+                                }`}
+                            >
+                                Draft Courses ({courses.filter(c => c.status === 'draft' || !c.status).length})
+                                {activeFolder === 'drafts' && (
+                                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full"></div>
+                                )}
+                            </button>
                         </div>
+
                         <div className="grid gap-6">
-                            {courses.length > 0 ? courses.map((course) => (
-                                <div key={course.id} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col sm:flex-row gap-6 hover:shadow-md transition-shadow group">
-                                    <div className="w-full sm:w-48 h-32 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 relative">
-                                        <img src={course.image} alt={course.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                                        <div className="absolute inset-0 bg-black/5"></div>
-                                    </div>
-                                    <div className="flex-1 py-1 flex flex-col justify-between">
-                                        <div>
-                                            <div className="flex justify-between items-start mb-2">
-                                                <div>
-                                                    <h3 className="font-black text-lg text-gray-900 line-clamp-1 tracking-tight">{course.title}</h3>
-                                                    <div className="flex gap-2 mt-1">
-                                                        <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${course.status === 'published' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'}`}>
-                                                            {course.status || 'Draft'}
-                                                        </span>
-                                                        {course.is_public && <span className="bg-blue-100 text-blue-600 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">Public</span>}
+                            {courses.filter(course => activeFolder === 'published' ? course.status === 'published' : (course.status === 'draft' || !course.status)).length > 0 ? (
+                                courses.filter(course => activeFolder === 'published' ? course.status === 'published' : (course.status === 'draft' || !course.status)).map((course) => (
+                                    <div key={course.id} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col sm:flex-row gap-6 hover:shadow-md transition-shadow group">
+                                        <div className="w-full sm:w-48 h-32 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 relative">
+                                            <img src={course.image} alt={course.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                            <div className="absolute inset-0 bg-black/5"></div>
+                                        </div>
+                                        <div className="flex-1 py-1 flex flex-col justify-between">
+                                            <div>
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <div>
+                                                        <h3 className="font-black text-lg text-gray-900 line-clamp-1 tracking-tight">{course.title}</h3>
+                                                        <div className="flex gap-2 mt-1">
+                                                            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${course.status === 'published' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'}`}>
+                                                                {course.status || 'Draft'}
+                                                            </span>
+                                                            {course.is_public && <span className="bg-blue-100 text-blue-600 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">Public</span>}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center text-[10px] text-gray-400 font-black uppercase tracking-widest">
+                                                        <Users size={12} className="mr-1" />
+                                                        {course.students} Students
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center text-[10px] text-gray-400 font-black uppercase tracking-widest">
-                                                    <Users size={12} className="mr-1" />
-                                                    {course.students} Students
+                                                <div className="w-full bg-gray-100 h-1.5 rounded-full mt-4">
+                                                    <div className="bg-blue-600 h-full rounded-full transition-all duration-1000" style={{ width: `${course.progress}%` }}></div>
                                                 </div>
                                             </div>
-                                            <div className="w-full bg-gray-100 h-1.5 rounded-full mt-4">
-                                                <div className="bg-blue-600 h-full rounded-full transition-all duration-1000" style={{ width: `${course.progress}%` }}></div>
+                                            <div className="flex gap-3 mt-6">
+                                                {course.status === 'published' ? (
+                                                    <Link to={`/course/${course.id}`} className="flex-1 py-2.5 text-center bg-gray-900 text-white rounded-lg text-xs font-bold hover:bg-black transition-colors">Course Center</Link>
+                                                ) : (
+                                                    <button 
+                                                        onClick={() => handlePublishCourse(course)}
+                                                        className="flex-1 py-2.5 text-center bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors"
+                                                    >
+                                                        Publish to Center
+                                                    </button>
+                                                )}
+                                                <button 
+                                                    onClick={() => handleEditCourse(course)}
+                                                    className="flex-1 py-2.5 text-center bg-gray-50 text-gray-700 rounded-lg text-xs font-bold hover:bg-gray-100 transition-colors border border-gray-100"
+                                                >
+                                                    Review & Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteCourse(course.id)}
+                                                    className="px-3.5 py-2.5 text-red-500 bg-red-50 hover:bg-red-100 rounded-lg text-xs font-bold transition-colors border border-red-100 flex items-center justify-center"
+                                                    title="Delete Course"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
                                             </div>
                                         </div>
-                                        <div className="flex gap-3 mt-6">
-                                            {course.status === 'published' ? (
-                                                <Link to={`/course/${course.id}`} className="flex-1 py-2.5 text-center bg-gray-900 text-white rounded-lg text-xs font-bold hover:bg-black transition-colors">Course Center</Link>
-                                            ) : (
-                                                <button 
-                                                    onClick={async () => {
-                                                        const { error } = await supabase
-                                                            .from('courses')
-                                                            .update({ status: 'published', is_public: true })
-                                                            .eq('id', course.id);
-                                                        if (!error) window.location.reload();
-                                                    }}
-                                                    className="flex-1 py-2.5 text-center bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors"
-                                                >
-                                                    Publish to Center
-                                                </button>
-                                            )}
-                                            <Link to={`/course-builder/${course.id}`} className="flex-1 py-2.5 text-center bg-gray-50 text-gray-700 rounded-lg text-xs font-bold hover:bg-gray-100 transition-colors border border-gray-100">Review & Edit</Link>
-                                            <button
-                                                onClick={() => handleDeleteCourse(course.id)}
-                                                className="px-3.5 py-2.5 text-red-500 bg-red-50 hover:bg-red-100 rounded-lg text-xs font-bold transition-colors border border-red-100 flex items-center justify-center"
-                                                title="Delete Course"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
                                     </div>
-                                </div>
-                            )) : (
+                                ))
+                            ) : (
                                 <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-gray-100">
-                                    <p className="text-gray-400 font-medium">No courses found. Start by creating one!</p>
+                                    <p className="text-gray-400 font-medium">No {activeFolder === 'published' ? 'published' : 'draft'} courses found.</p>
                                 </div>
                             )}
                         </div>

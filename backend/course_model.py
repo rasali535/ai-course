@@ -12,5 +12,6 @@ class CourseModel(Base):
     price = Column(Integer, default=0) # Price in BWP/USD
     image = Column(Text, nullable=True) # Cover image URL
     duration = Column(Text, default="12h") # e.g. "12h", "6 weeks"
+    parent_id = Column(String(36), nullable=True) # References parent course UUID
     modules = Column(JSON, default=[])
     created_at = Column(DateTime(timezone=True), server_default=func.now())
