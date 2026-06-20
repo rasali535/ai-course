@@ -223,8 +223,6 @@ const Signup = () => {
                                 </button>
                             </div>
 
-                            </div>
-
                             <div className="flex flex-col gap-3 mb-6">
                                 <button type="button" onClick={() => handleOAuthLogin('google')} className="w-full h-12 bg-white border border-gray-200 text-gray-900 rounded-xl font-bold shadow-sm hover:bg-gray-50 transition-all flex items-center justify-center">
                                     <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">

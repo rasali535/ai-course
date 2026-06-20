@@ -48,6 +48,8 @@ const Login = () => {
         } finally {
             setLoading(false);
         }
+    };
+
     const handleOAuthLogin = async (provider) => {
         try {
             const { error } = await supabase.auth.signInWithOAuth({
