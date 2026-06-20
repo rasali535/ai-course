@@ -6,7 +6,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { 
     Calendar, Clock, Video, Plus, Loader2, 
-    BookOpen, DollarSign, User, AlertCircle, ArrowRight 
+    BookOpen, DollarSign, User, AlertCircle 
 } from 'lucide-react';
 
 const MentorshipDashboard = () => {
@@ -113,13 +113,13 @@ const MentorshipDashboard = () => {
                 {/* Dashboard Welcome Header */}
                 <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                        <h1 className="text-3xl font-black text-gray-900 mb-2 tracking-tighter italic">Mentorship Manager</h1>
-                        <p className="text-gray-500 font-medium">Define your coaching packages and manage your booked clients.</p>
+                        <h1 className="text-3xl font-bold text-gray-900 mb-2">Mentorship Manager</h1>
+                        <p className="text-gray-600 font-medium">Define your coaching packages and manage your booked clients.</p>
                     </div>
                 </div>
 
                 {error && (
-                    <div className="bg-red-50 border border-red-150 rounded-2xl p-5 mb-8 flex items-center gap-4 text-red-700">
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-5 mb-8 flex items-center gap-4 text-red-700">
                         <AlertCircle size={24} className="flex-shrink-0" />
                         <span className="font-semibold text-sm">{error}</span>
                     </div>
@@ -127,47 +127,47 @@ const MentorshipDashboard = () => {
 
                 {/* Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-5">
-                        <div className="p-3.5 bg-blue-50 text-blue-600 rounded-xl">
+                    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex items-center gap-5">
+                        <div className="p-3.5 bg-gray-50 text-gray-600 rounded-lg border border-gray-100">
                             <BookOpen size={24} />
                         </div>
                         <div>
-                            <h3 className="text-2xl font-black text-gray-900 tracking-tighter">{programs.length}</h3>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active Programs</p>
+                            <h3 className="text-2xl font-bold text-gray-900">{programs.length}</h3>
+                            <p className="text-sm font-medium text-gray-600">Active Programs</p>
                         </div>
                     </div>
-                    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-5">
-                        <div className="p-3.5 bg-purple-50 text-purple-600 rounded-xl">
+                    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex items-center gap-5">
+                        <div className="p-3.5 bg-gray-50 text-gray-600 rounded-lg border border-gray-100">
                             <Calendar size={24} />
                         </div>
                         <div>
-                            <h3 className="text-2xl font-black text-gray-900 tracking-tighter">
+                            <h3 className="text-2xl font-bold text-gray-900">
                                 {sessions.filter(s => s.status === 'confirmed').length}
                             </h3>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Upcoming Calls</p>
+                            <p className="text-sm font-medium text-gray-600">Upcoming Calls</p>
                         </div>
                     </div>
-                    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-5">
-                        <div className="p-3.5 bg-green-50 text-green-600 rounded-xl">
+                    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex items-center gap-5">
+                        <div className="p-3.5 bg-gray-50 text-gray-600 rounded-lg border border-gray-100">
                             <DollarSign size={24} />
                         </div>
                         <div>
-                            <h3 className="text-2xl font-black text-gray-900 tracking-tighter">
+                            <h3 className="text-2xl font-bold text-gray-900">
                                 BWP {(sessions.filter(s => s.status === 'confirmed').reduce((acc, curr) => acc + (curr.program?.price || 0), 0)).toLocaleString()}
                             </h3>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Projected Revenue</p>
+                            <p className="text-sm font-medium text-gray-600">Projected Revenue</p>
                         </div>
                     </div>
                 </div>
 
                 <div className="grid lg:grid-cols-3 gap-8">
                     {/* Program Definition Form */}
-                    <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm h-fit">
-                        <h2 className="text-xl font-black text-gray-900 mb-6 tracking-tighter italic uppercase underline decoration-blue-600 decoration-4 underline-offset-8">Define Offering</h2>
+                    <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm h-fit">
+                        <h2 className="text-xl font-bold text-gray-900 mb-6">Define Offering</h2>
                         
                         <form onSubmit={handleCreateProgram} className="space-y-5">
                             <div>
-                                <label className="block text-xs font-black uppercase text-gray-400 tracking-widest mb-2">Program Title</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Program Title</label>
                                 <input 
                                     type="text" 
                                     name="title"
@@ -175,25 +175,25 @@ const MentorshipDashboard = () => {
                                     onChange={handleInputChange}
                                     required
                                     placeholder="e.g. 1-on-1 AI Architecture Strategy"
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm font-medium"
+                                    className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-xs font-black uppercase text-gray-400 tracking-widest mb-2">Description</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
                                 <textarea 
                                     name="description"
                                     value={formData.description}
                                     onChange={handleInputChange}
                                     rows={3}
                                     placeholder="Outline what outcomes the client will achieve..."
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm font-medium resize-none"
+                                    className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm resize-none"
                                 />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-black uppercase text-gray-400 tracking-widest mb-2">Duration (Mins)</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Duration (Mins)</label>
                                     <input 
                                         type="number" 
                                         name="duration_minutes"
@@ -201,11 +201,11 @@ const MentorshipDashboard = () => {
                                         onChange={handleInputChange}
                                         min={15}
                                         required
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm font-medium"
+                                        className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-black uppercase text-gray-400 tracking-widest mb-2">Price (BWP)</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Price (BWP)</label>
                                     <input 
                                         type="number" 
                                         name="price"
@@ -213,7 +213,7 @@ const MentorshipDashboard = () => {
                                         onChange={handleInputChange}
                                         min={0}
                                         required
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm font-medium"
+                                        className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm"
                                     />
                                 </div>
                             </div>
@@ -221,7 +221,7 @@ const MentorshipDashboard = () => {
                             <button 
                                 type="submit" 
                                 disabled={submitting}
-                                className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black flex items-center justify-center gap-3 transition-colors shadow-lg shadow-blue-500/20"
+                                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-colors shadow-sm"
                             >
                                 {submitting ? (
                                     <Loader2 className="animate-spin" size={20} />
@@ -239,36 +239,36 @@ const MentorshipDashboard = () => {
                     <div className="lg:col-span-2 space-y-10">
                         {/* Booked Sessions */}
                         <div>
-                            <h2 className="text-2xl font-black text-gray-900 mb-6 tracking-tighter italic leading-none">Upcoming Client Bookings</h2>
+                            <h2 className="text-xl font-bold text-gray-900 mb-6">Upcoming Client Bookings</h2>
                             
                             {sessions.length === 0 ? (
-                                <div className="bg-white p-12 text-center rounded-3xl border border-gray-100 shadow-sm text-gray-400 font-medium italic">
+                                <div className="bg-white p-12 text-center rounded-xl border border-gray-200 shadow-sm text-gray-500 font-medium">
                                     No booked mentorship calls found.
                                 </div>
                             ) : (
                                 <div className="space-y-4">
                                     {sessions.map((sess) => (
-                                        <div key={sess.id} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                                        <div key={sess.id} className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                                             <div className="space-y-2">
                                                 <div className="flex items-center gap-3">
-                                                    <span className="text-xs bg-green-50 text-green-600 px-3 py-1 rounded-full font-black uppercase tracking-wider border border-green-150">
+                                                    <span className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-medium border border-gray-200 capitalize">
                                                         {sess.status}
                                                     </span>
-                                                    <span className="text-sm font-bold text-gray-900">
+                                                    <span className="text-sm font-semibold text-gray-900">
                                                         {sess.program?.title}
                                                     </span>
                                                 </div>
-                                                <h4 className="text-lg font-black text-gray-900 tracking-tight italic flex items-center gap-2">
-                                                    <User size={16} className="text-gray-400" />
-                                                    {sess.student?.full_name || 'Client'} ({sess.student?.email})
+                                                <h4 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                                                    <User size={16} className="text-gray-500" />
+                                                    {sess.student?.full_name || 'Client'} <span className="text-gray-500 font-normal">({sess.student?.email})</span>
                                                 </h4>
-                                                <div className="flex flex-wrap gap-4 text-xs font-black text-gray-400 uppercase tracking-widest italic">
-                                                    <span className="flex items-center gap-1"><Calendar size={14} /> {new Date(sess.scheduled_time).toLocaleString()}</span>
-                                                    <span className="flex items-center gap-1"><Clock size={14} /> {sess.program?.duration_minutes} Mins</span>
+                                                <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                                                    <span className="flex items-center gap-1.5"><Calendar size={16} /> {new Date(sess.scheduled_time).toLocaleString()}</span>
+                                                    <span className="flex items-center gap-1.5"><Clock size={16} /> {sess.program?.duration_minutes} Mins</span>
                                                 </div>
                                                 {sess.notes && (
-                                                    <p className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg border border-gray-100 italic">
-                                                        "{sess.notes}"
+                                                    <p className="text-sm text-gray-600 bg-gray-50 p-4 rounded-lg border border-gray-100 mt-2">
+                                                        {sess.notes}
                                                     </p>
                                                 )}
                                             </div>
@@ -278,7 +278,7 @@ const MentorshipDashboard = () => {
                                                     href={sess.meeting_link} 
                                                     target="_blank" 
                                                     rel="noopener noreferrer"
-                                                    className="w-full md:w-auto px-6 py-3.5 bg-gray-900 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-colors flex items-center justify-center gap-2 italic uppercase tracking-wider"
+                                                    className="w-full md:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 shadow-sm"
                                                 >
                                                     <Video size={16} />
                                                     Launch Jitsi Call
@@ -292,26 +292,26 @@ const MentorshipDashboard = () => {
 
                         {/* Active Packages */}
                         <div>
-                            <h2 className="text-2xl font-black text-gray-900 mb-6 tracking-tighter italic leading-none">Defined Packages</h2>
+                            <h2 className="text-xl font-bold text-gray-900 mb-6">Defined Packages</h2>
                             
                             {programs.length === 0 ? (
-                                <div className="bg-white p-12 text-center rounded-3xl border border-gray-100 shadow-sm text-gray-400 font-medium italic">
+                                <div className="bg-white p-12 text-center rounded-xl border border-gray-200 shadow-sm text-gray-500 font-medium">
                                     No coaching offerings defined. Use the form to define one.
                                 </div>
                             ) : (
                                 <div className="grid md:grid-cols-2 gap-6">
                                     {programs.map((prog) => (
-                                        <div key={prog.id} className="bg-white p-6 rounded-2xl border border-gray-150 border-l-8 border-l-blue-600 shadow-sm flex flex-col justify-between">
+                                        <div key={prog.id} className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
                                             <div>
-                                                <h3 className="text-xl font-black text-gray-900 tracking-tight italic mb-2 leading-tight">{prog.title}</h3>
-                                                <p className="text-xs text-gray-500 mb-6 line-clamp-3 leading-relaxed font-medium italic">{prog.description || "No description provided."}</p>
+                                                <h3 className="text-lg font-semibold text-gray-900 mb-2">{prog.title}</h3>
+                                                <p className="text-sm text-gray-600 mb-6 line-clamp-3 leading-relaxed">{prog.description || "No description provided."}</p>
                                             </div>
                                             <div className="flex justify-between items-center pt-4 border-t border-gray-100">
-                                                <div className="flex items-center gap-1.5 text-xs text-gray-400 font-bold uppercase tracking-wide">
-                                                    <Clock size={14} />
+                                                <div className="flex items-center gap-1.5 text-sm text-gray-500 font-medium">
+                                                    <Clock size={16} />
                                                     <span>{prog.duration_minutes} Mins</span>
                                                 </div>
-                                                <span className="text-lg font-black text-blue-600 italic">BWP {prog.price}</span>
+                                                <span className="text-base font-semibold text-gray-900">BWP {prog.price}</span>
                                             </div>
                                         </div>
                                     ))}
