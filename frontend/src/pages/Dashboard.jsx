@@ -9,9 +9,13 @@ import { BarChart3, BookOpen, Globe, Users, Plus, ArrowRight, Sparkles, Loader2,
 import API_BASE from '../api_config';
 import { supabase } from '../supabase';
 
+import PodcastManager from '../components/podcasts/PodcastManager';
+import EpisodeUploader from '../components/podcasts/EpisodeUploader';
+
 const Dashboard = () => {
     const [courses, setCourses] = useState([]);
-    const [activeFolder, setActiveFolder] = useState('published'); // 'published' or 'drafts'
+    const [activeFolder, setActiveFolder] = useState('published'); // 'published' or 'drafts' or 'podcasts'
+    const [activePodcast, setActivePodcast] = useState(null);
     const [realStats, setRealStats] = useState({
         totalStudents: 0,
         activeCourses: 0,
@@ -443,10 +447,32 @@ const Dashboard = () => {
                                     <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full"></div>
                                 )}
                             </button>
+                            <button
+                                onClick={() => setActiveFolder('podcasts')}
+                                className={`pb-3 text-xs font-black uppercase tracking-wider transition-all relative ${
+                                    activeFolder === 'podcasts' 
+                                    ? 'text-blue-600' 
+                                    : 'text-gray-400 hover:text-gray-600'
+                                }`}
+                            >
+                                Podcasts
+                                {activeFolder === 'podcasts' && (
+                                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full"></div>
+                                )}
+                            </button>
                         </div>
 
                         <div className="grid gap-6">
-                            {courses.filter(course => activeFolder === 'published' ? course.status === 'published' : (course.status === 'draft' || !course.status)).length > 0 ? (
+                            {activeFolder === 'podcasts' ? (
+                                <div>
+                                    <PodcastManager 
+                                        userId={profile?.id} 
+                                        token={profile?.id} 
+                                        onSelectPodcast={(p) => setActivePodcast(p)} 
+                                    />
+                                    {activePodcast && <EpisodeUploader podcastId={activePodcast.id} token={profile?.id} />}
+                                </div>
+                            ) : courses.filter(course => activeFolder === 'published' ? course.status === 'published' : (course.status === 'draft' || !course.status)).length > 0 ? (
                                 courses.filter(course => activeFolder === 'published' ? course.status === 'published' : (course.status === 'draft' || !course.status)).map((course) => (
                                     <div key={course.id} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col sm:flex-row gap-6 hover:shadow-md transition-shadow group">
                                         <div className="w-full sm:w-48 h-32 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 relative">

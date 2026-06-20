@@ -6,6 +6,11 @@ from urllib.parse import quote
 # Load env variables from backend/.env
 load_dotenv('backend/.env')
 
+try:
+    import backend.podcast_model
+except ImportError:
+    pass
+
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     print("Error: DATABASE_URL not found in backend/.env")

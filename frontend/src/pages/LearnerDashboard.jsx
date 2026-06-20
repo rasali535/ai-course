@@ -327,6 +327,37 @@ const LearnerDashboard = () => {
                                 </div>
                             )}
                         </section>
+
+                        <section className="mt-12">
+                            <div className="flex items-center justify-between mb-8">
+                                <h2 className="text-3xl font-black text-gray-900 flex items-center gap-4 italic tracking-tighter leading-none">
+                                    <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-purple-100">
+                                        <Play size={20} />
+                                    </div>
+                                    My Podcasts
+                                </h2>
+                            </div>
+                            
+                            <div className="bg-white rounded-[2rem] border border-gray-100 p-8 shadow-sm">
+                                <div className="flex flex-col md:flex-row gap-6">
+                                    <div className="w-full md:w-1/3 bg-gray-50 rounded-xl p-6 border border-gray-100 flex flex-col items-center text-center">
+                                        <div className="w-32 h-32 bg-gray-200 rounded-xl mb-4 overflow-hidden shadow-md">
+                                            <img src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80&w=200" alt="Podcast Cover" className="w-full h-full object-cover" />
+                                        </div>
+                                        <h4 className="font-black text-lg">AI Engineering Premium</h4>
+                                        <p className="text-sm text-gray-500 mt-2">Exclusive discussions on scalable AI patterns.</p>
+                                    </div>
+                                    <div className="flex-1 space-y-4">
+                                        <div className="p-4 border border-gray-100 rounded-xl hover:border-purple-200 transition-colors bg-white shadow-sm glassmorphism">
+                                            <h5 className="font-bold mb-2 text-gray-800">Ep 1: The Future of Agents</h5>
+                                            <audio controls className="w-full h-10 rounded-full" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">
+                                                Your browser does not support the audio element.
+                                            </audio>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
                     </div>
 
                     {/* Stats Sidebar */}

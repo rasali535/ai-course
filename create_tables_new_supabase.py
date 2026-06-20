@@ -10,6 +10,7 @@ import backend.sql_models
 import backend.course_model
 import backend.enrollment_model
 import backend.mentorship_model
+import backend.podcast_model
 
 def create_tables():
     password = quote("Aliana202x@")
