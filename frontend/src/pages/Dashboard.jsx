@@ -4,7 +4,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SupportChat from '../components/SupportChat';
 import { Link, useNavigate } from 'react-router-dom';
-import { BarChart3, BookOpen, Globe, Users, Plus, ArrowRight, Sparkles, Loader2, Clock, Trash2 } from 'lucide-react';
+import { BarChart3, BookOpen, Globe, Users, Plus, ArrowRight, Sparkles, Loader2, Clock, Trash2, Calendar, MessageSquare } from 'lucide-react';
 
 import API_BASE from '../api_config';
 import { supabase } from '../supabase';
@@ -385,6 +385,31 @@ const Dashboard = () => {
                         <div className="p-2 bg-orange-50 w-fit rounded-lg mb-4"><Globe className="text-orange-600" size={20} /></div>
                         <h3 className="text-xl md:text-2xl font-black text-gray-900 tracking-tighter">{realStats.siteVisits}</h3>
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Site Visits</p>
+                    </div>
+                </div>
+
+                {/* Creator Tools */}
+                <div className="mb-12">
+                    <h2 className="text-xl font-bold text-gray-900 mb-6">Creator Tools</h2>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <Link to="/creator/mentorship" className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-200 transition-all flex items-start gap-4 group">
+                            <div className="p-3 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                <Calendar size={24} />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900 mb-1">Mentorship Manager</h3>
+                                <p className="text-sm font-medium text-gray-600">Set your availability, manage programs, and review upcoming coaching sessions.</p>
+                            </div>
+                        </Link>
+                        <Link to="/community" className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-200 transition-all flex items-start gap-4 group">
+                            <div className="p-3 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                <MessageSquare size={24} />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900 mb-1">Community Hub</h3>
+                                <p className="text-sm font-medium text-gray-600">Engage with your students and moderate discussions.</p>
+                            </div>
+                        </Link>
                     </div>
                 </div>
 

@@ -4,7 +4,7 @@ import { supabase } from '../supabase';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '../components/ui/button';
-import { BookOpen, GraduationCap, Clock, CheckCircle, ChevronRight, Layout, Play, Lock, AlertCircle, Award, CreditCard, Sparkles, ArrowRight } from 'lucide-react';
+import { BookOpen, GraduationCap, Clock, CheckCircle, ChevronRight, Layout, Play, Lock, AlertCircle, Award, CreditCard, Sparkles, ArrowRight, Users, MessageSquare, Video } from 'lucide-react';
 
 const LearnerDashboard = () => {
     const [user, setUser] = useState(null);
@@ -231,6 +231,33 @@ const LearnerDashboard = () => {
                         </div>
                     </div>
                 )}
+
+                {/* Quick Access */}
+                <div className="mb-12">
+                    <h2 className="text-xl font-bold text-gray-900 mb-6">
+                        Quick Resources
+                    </h2>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <Link to="/mentorship" className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-200 transition-all flex items-start gap-4 group">
+                            <div className="p-3 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                <Video size={24} />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900 mb-1">Mentorship & Coaching</h3>
+                                <p className="text-sm font-medium text-gray-600">Book 1-on-1 coaching sessions with course creators.</p>
+                            </div>
+                        </Link>
+                        <Link to="/community" className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-200 transition-all flex items-start gap-4 group">
+                            <div className="p-3 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                <MessageSquare size={24} />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900 mb-1">Community Hub</h3>
+                                <p className="text-sm font-medium text-gray-600">Join the discussion, ask questions, and network with peers.</p>
+                            </div>
+                        </Link>
+                    </div>
+                </div>
 
                 {/* Main Content */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
